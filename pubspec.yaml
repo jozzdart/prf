@@ -1,0 +1,34 @@
+name: prf
+description: "Fast and easy access to persistent values. Just get, set, and go."
+version: 1.3.5
+homepage: https://github.com/jozzzzep/prf
+repository: https://github.com/jozzzzep/prf
+issue_tracker: https://github.com/jozzzzep/prf/issues
+topics:
+  - sharedpreferences
+  - storage
+  - state
+  - persistence
+  - flutter
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
