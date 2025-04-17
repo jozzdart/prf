@@ -1,5 +1,5 @@
 name: prf
-description: "Fast and easy access to persistent values. Just get, set, and go."
+description: "Effortless local persistence with type safety and zero boilerplate. Just get, set, and go."
 version: 1.3.5
 homepage: https://github.com/jozzzzep/prf
 repository: https://github.com/jozzzzep/prf
