@@ -2,6 +2,10 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 1.3.8
+
+- Added example file for pub.dev to showcase package usage.
+
 ## 1.3.7
 
 - Finished setting up for publishing, this package was private for too long in my repositoriee, hope you enjoy it!
