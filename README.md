@@ -18,6 +18,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Setup & Basic Usage (Step-by-Step)](#-setup--basic-usage-step-by-step)
 - [Available Methods for All `prf` Types](#-available-methods-for-all-prf-types)
 - [Supported `prf` Types](#-supported-prf-types)
+- [Migrating from SharedPreferences to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Roadmap & Future Plans](#️-roadmap--future-plans)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
 
@@ -72,21 +73,23 @@ Working with `SharedPreferences` often leads to:
   - `DateTime`, `Uint8List`, enums, and full JSON objects
 - ✅ **Built for testing** — easily reset or mock storage in tests
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
+- ✅ **Isolate-safe** — built on `SharedPreferencesAsync` for full isolate compatibility, **with caching on top**, making it faster and more ergonomic than working with raw `SharedPreferencesAsync` directly
 
 ---
 
 ### 🔁 `SharedPreferences` vs `prf`
 
-| Feature                         | `SharedPreferences` (raw)                                 | `prf`                                                           |
-| ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------- |
-| **Define Once, Reuse Anywhere** | ❌ Manual strings everywhere                              | ✅ One-line variable definition                                 |
-| **Type Safety**                 | ❌ Requires manual casting                                | ✅ Fully typed, no casting needed                               |
-| **Readability**                 | ❌ Repetitive and verbose                                 | ✅ Clear, concise, expressive                                   |
-| **Centralized Keys**            | ❌ You manage key strings                                 | ✅ Keys are defined as variables                                |
-| **Caching**                     | ❌ No built-in caching                                    | ✅ Automatic in-memory caching                                  |
-| **Lazy Initialization**         | ❌ Must await `getInstance()` manually                    | ✅ Internally managed                                           |
-| **Supports Primitives**         | ✅ Yes                                                    | ✅ Yes                                                          |
-| **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually) | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON` |
+| Feature                         | `SharedPreferences` (raw)                                                                 | `prf`                                                               |
+| ------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Define Once, Reuse Anywhere** | ❌ Manual strings everywhere                                                              | ✅ One-line variable definition                                     |
+| **Type Safety**                 | ❌ Requires manual casting                                                                | ✅ Fully typed, no casting needed                                   |
+| **Readability**                 | ❌ Repetitive and verbose                                                                 | ✅ Clear, concise, expressive                                       |
+| **Centralized Keys**            | ❌ You manage key strings                                                                 | ✅ Keys are defined as variables                                    |
+| **Caching**                     | ❌ No built-in caching                                                                    | ✅ Automatic in-memory caching                                      |
+| **Lazy Initialization**         | ❌ Must await `getInstance()` manually                                                    | ✅ Internally managed                                               |
+| **Supports Primitives**         | ✅ Yes                                                                                    | ✅ Yes                                                              |
+| **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually)                                 | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON`     |
+| **Isolate Support**             | ⚠️ Partial — only works with `SharedPreferencesAsync`, but still inherits all limitations | ✅ Full isolate-safe support with async backen and built-in caching |
 
 # 📌 Code Comparison
 
@@ -220,6 +223,97 @@ final userData = PrfJson<User>(
 ```
 
 Or use `PrfEncoded<TSource, TStore>` to define your own encoding logic (e.g., compress/encrypt/etc).
+
+# 🔁 Migrating from SharedPreferences to `prf`
+
+Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence.
+
+---
+
+### ✅ If you're already using `SharedPreferencesAsync`
+
+You can switch to `prf` with **zero configuration** — just use the same keys.
+
+#### Before (`SharedPreferencesAsync`):
+
+```dart
+final prefs = SharedPreferencesAsync();
+await prefs.setBool('dark_mode', true);
+final isDark = await prefs.getBool('dark_mode');
+```
+
+#### After (`prf`):
+
+```dart
+final darkMode = PrfBool('dark_mode');
+await darkMode.set(true);
+final isDark = await darkMode.get();
+```
+
+> ✅ **As long as you're using the same keys, your data will still be there. No migration needed.**  
+> 🧼 **Or — if you don't care about previously stored values**, you can start fresh and use `prf` types right away.  
+> They’re ready to go with clean APIs and built-in caching for all variable types (`bool`, `int`, `DateTime`, `Uint8List`, enums, and more).
+
+---
+
+### ✅ If you're using the legacy `SharedPreferences` class
+
+You can still switch to `prf` using the same keys:
+
+#### Before (`SharedPreferences`):
+
+```dart
+final prefs = await SharedPreferences.getInstance();
+await prefs.setString('username', 'Joey');
+final name = prefs.getString('username');
+```
+
+#### After (`prf`):
+
+```dart
+final username = PrfString('username');
+await username.set('Joey');
+final name = await username.get();
+```
+
+> ✅ This works as long as you're still using the same backend — either legacy or explicitly configured.  
+> 🧼 You can also start clean and let `prf` handle new storage from scratch, using only its own types.
+
+---
+
+### ⚠️ If your app is already in production using `SharedPreferences`
+
+If your app previously used `SharedPreferences` (the legacy API), and you're now using `prf` (which defaults to `SharedPreferencesAsync`):
+
+- You **must run a one-time migration** to move your data into the new backend (especially on Android, where the storage backend switches to DataStore).
+
+Run this **before any reads or writes**, ideally at app startup:
+
+```dart
+await Prf.migrateFromLegacyPrefsIfNeeded();
+```
+
+> This ensures your old values are migrated into the new system.  
+> It is safe to call multiple times — migration will only occur once.
+
+---
+
+### 🧼 Summary
+
+| Case                                   | Do you need to migrate?     | Do your keys stay the same? |
+| -------------------------------------- | --------------------------- | --------------------------- |
+| Using `SharedPreferencesAsync`         | ❌ No migration needed      | ✅ Yes                      |
+| Using `SharedPreferences` (dev only)   | ❌ No migration needed      | ✅ Yes                      |
+| Using `SharedPreferences` (production) | ✅ Yes — run migration once | ✅ Yes                      |
+| Starting fresh                         | ❌ No migration, no legacy  | 🔄 You can pick new keys    |
+
+With `prf`, you get:
+
+- 🚀 **Type-safe, reusable variables**
+- 🧠 **Cleaner architecture**
+- 🔄 **Built-in in-memory caching**
+- 🔐 **Isolate-safe behavior** with `SharedPreferencesAsync`
+- 📦 **Out-of-the-box support** for `DateTime`, `Uint8List`, enums, full models (`PrfJson<T>`), and more
 
 # 🛣️ Roadmap & Future Plans
 

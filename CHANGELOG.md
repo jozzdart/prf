@@ -2,6 +2,12 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.1.0
+
+- Added comprehensive documentation on how to migrate to `prf` for all scenarios
+- Added isolate-related information and examples to the README
+- Improved migration guidance for different use cases
+
 ## 2.0.0
 
 ### Internals migrated to SharedPreferencesAsync
