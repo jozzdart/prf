@@ -1,5 +1,5 @@
 name: prf
-description: "Effortless local persistence with type safety and zero boilerplate. Just get, set, and go."
+description: "Easily save and load values locally. Effortless local persistence with type safety and zero boilerplate. Just get, set, and go."
 version: 1.3.7
 homepage: https://github.com/jozzzzep/prf
 repository: https://github.com/jozzzzep/prf
