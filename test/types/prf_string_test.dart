@@ -1,35 +1,31 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/types/prf_string.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
 
-class PrfString extends PrfVariable<String> {
-  PrfString(String key, {String? defaultValue})
-      : super(
-          key,
-          (prefs, key) async => prefs.getString(key),
-          (prefs, key, value) async => prefs.setString(key, value),
-          defaultValue,
-        );
-}
+import '../utils/fake_prefs.dart';
 
 void main() {
   group('PrfString', () {
     const testKey = 'username';
     const testValue = 'dev_pikud';
     const defaultValue = 'default_user';
+    const sharedPreferencesOptions = SharedPreferencesOptions();
 
-    late SharedPreferences prefs;
-
-    setUp(() async {
-      SharedPreferences.setMockInitialValues({});
-      prefs = await SharedPreferences.getInstance();
-    });
+    (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
+      final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
+      SharedPreferencesAsyncPlatform.instance = store;
+      final SharedPreferencesAsync preferences = SharedPreferencesAsync();
+      return (preferences, store);
+    }
 
     test(
       'initial getValue returns null if key does not exist and no default',
       () async {
+        final (preferences, _) = getPreferences();
         final variable = PrfString(testKey);
-        final value = await variable.getValue(prefs);
+        final value = await variable.getValue(preferences);
         expect(value, isNull);
       },
     );
@@ -37,8 +33,9 @@ void main() {
     test(
       'initial getValue returns default if key does not exist and default is provided',
       () async {
+        final (preferences, _) = getPreferences();
         final variable = PrfString(testKey, defaultValue: defaultValue);
-        final value = await variable.getValue(prefs);
+        final value = await variable.getValue(preferences);
         expect(value, defaultValue);
       },
     );
@@ -46,70 +43,94 @@ void main() {
     test(
       'getValue sets the default into SharedPreferences if not already set',
       () async {
+        final (preferences, store) = getPreferences();
         final variable = PrfString(testKey, defaultValue: defaultValue);
-        await variable.getValue(prefs);
-        expect(prefs.getString(testKey), defaultValue);
+        await variable.getValue(preferences);
+        expect(await store.getString(testKey, sharedPreferencesOptions),
+            defaultValue);
       },
     );
 
     test('setValue stores the value and getValue returns it', () async {
+      final (preferences, store) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, testValue);
-      final value = await variable.getValue(prefs);
+      await variable.setValue(preferences, testValue);
+      final value = await variable.getValue(preferences);
       expect(value, testValue);
-      expect(prefs.getString(testKey), testValue);
+      expect(
+          await store.getString(testKey, sharedPreferencesOptions), testValue);
     });
 
     test('getValue caches the value and avoids re-fetching', () async {
+      final (preferences, store) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, testValue);
-      prefs.remove(testKey); // remove from prefs directly
-      final second = await variable.getValue(prefs); // should return cached
+      await variable.setValue(preferences, testValue);
+
+      // Clear the key directly from store
+      await store.clear(
+        ClearPreferencesParameters(
+          filter: PreferencesFilters(allowList: {testKey}),
+        ),
+        sharedPreferencesOptions,
+      );
+
+      final second =
+          await variable.getValue(preferences); // should return cached
       expect(second, testValue);
     });
 
     test('setValue overrides the previous value', () async {
+      final (preferences, _) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, 'first');
-      await variable.setValue(prefs, 'second');
-      final value = await variable.getValue(prefs);
+      await variable.setValue(preferences, 'first');
+      await variable.setValue(preferences, 'second');
+      final value = await variable.getValue(preferences);
       expect(value, 'second');
     });
 
     test('removeValue clears from prefs and cache', () async {
+      final (preferences, store) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, testValue);
-      await variable.removeValue(prefs);
-      expect(prefs.containsKey(testKey), isFalse);
-      final value = await variable.getValue(prefs);
+      await variable.setValue(preferences, testValue);
+      await variable.removeValue(preferences);
+      final keys = await store.getKeys(
+        GetPreferencesParameters(filter: PreferencesFilters()),
+        sharedPreferencesOptions,
+      );
+      expect(keys.contains(testKey), isFalse);
+      final value = await variable.getValue(preferences);
       expect(value, isNull);
     });
 
     test('isValueNull returns true if no value exists', () async {
+      final (preferences, _) = getPreferences();
       final variable = PrfString(testKey);
-      final isNull = await variable.isValueNull(prefs);
+      final isNull = await variable.isValueNull(preferences);
       expect(isNull, true);
     });
 
     test('isValueNull returns false if value exists', () async {
+      final (preferences, _) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, testValue);
-      final isNull = await variable.isValueNull(prefs);
+      await variable.setValue(preferences, testValue);
+      final isNull = await variable.isValueNull(preferences);
       expect(isNull, false);
     });
 
     test('setting value to empty string still works', () async {
+      final (preferences, _) = getPreferences();
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, '');
-      final value = await variable.getValue(prefs);
+      await variable.setValue(preferences, '');
+      final value = await variable.getValue(preferences);
       expect(value, '');
     });
 
     test('setting value with special characters works', () async {
+      final (preferences, _) = getPreferences();
       final special = '💡🚀✨\n\t~!@#\$%^&*()_+=-';
       final variable = PrfString(testKey);
-      await variable.setValue(prefs, special);
-      final value = await variable.getValue(prefs);
+      await variable.setValue(preferences, special);
+      final value = await variable.getValue(preferences);
       expect(value, special);
     });
   });

@@ -1,6 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prf/core/prf_variable.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
+
+import '../utils/fake_prefs.dart';
 
 class PrfStringList extends PrfVariable<List<String>> {
   PrfStringList(String key, {List<String>? defaultValue})
@@ -14,101 +18,128 @@ class PrfStringList extends PrfVariable<List<String>> {
 
 void main() {
   const testKey = 'test_string_list';
+  const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-  });
+  group('PrfStringList', () {
+    (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
+      final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
+      SharedPreferencesAsyncPlatform.instance = store;
+      final SharedPreferencesAsync preferences = SharedPreferencesAsync();
+      return (preferences, store);
+    }
 
-  test(
-    'initial get returns null when no value is set and no default provided',
-    () async {
-      final prefs = await SharedPreferences.getInstance();
+    test(
+      'initial get returns null when no value is set and no default provided',
+      () async {
+        final (preferences, _) = getPreferences();
+        final variable = PrfStringList(testKey);
+
+        final value = await variable.getValue(preferences);
+        expect(value, isNull);
+      },
+    );
+
+    test('initial get returns default value if provided', () async {
+      final (preferences, _) = getPreferences();
+      final defaultList = ['a', 'b'];
+      final variable = PrfStringList(testKey, defaultValue: defaultList);
+
+      final value = await variable.getValue(preferences);
+      expect(value, equals(defaultList));
+    });
+
+    test('set and get value works correctly', () async {
+      final (preferences, _) = getPreferences();
       final variable = PrfStringList(testKey);
 
-      final value = await variable.getValue(prefs);
-      expect(value, isNull);
-    },
-  );
+      final input = ['one', 'two', 'three'];
+      await variable.setValue(preferences, input);
+      final value = await variable.getValue(preferences);
 
-  test('initial get returns default value if provided', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final defaultList = ['a', 'b'];
-    final variable = PrfStringList(testKey, defaultValue: defaultList);
+      expect(value, equals(input));
+    });
 
-    final value = await variable.getValue(prefs);
-    expect(value, equals(defaultList));
-  });
+    test('setValue caches value for faster access', () async {
+      final (preferences, _) = getPreferences();
+      final variable = PrfStringList(testKey);
 
-  test('set and get value works correctly', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey);
+      final input = ['cached'];
+      await variable.setValue(preferences, input);
 
-    final input = ['one', 'two', 'three'];
-    await variable.setValue(prefs, input);
-    final value = await variable.getValue(prefs);
+      final value1 = await variable.getValue(preferences);
+      final value2 = await variable.getValue(preferences);
 
-    expect(value, equals(input));
-  });
+      // Should be cached, so same instance
+      expect(identical(value1, value2), isTrue);
+    });
 
-  test('setValue caches value for faster access', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey);
+    test('removeValue clears stored value and cache', () async {
+      final (preferences, store) = getPreferences();
+      final variable = PrfStringList(testKey);
 
-    final input = ['cached'];
-    await variable.setValue(prefs, input);
+      await variable.setValue(preferences, ['x']);
+      expect(await variable.getValue(preferences), isNotNull);
 
-    final value1 = await variable.getValue(prefs);
-    final value2 = await variable.getValue(prefs);
+      await variable.removeValue(preferences);
+      expect(await variable.getValue(preferences), isNull);
 
-    // Should be cached, so same instance
-    expect(identical(value1, value2), isTrue);
-  });
+      final keys = await store.getKeys(
+        GetPreferencesParameters(filter: PreferencesFilters()),
+        sharedPreferencesOptions,
+      );
+      expect(keys.contains(testKey), isFalse);
+    });
 
-  test('removeValue clears stored value and cache', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey);
+    test('isValueNull returns true if value is not set and no default',
+        () async {
+      final (preferences, _) = getPreferences();
+      final variable = PrfStringList(testKey);
 
-    await variable.setValue(prefs, ['x']);
-    expect(await variable.getValue(prefs), isNotNull);
+      expect(await variable.isValueNull(preferences), isTrue);
+    });
 
-    await variable.removeValue(prefs);
-    expect(await variable.getValue(prefs), isNull);
-  });
+    test('isValueNull returns false after setting value', () async {
+      final (preferences, _) = getPreferences();
+      final variable = PrfStringList(testKey);
 
-  test('isValueNull returns true if value is not set and no default', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey);
+      await variable.setValue(preferences, ['hello']);
+      expect(await variable.isValueNull(preferences), isFalse);
+    });
 
-    expect(await variable.isValueNull(prefs), isTrue);
-  });
+    test('getValue persists the default to SharedPreferences', () async {
+      final (preferences, store) = getPreferences();
+      final defaultValue = ['persisted'];
+      final variable = PrfStringList(testKey, defaultValue: defaultValue);
 
-  test('isValueNull returns false after setting value', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey);
+      final value = await variable.getValue(preferences);
+      expect(value, equals(defaultValue));
 
-    await variable.setValue(prefs, ['hello']);
-    expect(await variable.isValueNull(prefs), isFalse);
-  });
+      final raw = await store.getStringList(testKey, sharedPreferencesOptions);
+      expect(raw, equals(defaultValue));
+    });
 
-  test('getValue persists the default to SharedPreferences', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final defaultValue = ['persisted'];
-    final variable = PrfStringList(testKey, defaultValue: defaultValue);
+    test('setValue overrides existing default value', () async {
+      final (preferences, _) = getPreferences();
+      final variable = PrfStringList(testKey, defaultValue: ['default']);
 
-    final value = await variable.getValue(prefs);
-    expect(value, equals(defaultValue));
+      expect(await variable.getValue(preferences), equals(['default']));
 
-    final raw = prefs.getStringList(testKey);
-    expect(raw, equals(defaultValue));
-  });
+      await variable.setValue(preferences, ['new']);
+      expect(await variable.getValue(preferences), equals(['new']));
+    });
 
-  test('setValue overrides existing default value', () async {
-    final prefs = await SharedPreferences.getInstance();
-    final variable = PrfStringList(testKey, defaultValue: ['default']);
+    test('caches value after first read', () async {
+      final (preferences, store) = getPreferences();
+      final variable = PrfStringList(testKey);
 
-    expect(await variable.getValue(prefs), equals(['default']));
+      await store.setStringList(testKey, ['stored'], sharedPreferencesOptions);
 
-    await variable.setValue(prefs, ['new']);
-    expect(await variable.getValue(prefs), equals(['new']));
+      final firstRead = await variable.getValue(preferences);
+      await store.setStringList(testKey, ['changed'], sharedPreferencesOptions);
+      final secondRead = await variable.getValue(preferences);
+
+      expect(firstRead, equals(['stored']));
+      expect(secondRead, equals(['stored'])); // Should return cached value
+    });
   });
 }

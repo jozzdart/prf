@@ -39,7 +39,7 @@ class PrfDateTime extends PrfEncoded<DateTime, String> {
             buffer.setInt64(0, dateTime.millisecondsSinceEpoch, Endian.big);
             return base64Encode(buffer.buffer.asUint8List());
           },
-          getter: (prefs, key) async => prefs.getString(key),
+          getter: (prefs, key) async => await prefs.getString(key),
           setter: (prefs, key, value) async =>
               await prefs.setString(key, value),
         );

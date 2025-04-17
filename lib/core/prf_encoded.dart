@@ -25,10 +25,10 @@ class PrfEncoded<TSource, TStore> extends PrfVariable<TSource> {
     String key, {
     required Decode<TSource, TStore> from,
     required Encode<TSource, TStore> to,
-    required Future<TStore?> Function(SharedPreferences prefs, String key)
+    required Future<TStore?> Function(SharedPreferencesAsync prefs, String key)
         getter,
-    required Future<bool> Function(
-      SharedPreferences prefs,
+    required Future<void> Function(
+      SharedPreferencesAsync prefs,
       String key,
       TStore value,
     ) setter,
@@ -41,7 +41,7 @@ class PrfEncoded<TSource, TStore> extends PrfVariable<TSource> {
           },
           (prefs, key, value) async {
             final stored = to(value);
-            return setter(prefs, key, stored);
+            await setter(prefs, key, stored);
           },
           defaultValue,
         );

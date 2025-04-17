@@ -2,6 +2,79 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.0.0
+
+### Internals migrated to SharedPreferencesAsync
+
+🚨 **Behavioral Breaking Change** (no API changes)
+
+### TL;DR — Do You Need to Do Anything?
+
+- ✅ **No action needed** if:
+  - Your app is new and doesn't rely on previously stored values, or
+  - You were **already using `SharedPreferencesAsync`** — everything will continue to work seamlessly.
+- 🔁 **Run a migration** if:
+  - Your app was using `prf` prior to this version (pre-2.0.0)
+  - You want to preserve previously stored values
+
+```dart
+await Prf.migrateFromLegacyPrefsIfNeeded();
+```
+
+---
+
+### 🧠 Why this change?
+
+`prf` now uses `SharedPreferencesAsync` under the hood — the **new, isolate-safe**, officially recommended backend for shared preferences.
+
+This change future-proofs `prf` and avoids issues caused by the old `SharedPreferences` API, which:
+
+- Is being **deprecated**
+- Is **not isolate-safe**
+- Does **not guarantee disk persistence** on write ([source](https://medium.com/@thejussomaraj546/sharedpreferences-b2a36be724e6))
+
+---
+
+### 🛠 Migration Instructions
+
+If your app used `prf` previously and stored data you want to keep:
+
+```dart
+await Prf.migrateFromLegacyPrefsIfNeeded();
+```
+
+This safely copies data from the legacy storage backend to the new one.  
+It’s safe to run every time — the migration will only happen once.
+
+---
+
+### ✅ What’s new in 2.0.0:
+
+- Internals now use `SharedPreferencesAsync`
+- Full **isolate-safety**, suitable for background plugins like `firebase_messaging`
+- Removed reliance on `getInstance()` and internal platform-side caching
+- `prf` now fully controls its own cache
+- Public API is **unchanged** — `get()`, `set()`, `remove()` all still work the same
+
+---
+
+### 🔁 Key Differences
+
+| Feature                | Before (`1.x`)             | After (`2.0.0`)        |
+| ---------------------- | -------------------------- | ---------------------- |
+| Backend                | SharedPreferences (legacy) | SharedPreferencesAsync |
+| Android storage method | SharedPreferences XML      | DataStore Preferences  |
+| Isolate-safe           | ❌ No                      | ✅ Yes                 |
+
+---
+
+### 💬 Summary
+
+This is a critical under-the-hood upgrade to ensure `prf` is compatible with modern Flutter apps, isolate-safe, and ready for the future of shared preferences.
+
+If your app is new, or you don’t care about previously stored data — you're done ✅  
+If you’re upgrading and need old values — migrate once as shown above.
+
 ## 1.3.8
 
 - Added example file for pub.dev to showcase package usage.

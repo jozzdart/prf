@@ -37,7 +37,7 @@ class PrfEnum<T extends Enum> extends PrfEncoded<T, int> {
             return values[index];
           },
           to: (e) => e.index,
-          getter: (prefs, key) async => prefs.getInt(key),
+          getter: (prefs, key) async => await prefs.getInt(key),
           setter: (prefs, key, value) async => await prefs.setInt(key, value),
         );
 }

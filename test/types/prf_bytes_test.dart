@@ -3,80 +3,125 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prf/types/prf_bytes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
+
+import '../utils/fake_prefs.dart';
 
 void main() {
   const key = 'test_bytes';
+  const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  late SharedPreferences prefs;
-  late PrfBytes prfBytes;
+  group('PrfBytes', () {
+    (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
+      final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
+      SharedPreferencesAsyncPlatform.instance = store;
+      final SharedPreferencesAsync preferences = SharedPreferencesAsync();
+      return (preferences, store);
+    }
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    prefs = await SharedPreferences.getInstance();
-    prfBytes = PrfBytes(key);
-  });
+    test('Returns null when no value is set', () async {
+      final (preferences, _) = getPreferences();
+      final prfBytes = PrfBytes(key);
 
-  test('Returns null when no value is set', () async {
-    final result = await prfBytes.getValue(prefs);
-    expect(result, isNull);
-  });
+      final result = await prfBytes.getValue(preferences);
+      expect(result, isNull);
+    });
 
-  test('Can set and get Uint8List value', () async {
-    final original = Uint8List.fromList([1, 2, 3, 4, 5]);
-    final success = await prfBytes.setValue(prefs, original);
-    expect(success, true);
+    test('Can set and get Uint8List value', () async {
+      final (preferences, _) = getPreferences();
+      final prfBytes = PrfBytes(key);
 
-    final result = await prfBytes.getValue(prefs);
-    expect(result, equals(original));
-  });
+      final original = Uint8List.fromList([1, 2, 3, 4, 5]);
+      await prfBytes.setValue(preferences, original);
 
-  test('Encoded as base64 and stored as string', () async {
-    final bytes = Uint8List.fromList([100, 200, 255]);
-    final base64 = base64Encode(bytes);
+      final result = await prfBytes.getValue(preferences);
+      expect(result, equals(original));
+    });
 
-    await prfBytes.setValue(prefs, bytes);
+    test('Encoded as base64 and stored as string', () async {
+      final (preferences, store) = getPreferences();
+      final prfBytes = PrfBytes(key);
 
-    final rawStored = prefs.getString(key);
-    expect(rawStored, equals(base64));
-  });
+      final bytes = Uint8List.fromList([100, 200, 255]);
+      final base64 = base64Encode(bytes);
 
-  test('Handles corrupted base64 data gracefully', () async {
-    await prefs.setString(key, '!!not-valid-base64@@');
-    final result = await prfBytes.getValue(prefs);
-    expect(result, isNull);
-  });
+      await prfBytes.setValue(preferences, bytes);
 
-  test('Removes value correctly', () async {
-    final original = Uint8List.fromList([9, 8, 7]);
-    await prfBytes.setValue(prefs, original);
-    await prfBytes.removeValue(prefs);
+      final rawStored = await store.getString(key, sharedPreferencesOptions);
+      expect(rawStored, equals(base64));
+    });
 
-    final result = await prfBytes.getValue(prefs);
-    expect(result, isNull);
-    expect(prefs.containsKey(key), isFalse);
-  });
+    test('Handles corrupted base64 data gracefully', () async {
+      final (preferences, store) = getPreferences();
+      final prfBytes = PrfBytes(key);
 
-  test('Returns default value and stores it if not existing', () async {
-    final defaultBytes = Uint8List.fromList([1, 1, 1]);
-    final withDefault = PrfBytes(key, defaultValue: defaultBytes);
+      await store.setString(
+          key, '!!not-valid-base64@@', sharedPreferencesOptions);
+      final result = await prfBytes.getValue(preferences);
+      expect(result, isNull);
+    });
 
-    final result = await withDefault.getValue(prefs);
-    expect(result, equals(defaultBytes));
+    test('Removes value correctly', () async {
+      final (preferences, store) = getPreferences();
+      final prfBytes = PrfBytes(key);
 
-    final stored = await withDefault.getValue(prefs);
-    expect(stored, equals(defaultBytes));
-  });
+      final original = Uint8List.fromList([9, 8, 7]);
+      await prfBytes.setValue(preferences, original);
+      await prfBytes.removeValue(preferences);
 
-  test('Caches value after first fetch', () async {
-    final bytes = Uint8List.fromList([42, 42]);
-    await prefs.setString(key, base64Encode(bytes));
+      final result = await prfBytes.getValue(preferences);
+      expect(result, isNull);
 
-    final loaded1 = await prfBytes.getValue(prefs);
-    expect(loaded1, equals(bytes));
+      final keys = await store.getKeys(
+        GetPreferencesParameters(filter: PreferencesFilters()),
+        sharedPreferencesOptions,
+      );
+      expect(keys.contains(key), false);
+    });
 
-    await prefs.setString(key, base64Encode(Uint8List.fromList([0, 0])));
+    test('Returns default value and stores it if not existing', () async {
+      final (preferences, store) = getPreferences();
+      final defaultBytes = Uint8List.fromList([1, 1, 1]);
+      final prfBytes = PrfBytes(key, defaultValue: defaultBytes);
 
-    final loaded2 = await prfBytes.getValue(prefs);
-    expect(loaded2, equals(bytes), reason: 'Should return cached value');
+      final result = await prfBytes.getValue(preferences);
+      expect(result, equals(defaultBytes));
+
+      final rawStored = await store.getString(key, sharedPreferencesOptions);
+      expect(rawStored, isNotNull);
+    });
+
+    test('Caches value after first fetch', () async {
+      final (preferences, store) = getPreferences();
+      final prfBytes = PrfBytes(key);
+
+      final bytes = Uint8List.fromList([42, 42]);
+      await store.setString(key, base64Encode(bytes), sharedPreferencesOptions);
+
+      final loaded1 = await prfBytes.getValue(preferences);
+      expect(loaded1, equals(bytes));
+
+      await store.setString(key, base64Encode(Uint8List.fromList([0, 0])),
+          sharedPreferencesOptions);
+
+      final loaded2 = await prfBytes.getValue(preferences);
+      expect(loaded2, equals(bytes), reason: 'Should return cached value');
+    });
+
+    test('isValueNull returns true when no value', () async {
+      final (preferences, _) = getPreferences();
+      final prfBytes = PrfBytes(key);
+      final isNull = await prfBytes.isValueNull(preferences);
+      expect(isNull, true);
+    });
+
+    test('isValueNull returns false when value is set', () async {
+      final (preferences, _) = getPreferences();
+      final prfBytes = PrfBytes(key);
+      await prfBytes.setValue(preferences, Uint8List.fromList([1, 2, 3]));
+      final isNull = await prfBytes.isValueNull(preferences);
+      expect(isNull, false);
+    });
   });
 }

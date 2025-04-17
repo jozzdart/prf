@@ -31,8 +31,8 @@ class PrfVariable<T> {
   /// Checks if this variable exists in SharedPreferences.
   ///
   /// Returns a [Future<bool>] that completes with true if the key exists.
-  Future<bool> _exists(SharedPreferences prefs) async {
-    return prefs.containsKey(key);
+  Future<bool> _exists(SharedPreferencesAsync prefs) async {
+    return await prefs.containsKey(key);
   }
 
   /// Retrieves the current value from cache or SharedPreferences.
@@ -41,7 +41,7 @@ class PrfVariable<T> {
   /// If not cached but exists in SharedPreferences, retrieves, caches, and returns it.
   /// If not found and [defaultValue] is set, stores the default value and returns it.
   /// Returns null if no value is found and no default is set.
-  Future<T?> getValue(SharedPreferences prefs) async {
+  Future<T?> getValue(SharedPreferencesAsync prefs) async {
     if (_cachedValue != null) return _cachedValue;
 
     final exists = await _exists(prefs);
@@ -56,7 +56,7 @@ class PrfVariable<T> {
   /// Checks if the current value is null.
   ///
   /// Returns a [Future<bool>] that completes with true if the value is null.
-  Future<bool> isValueNull(SharedPreferences prefs) async {
+  Future<bool> isValueNull(SharedPreferencesAsync prefs) async {
     return await getValue(prefs) == null;
   }
 
@@ -64,17 +64,16 @@ class PrfVariable<T> {
   ///
   /// Updates the cache only if the save operation succeeds.
   /// Returns a [Future<bool>] indicating whether the operation was successful.
-  Future<bool> setValue(SharedPreferences prefs, T value) async {
-    final result = await _setter(prefs, key, value);
-    if (result) _cachedValue = value;
-    return result;
+  Future<void> setValue(SharedPreferencesAsync prefs, T value) async {
+    await _setter(prefs, key, value);
+    _cachedValue = value;
   }
 
   /// Removes the value from both the cache and SharedPreferences.
   ///
   /// Clears the cached value and removes the key from SharedPreferences.
-  Future<void> removeValue(SharedPreferences prefs) async {
-    _cachedValue = null;
+  Future<void> removeValue(SharedPreferencesAsync prefs) async {
     await prefs.remove(key);
+    _cachedValue = null;
   }
 }

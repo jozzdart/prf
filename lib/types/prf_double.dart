@@ -19,7 +19,7 @@ class PrfDouble extends PrfVariable<double> {
   PrfDouble(String key, {double? defaultValue})
       : super(
           key,
-          (prefs, key) async => prefs.getDouble(key),
+          (prefs, key) async => await prefs.getDouble(key),
           (prefs, key, value) async => await prefs.setDouble(key, value),
           defaultValue,
         );

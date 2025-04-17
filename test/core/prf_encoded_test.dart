@@ -4,16 +4,22 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prf/core/prf_encoded.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
+
+import '../utils/fake_prefs.dart';
 
 void main() {
   group('PrfEncoded<DateTime, String> (via base64)', () {
-    late SharedPreferences prefs;
     const testKey = 'test_date';
+    const sharedPreferencesOptions = SharedPreferencesOptions();
 
-    setUp(() async {
-      SharedPreferences.setMockInitialValues({});
-      prefs = await SharedPreferences.getInstance();
-    });
+    (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
+      final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
+      SharedPreferencesAsyncPlatform.instance = store;
+      final SharedPreferencesAsync preferences = SharedPreferencesAsync();
+      return (preferences, store);
+    }
 
     PrfEncoded<DateTime, String> buildDatePref({DateTime? defaultValue}) {
       return PrfEncoded<DateTime, String>(
@@ -40,11 +46,16 @@ void main() {
     }
 
     test('writes and reads a DateTime correctly', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final now = DateTime.now();
       final pref = buildDatePref();
 
-      await pref.setValue(prefs, now);
-      final result = await pref.getValue(prefs);
+      await pref.setValue(preferences, now);
+      final result = await pref.getValue(preferences);
 
       expect(result, isNotNull);
       expect(
@@ -54,65 +65,105 @@ void main() {
     });
 
     test('returns default value if key is missing', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final defaultDate = DateTime(2020, 1, 1);
       final pref = buildDatePref(defaultValue: defaultDate);
 
-      final result = await pref.getValue(prefs);
+      final result = await pref.getValue(preferences);
       expect(result, equals(defaultDate));
     });
 
     test('writes default value to prefs if key is missing', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final defaultDate = DateTime(2021, 6, 1);
       final pref = buildDatePref(defaultValue: defaultDate);
 
-      final result = await pref.getValue(prefs);
-      final stored = prefs.getString(testKey);
+      final result = await pref.getValue(preferences);
+      final stored = await store.getString(testKey, sharedPreferencesOptions);
 
       expect(result, equals(defaultDate));
       expect(stored, isNotNull);
     });
 
     test('returns null if stored base64 is corrupted', () async {
-      await prefs.setString(testKey, 'not-a-valid-base64');
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
+      await store.setString(
+          testKey, 'not-a-valid-base64', sharedPreferencesOptions);
       final pref = buildDatePref();
 
-      final result = await pref.getValue(prefs);
+      final result = await pref.getValue(preferences);
       expect(result, isNull);
     });
 
     test('removes value and clears cache', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final date = DateTime(2000, 1, 1);
       final pref = buildDatePref();
 
-      await pref.setValue(prefs, date);
-      await pref.removeValue(prefs);
+      await pref.setValue(preferences, date);
+      await pref.removeValue(preferences);
 
-      expect(prefs.containsKey(testKey), isFalse);
-      expect(await pref.getValue(prefs), isNull);
+      final keys = await store.getKeys(
+        GetPreferencesParameters(filter: PreferencesFilters()),
+        sharedPreferencesOptions,
+      );
+      expect(keys.contains(testKey), isFalse);
+      expect(await pref.getValue(preferences), isNull);
     });
 
     test('caches value after first read', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final date = DateTime(2030, 5, 1);
       final pref = buildDatePref();
 
-      await pref.setValue(prefs, date);
+      await pref.setValue(preferences, date);
 
-      final result1 = await pref.getValue(prefs);
-      await prefs.remove(testKey); // simulate external delete
+      final result1 = await pref.getValue(preferences);
+      await store.clear(
+        ClearPreferencesParameters(
+          filter: PreferencesFilters(allowList: {testKey}),
+        ),
+        sharedPreferencesOptions,
+      );
 
-      final result2 = await pref.getValue(prefs); // should return cached
+      final result2 = await pref.getValue(preferences); // should return cached
 
       expect(result1, equals(date));
       expect(result2, equals(date)); // still returned from cache
     });
 
     test('isValueNull returns true only if value is null', () async {
+      final (
+        SharedPreferencesAsync preferences,
+        FakeSharedPreferencesAsync store,
+      ) = getPreferences();
+
       final pref = buildDatePref();
 
-      expect(await pref.isValueNull(prefs), isTrue);
+      expect(await pref.isValueNull(preferences), isTrue);
 
-      await pref.setValue(prefs, DateTime.now());
-      expect(await pref.isValueNull(prefs), isFalse);
+      await pref.setValue(preferences, DateTime.now());
+      expect(await pref.isValueNull(preferences), isFalse);
     });
   });
 }

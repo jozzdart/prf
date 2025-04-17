@@ -64,7 +64,7 @@ class PrfJson<T> extends PrfEncoded<T, String> {
             }
           },
           to: (obj) => jsonEncode(toJson(obj)),
-          getter: (prefs, key) async => prefs.getString(key),
+          getter: (prefs, key) async => await prefs.getString(key),
           setter: (prefs, key, value) async =>
               await prefs.setString(key, value),
         );

@@ -32,7 +32,8 @@ class PrfBytes extends PrfEncoded<Uint8List, String> {
             }
           },
           to: (value) => base64Encode(value),
-          getter: (prefs, key) async => prefs.getString(key),
-          setter: (prefs, key, value) async => prefs.setString(key, value),
+          getter: (prefs, key) async => await prefs.getString(key),
+          setter: (prefs, key, value) async =>
+              await prefs.setString(key, value),
         );
 }

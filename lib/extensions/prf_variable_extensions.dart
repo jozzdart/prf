@@ -18,8 +18,7 @@ extension PrfVariableExtensions<T> on PrfVariable<T> {
   /// final value = await username.get();
   /// ```
   Future<T?> get() async {
-    final prefs = await Prf.getInstance();
-    return await getValue(prefs);
+    return await getValue(Prf.instance);
   }
 
   /// Sets the value for this variable in persistent storage.
@@ -32,9 +31,8 @@ extension PrfVariableExtensions<T> on PrfVariable<T> {
   /// final username = PrfString('username');
   /// await username.set('Joey');
   /// ```
-  Future<bool> set(T value) async {
-    final prefs = await Prf.getInstance();
-    return await setValue(prefs, value);
+  Future<void> set(T value) async {
+    await setValue(Prf.instance, value);
   }
 
   /// Removes the value from persistent storage.
@@ -48,8 +46,7 @@ extension PrfVariableExtensions<T> on PrfVariable<T> {
   /// await username.remove();
   /// ```
   Future<void> remove() async {
-    final prefs = await Prf.getInstance();
-    return await removeValue(prefs);
+    await removeValue(Prf.instance);
   }
 
   /// Checks if the current value is null in storage.
@@ -64,8 +61,7 @@ extension PrfVariableExtensions<T> on PrfVariable<T> {
   /// }
   /// ```
   Future<bool> isNull() async {
-    final prefs = await Prf.getInstance();
-    return await isValueNull(prefs);
+    return await isValueNull(Prf.instance);
   }
 
   /// Gets the stored value or returns a fallback if the value is null.
@@ -93,7 +89,6 @@ extension PrfVariableExtensions<T> on PrfVariable<T> {
   /// }
   /// ```
   Future<bool> existsOnPrefs() async {
-    final prefs = await Prf.getInstance();
-    return prefs.containsKey(key);
+    return await Prf.instance.containsKey(key);
   }
 }
