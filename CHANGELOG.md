@@ -2,9 +2,18 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
-## 1.3.5
+## 1.3.7
 
-### Fixed
+- Finished setting up for publishing, this package was private for too long in my repositoriee, hope you enjoy it!
+
+## 1.3.6
+
+- Added omprehensive documentation comments for the entire library.
+- Improved API reference with examples and usage notes.
+- Enhanced dartdoc coverage for all public classes and methods.
+- Better explanation of advanced features and type support.
+
+## 1.3.5
 
 - Improved `PrfDateTime` encoding reliability by enforcing endian order consistency.
 - Fixed internal handling of corrupted `base64` data for `PrfBytes`.
