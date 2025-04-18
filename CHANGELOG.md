@@ -2,6 +2,12 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.1.1
+
+### Fixed
+
+- Shortened package description in pubspec.yaml to comply with pub.dev length requirements
+
 ## 2.1.0
 
 ### Added
