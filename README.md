@@ -10,8 +10,7 @@
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Includes 10+ built-in types and utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
 
-> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` and more.  
-> And also: `PrfCooldown` `PrfRateLimiter` for persistent cooldowns and rate limiters.
+> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +10 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -261,9 +260,8 @@ await darkMode.set(true);
 final isDark = await darkMode.get();
 ```
 
-> ✅ **As long as you're using the same keys and types, your data will still be there. No migration needed.**  
-> 🧼 **Or — if you don't care about previously stored values**, you can start fresh and use `prf` types right away.  
-> They’re ready to go with clean APIs and built-in caching for all variable types (`bool`, `int`, `DateTime`, `Uint8List`, enums, and more).
+- ✅ **As long as you're using the same keys and types, your data will still be there. No migration needed.**
+- 🧼 **Or — if you don't care about previously stored values**, you can start fresh and use `prf` types right away. They’re ready to go with clean APIs and built-in caching for all variable types (`bool`, `int`, `DateTime`, `Uint8List`, enums, and more).
 
 ---
 
@@ -736,9 +734,11 @@ Storing a `User` model in raw `SharedPreferences` requires:
 ### SharedPreferences with Model:
 
 ```dart
+// Get SharedPreferences
 final prefs = await SharedPreferences.getInstance();
-
+// Encode to JSON
 final json = jsonEncode(user.toJson());
+// Set value
 await prefs.setString('user_data', json);
 
 // Read
@@ -746,7 +746,9 @@ final raw = prefs.getString('user_data');
 User? user;
 if (raw != null) {
   try {
+    // Decode JSON
     final decoded = jsonDecode(raw);
+    // Convert to User
     user = User.fromJson(decoded);
   } catch (_) {
     // fallback or error
@@ -759,6 +761,7 @@ if (raw != null) {
 ### ✅ Same Logic with `prf`
 
 ```dart
+// Define once
 final userData = PrfJson<User>(
   'user_data',
   fromJson: User.fromJson,
@@ -772,7 +775,7 @@ await userData.set(user);
 final savedUser = await userData.get(); // User?
 ```
 
-🧠 Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
+Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 ---
 
