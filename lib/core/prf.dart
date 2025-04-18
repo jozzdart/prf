@@ -7,25 +7,66 @@ import 'package:shared_preferences/util/legacy_to_async_migration_util.dart';
 /// native storage without relying on any underlying SharedPreferences cache.
 /// `prf` handles its own in-memory caching on top of this.
 abstract class Prf {
-  /// Singleton instance of [SharedPreferencesAsync].
-  static final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
+  static SharedPreferencesAsync? _overriddenPrefs;
 
   /// Private constructor to prevent instantiation.
   Prf._();
 
-  /// Returns the global [SharedPreferencesAsync] instance.
+  /// The active [SharedPreferencesAsync] instance.
   ///
-  /// All reads and writes are async and reflect the latest state from the platform.
-  static SharedPreferencesAsync get instance => _prefs;
+  /// By default, uses the singleton instance.
+  /// Can be overridden in tests with [overrideWith].
+  static SharedPreferencesAsync get instance =>
+      _overriddenPrefs ??= SharedPreferencesAsync();
 
-  /// Clears all `SharedPreferences` values.
+  /// Override the internal [SharedPreferencesAsync] instance (for testing).
   ///
-  /// Optionally pass an [allowList] to retain specific keys.
-  static Future<void> clear({Set<String>? allowList}) async {
-    await _prefs.clear(allowList: allowList);
+  /// Example:
+  /// ```dart
+  /// final fakePrefs = SharedPreferencesAsync.inMemory();
+  /// Prf.overrideWith(fakePrefs);
+  /// ```
+  static void overrideWith(SharedPreferencesAsync prefs) {
+    _overriddenPrefs = prefs;
+  }
+
+  /// Resets any test override and restores the default instance.
+  static void resetOverride() {
+    _overriddenPrefs = null;
+  }
+
+  /// Migrates data from legacy SharedPreferences to SharedPreferencesAsync.
+  ///
+  /// This method ensures that data stored in the older SharedPreferences system
+  /// is properly transferred to the new SharedPreferencesAsync system.
+  /// It only performs the migration once, tracking completion with the provided
+  /// migration key.
+  ///
+  /// Parameters:
+  /// * [migrationKey]: Key used to track whether migration has already occurred.
+  ///   Defaults to 'prf_migrated'.
+  static Future<void> migrateFromLegacyPrefsIfNeeded({
+    String migrationKey = 'prf_migrated',
+  }) async {
+    final legacy = await SharedPreferences.getInstance();
+    const sharedPreferencesOptions = SharedPreferencesOptions(); // defaults
+
+    await migrateLegacySharedPreferencesToSharedPreferencesAsyncIfNecessary(
+      legacySharedPreferencesInstance: legacy,
+      sharedPreferencesAsyncOptions: sharedPreferencesOptions,
+      migrationCompletedKey: 'migrationCompleted',
+    );
   }
 
   // --- DEPRECATED METHODS BELOW ---
+
+  /// Clears all `SharedPreferences` values.
+  /// Optionally pass an [allowList] to retain specific keys.
+  @Deprecated('Use instance.clear() instead')
+  static Future<void> clear({Set<String>? allowList}) async {
+    throw UnsupportedError(
+        'This method is deprecated. Use Prf.instance.clear() instead.');
+  }
 
   /// Cached SharedPreferences instance
   @Deprecated('Use Prf.instance instead')
@@ -86,27 +127,4 @@ abstract class Prf {
   /// false otherwise.
   @Deprecated('No longer needed with SharedPreferencesAsync')
   static bool get isInitialized => _deprecatedPrefs != null;
-
-  /// Migrates data from legacy SharedPreferences to SharedPreferencesAsync.
-  ///
-  /// This method ensures that data stored in the older SharedPreferences system
-  /// is properly transferred to the new SharedPreferencesAsync system.
-  /// It only performs the migration once, tracking completion with the provided
-  /// migration key.
-  ///
-  /// Parameters:
-  /// * [migrationKey]: Key used to track whether migration has already occurred.
-  ///   Defaults to 'prf_migrated'.
-  static Future<void> migrateFromLegacyPrefsIfNeeded({
-    String migrationKey = 'prf_migrated',
-  }) async {
-    final legacy = await SharedPreferences.getInstance();
-    const sharedPreferencesOptions = SharedPreferencesOptions(); // defaults
-
-    await migrateLegacySharedPreferencesToSharedPreferencesAsyncIfNecessary(
-      legacySharedPreferencesInstance: legacy,
-      sharedPreferencesAsyncOptions: sharedPreferencesOptions,
-      migrationCompletedKey: 'migrationCompleted',
-    );
-  }
 }
