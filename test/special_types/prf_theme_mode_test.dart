@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
-import 'package:shared_preferences_platform_interface/types.dart';
 
 import '../utils/fake_prefs.dart';
 
@@ -88,15 +87,13 @@ void main() {
     test('Caches value after first access', () async {
       final (preferences, store) = getPreferences();
       final themeModePref = PrfThemeMode(key);
-      await store.setString(
-          key, ThemeMode.dark.toString(), sharedPreferencesOptions);
+      await store.setInt(key, ThemeMode.dark.index, sharedPreferencesOptions);
 
       final value1 = await themeModePref.getValue(preferences);
       expect(value1, ThemeMode.dark);
 
       // Modify directly, should not affect cached value
-      await store.setString(
-          key, ThemeMode.light.toString(), sharedPreferencesOptions);
+      await store.setInt(key, ThemeMode.light.index, sharedPreferencesOptions);
       final value2 = await themeModePref.getValue(preferences);
       expect(value2, ThemeMode.dark); // still cached
     });
@@ -108,8 +105,8 @@ void main() {
       final first = await themeModePref.getValue(preferences);
       expect(first, ThemeMode.dark);
 
-      final raw = await store.getString(key, sharedPreferencesOptions);
-      expect(raw, ThemeMode.dark.toString());
+      final raw = await store.getInt(key, sharedPreferencesOptions);
+      expect(raw, ThemeMode.dark.index);
     });
 
     test('System theme default is persisted after first access', () async {
@@ -119,19 +116,18 @@ void main() {
       final first = await themeModePref.getValue(preferences);
       expect(first, ThemeMode.system);
 
-      final raw = await store.getString(key, sharedPreferencesOptions);
-      expect(raw, ThemeMode.system.toString());
+      final raw = await store.getInt(key, sharedPreferencesOptions);
+      expect(raw, ThemeMode.system.index);
     });
 
-    test('Handles invalid string value gracefully', () async {
+    test('Handles invalid int value gracefully', () async {
       final (preferences, store) = getPreferences();
       final themeModePref = PrfThemeMode(key);
 
-      // Store invalid value
-      await store.setString(
-          key, 'invalid_theme_mode', sharedPreferencesOptions);
+      // Store without Prf, get with Prf
+      await store.setInt(key, 0, sharedPreferencesOptions);
 
-      // Should return null or system default
+      // Should return default
       final value = await themeModePref.getValue(preferences);
       expect(value, ThemeMode.system); // Falls back to system theme
     });
@@ -155,21 +151,18 @@ void main() {
 
     test('Correctly serializes and deserializes theme mode values', () async {
       final (preferences, store) = getPreferences();
+      final themeModePref = PrfThemeMode(key);
 
       // Test each theme mode value
       for (final mode in ThemeMode.values) {
         // Clear any previous value
-        await store.clear(
-            ClearPreferencesParameters(filter: PreferencesFilters()),
-            sharedPreferencesOptions);
+        await themeModePref.removeValue(preferences);
 
-        final themeModePref = PrfThemeMode(key);
         await themeModePref.setValue(preferences, mode);
 
         // Verify raw storage format
-        final storedValue =
-            await store.getString(key, sharedPreferencesOptions);
-        expect(storedValue, mode.toString());
+        final storedValue = await store.getInt(key, sharedPreferencesOptions);
+        expect(storedValue, mode.index);
 
         // Verify retrieval
         final retrievedValue = await themeModePref.getValue(preferences);
