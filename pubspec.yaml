@@ -9,7 +9,7 @@ topics:
   - storage
   - state
   - persistence
-  - flutter
+  - local-storage
 
 environment:
   sdk: ^3.5.0
