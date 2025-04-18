@@ -2,6 +2,33 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.1.0
+
+### Added
+
+- **`PrfCooldown`** utility for managing persistent cooldown periods with built-in tracking and duration handling
+- **`PrfRateLimiter`** industry-grade token bucket limiter using `prf` types for rolling-rate restrictions (e.g. `1000 actions per 15 minutes`)
+- **New typed variables**:
+  - `PrfTheme` – store theme mode (`light`, `dark`, `system`)
+  - `PrfDuration` – store `Duration` as microseconds
+  - `PrfBigInt` – store `BigInt` as a string
+- `removeAll()` method in `PrfCooldown` and `PrfRateLimiter` to clear all related sub-keys
+- `overrideWith()` and `resetOverride()` methods in `Prf` to inject custom `SharedPreferencesAsync` instance for testing
+- Detailed migration documentation for:
+  - Migrating from `SharedPreferences`
+  - Migrating from `SharedPreferencesAsync`
+  - Migrating from legacy `prf`
+- README coverage for isolate support and compatibility
+
+### Changed
+
+- Internal singleton of `Prf` now supports override injection for better testability
+- Updated comparison table in README to highlight isolate safety, caching, and type support
+
+### Fixed
+
+- Deprecated `Prf.clear(...)` to discourage unintentional global wipes — use `Prf.instance.clear()` instead for clarity and safety
+
 ## 2.0.0
 
 ### Internals migrated to SharedPreferencesAsync

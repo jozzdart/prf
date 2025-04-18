@@ -1,5 +1,5 @@
 import 'package:prf/core/prf_variable.dart';
-import 'package:prf/services/prf.dart';
+import 'package:prf/core/prf.dart';
 
 /// Extensions on [PrfVariable] that provide convenient methods for accessing
 /// and manipulating persisted values.
