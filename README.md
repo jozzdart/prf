@@ -522,12 +522,16 @@ final limiter = PrfRateLimiter('chat_send', maxTokens: 100, refillDuration: Dura
 You can then use:
 
 - `tryConsume()` — Tries to use 1 token; returns `true` if allowed, or `false` if rate-limited
+- `isLimitedNow()` — Returns `true` if no tokens are currently available
+- `isReady()` — Returns `true` if at least one token is available
 - `getAvailableTokens()` — Returns the current number of usable tokens (calculated live)
 - `timeUntilNextToken()` — Returns a `Duration` until at least one token will be available
 - `nextAllowedTime()` — Returns the exact `DateTime` when a token will be available
 - `reset()` — Resets to full token count and updates last refill to now
 - `removeAll()` — Deletes all limiter state (for testing/debugging)
 - `anyStateExists()` — Returns `true` if limiter data exists in storage
+- `runIfAllowed(action)` — Runs a callback if allowed, otherwise returns `null`
+- `debugStats()` — Returns detailed internal stats for logging and debugging
 
 The limiter uses fractional tokens internally to maintain precise refill rates, even across app restarts. No timers or background services required — it just works.
 

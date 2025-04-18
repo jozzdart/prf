@@ -309,5 +309,160 @@ void main() {
       // But next attempt should fail again
       expect(await limiter.tryConsume(), isFalse);
     });
+
+    test('isLimitedNow returns correct status', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final limiter = PrfRateLimiter(
+        testPrefix,
+        maxTokens: 3,
+        refillDuration: Duration(seconds: 6),
+      );
+
+      // Initially not limited
+      expect(await limiter.isLimitedNow(), isFalse);
+
+      // Consume all tokens
+      await limiter.tryConsume();
+      await limiter.tryConsume();
+      await limiter.tryConsume();
+
+      // Should be limited now
+      expect(await limiter.isLimitedNow(), isTrue);
+
+      // Wait for token refill
+      await Future.delayed(Duration(seconds: 2));
+
+      // Should not be limited anymore
+      expect(await limiter.isLimitedNow(), isFalse);
+    });
+
+    test('isReady returns opposite of isLimitedNow', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final limiter = PrfRateLimiter(
+        testPrefix,
+        maxTokens: 2,
+        refillDuration: Duration(seconds: 4),
+      );
+
+      // Initially ready
+      expect(await limiter.isReady(), isTrue);
+
+      // Consume all tokens
+      await limiter.tryConsume();
+      await limiter.tryConsume();
+
+      // Should not be ready
+      expect(await limiter.isReady(), isFalse);
+
+      // This should match the inverse of isLimitedNow
+      expect(await limiter.isReady(), equals(!(await limiter.isLimitedNow())));
+    });
+
+    test('runIfAllowed executes function when tokens available', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final limiter = PrfRateLimiter(
+        testPrefix,
+        maxTokens: 2,
+        refillDuration: Duration(seconds: 4),
+      );
+
+      // Function should execute when tokens available
+      bool functionExecuted = false;
+      final result = await limiter.runIfAllowed(() async {
+        functionExecuted = true;
+        return 'success';
+      });
+
+      expect(functionExecuted, isTrue);
+      expect(result, equals('success'));
+
+      // Consume remaining token
+      await limiter.tryConsume();
+
+      // Function should not execute when no tokens available
+      functionExecuted = false;
+      final result2 = await limiter.runIfAllowed(() async {
+        functionExecuted = true;
+        return 'success';
+      });
+
+      expect(functionExecuted, isFalse);
+      expect(result2, isNull);
+    });
+
+    test('nextAllowedTime returns correct DateTime', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final limiter = PrfRateLimiter(
+        testPrefix,
+        maxTokens: 2,
+        refillDuration: Duration(seconds: 10), // 0.2 tokens per second
+      );
+
+      // When tokens available, should be now
+      final now = DateTime.now();
+      final nextTime = await limiter.nextAllowedTime();
+      expect(nextTime.difference(now).inSeconds, lessThanOrEqualTo(1));
+
+      // Consume all tokens
+      await limiter.tryConsume();
+      await limiter.tryConsume();
+
+      // Next allowed time should be in the future
+      final nextTimeAfterConsumption = await limiter.nextAllowedTime();
+      expect(nextTimeAfterConsumption.isAfter(DateTime.now()), isTrue);
+
+      // Should be roughly 5 seconds in the future (for 1 token at 0.2 tokens/sec)
+      final diff =
+          nextTimeAfterConsumption.difference(DateTime.now()).inSeconds;
+      expect(diff, greaterThan(3));
+      expect(diff, lessThan(7));
+    });
+
+    test('debugStats returns correct statistics', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final limiter = PrfRateLimiter(
+        testPrefix,
+        maxTokens: 5,
+        refillDuration: Duration(seconds: 10),
+      );
+
+      // Get initial stats
+      final initialStats = await limiter.debugStats();
+      expect(initialStats.maxTokens, equals(5.0));
+      expect(initialStats.refillDuration, equals(Duration(seconds: 10)));
+      expect(initialStats.tokens, equals(5.0));
+      expect(initialStats.refillRatePerMs, equals(5.0 / 10000));
+      expect(initialStats.cappedTokenCount, equals(5.0));
+
+      // Add a small delay to ensure timestamps will be different
+      await Future.delayed(Duration(milliseconds: 5));
+
+      // Consume some tokens
+      await limiter.tryConsume();
+      await limiter.tryConsume();
+
+      // Check stats after consumption
+      final statsAfterConsumption = await limiter.debugStats();
+      expect(statsAfterConsumption.tokens, closeTo(3.0, 0.1));
+
+      // Stats lastRefill should be updated
+      expect(statsAfterConsumption.lastRefill.isAfter(initialStats.lastRefill),
+          isTrue);
+    });
   });
 }

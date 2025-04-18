@@ -171,13 +171,15 @@ void main() {
       final (preferences, _) = getPreferences();
       Prf.overrideWith(preferences);
 
-      final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 10));
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 5));
 
       await cooldown.activateCooldown();
+      await Future.delayed(Duration(milliseconds: 100));
       final percent = await cooldown.percentRemaining();
 
       expect(percent < 1.0, true);
-      expect(percent > 0.9, true); // Allow small time difference
+      expect(percent > 0.8,
+          true); // Allow larger time difference for test execution
     });
 
     test('percentRemaining decreases over time', () async {
@@ -295,6 +297,88 @@ void main() {
       // Should complete after ~500ms
       expect(stopwatch.elapsed >= Duration(milliseconds: 450), true);
       expect(stopwatch.elapsed < Duration(milliseconds: 800), true);
+    });
+
+    test('tryActivate returns true when cooldown is not active', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
+
+      // Should return true when cooldown is not active
+      final result = await cooldown.tryActivate();
+      expect(result, true);
+
+      // Cooldown should now be active
+      expect(await cooldown.isCooldownActive(), true);
+      expect(await cooldown.getActivationCount(), 1);
+    });
+
+    test('tryActivate returns false when cooldown is active', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
+
+      // Activate cooldown first
+      await cooldown.activateCooldown();
+      expect(await cooldown.isCooldownActive(), true);
+
+      // Should return false when cooldown is already active
+      final result = await cooldown.tryActivate();
+      expect(result, false);
+
+      // Activation count should not have changed
+      expect(await cooldown.getActivationCount(), 1);
+    });
+
+    test('removeAll removes all stored values', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
+
+      // Set up some data
+      await cooldown.activateCooldown();
+      expect(await cooldown.anyStateExists(), true);
+
+      // Remove all data
+      await cooldown.removeAll();
+
+      // Verify everything is removed
+      expect(await cooldown.anyStateExists(), false);
+      expect(await cooldown.getLastActivationTime(), isNull);
+      expect(await cooldown.getActivationCount(), 0);
+    });
+
+    test('anyStateExists reports correct state', () async {
+      Prf.resetOverride();
+      final (preferences, _) = getPreferences();
+      Prf.overrideWith(preferences);
+
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
+
+      // Initially nothing should exist
+      expect(await cooldown.anyStateExists(), false);
+
+      // After activation, state should exist
+      await cooldown.activateCooldown();
+      expect(await cooldown.anyStateExists(), true);
+
+      // After reset, state should still exist (activation count)
+      await cooldown.reset();
+      expect(await cooldown.anyStateExists(), true);
+
+      // After complete reset, state should still exist (with count = 0)
+      await cooldown.completeReset();
+      expect(await cooldown.anyStateExists(), true);
+
+      // After removeAll, nothing should exist
+      await cooldown.removeAll();
+      expect(await cooldown.anyStateExists(), false);
     });
   });
 }

@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
+
+part 'prf_rate_limit_stats.dart';
 
 /// A robust, industry-grade token bucket rate limiter using `prf`.
 ///
@@ -20,6 +23,7 @@ class PrfRateLimiter {
 
   final PrfDouble _tokenCount;
   final PrfDateTime _lastRefill;
+  final Lock _lock = Lock();
 
   /// Creates a new rate limiter with the specified prefix and configuration.
   ///
@@ -35,30 +39,66 @@ class PrfRateLimiter {
         _lastRefill = PrfDateTime('prf_${prefix}_rate_last_refill',
             defaultValue: DateTime.now());
 
+  /// Returns `true` if the limiter is currently rate-limited (no token available).
+  ///
+  /// This is equivalent to checking if `getAvailableTokens() < 1`.
+  Future<bool> isLimitedNow() async {
+    final available = await getAvailableTokens();
+    return available < 1;
+  }
+
+  /// Returns `true` if the limiter has at least one token available.
+  ///
+  /// This is the opposite of [isLimitedNow] and is provided as a convenience method.
+  Future<bool> isReady() async {
+    return !(await isLimitedNow());
+  }
+
   /// Attempts to consume 1 token.
   ///
   /// Returns `true` if the action is allowed (token consumed), or `false` if rate limited.
   ///
   /// This method automatically handles token refill based on elapsed time since the last check.
-  Future<bool> tryConsume() async {
-    final now = DateTime.now();
-    final tokens = await _tokenCount.getOrFallback(maxTokens.toDouble());
-    final last = await _lastRefill.getOrFallback(now);
+  /// Attempts to consume 1 token atomically.
+  Future<bool> tryConsume() => _lock.synchronized(() async {
+        final now = DateTime.now();
+        final tokens = await _tokenCount.getOrFallback(maxTokens.toDouble());
+        final last = await _lastRefill.getOrFallback(now);
 
-    final elapsedMs = now.difference(last).inMilliseconds;
-    final refillRatePerMs = maxTokens / refillDuration.inMilliseconds;
-    final refilledTokens = tokens + (elapsedMs * refillRatePerMs);
-    final newTokenCount = min(maxTokens.toDouble(), refilledTokens);
+        final elapsedMs = now.difference(last).inMilliseconds;
+        final refillRatePerMs = maxTokens / refillDuration.inMilliseconds;
+        final refilledTokens = tokens + (elapsedMs * refillRatePerMs);
+        final newTokenCount = min(maxTokens.toDouble(), refilledTokens);
 
-    if (newTokenCount >= 1) {
-      await _tokenCount.set(newTokenCount - 1);
-      await _lastRefill.set(now);
-      return true;
-    } else {
-      await _tokenCount.set(newTokenCount); // update even if not consumed
-      await _lastRefill.set(now);
-      return false;
+        if (newTokenCount >= 1) {
+          await _tokenCount.set(newTokenCount - 1);
+          await _lastRefill.set(now);
+          return true;
+        } else {
+          await _tokenCount.set(newTokenCount);
+          await _lastRefill.set(now);
+          return false;
+        }
+      });
+
+  /// Executes the provided action if a token is available, otherwise returns null.
+  ///
+  /// This is a convenience method that combines [tryConsume] with executing an action.
+  /// If a token is available, it will be consumed and the action will be executed.
+  /// If no token is available, null will be returned without executing the action.
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await limiter.runIfAllowed(() async {
+  ///   return await api.sendMessage(text);
+  /// });
+  /// // result will be null if rate limited
+  /// ```
+  Future<T?> runIfAllowed<T>(Future<T> Function() action) async {
+    if (await tryConsume()) {
+      return await action();
     }
+    return null;
   }
 
   /// Gets the number of tokens currently available.
@@ -126,5 +166,27 @@ class PrfRateLimiter {
   Future<DateTime> nextAllowedTime() async {
     final remaining = await timeUntilNextToken();
     return DateTime.now().add(remaining);
+  }
+
+  /// Returns detailed stats useful for debugging and logging.
+  Future<PrfRateLimiterStats> debugStats() async {
+    final now = DateTime.now();
+    final tokens = await _tokenCount.getOrFallback(maxTokens.toDouble());
+    final last = await _lastRefill.getOrFallback(now);
+    final elapsedMs = now.difference(last).inMilliseconds;
+    final refillRatePerMs = maxTokens / refillDuration.inMilliseconds;
+    final refilledTokens = tokens + (elapsedMs * refillRatePerMs);
+    final cappedTokenCount = min(maxTokens.toDouble(), refilledTokens);
+
+    return PrfRateLimiterStats(
+      tokens: tokens,
+      lastRefill: last,
+      maxTokens: maxTokens.toDouble(),
+      refillDuration: refillDuration,
+      now: now,
+      refillRatePerMs: refillRatePerMs,
+      refilledTokens: refilledTokens,
+      cappedTokenCount: cappedTokenCount,
+    );
   }
 }
