@@ -19,7 +19,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Setup & Basic Usage (Step-by-Step)](#-setup--basic-usage-step-by-step)
 - [Available Methods for All `prf` Types](#-available-methods-for-all-prf-types)
 - [Supported `prf` Types](#-supported-prf-types)
-- [Migrating from SharedPreferences to `prf`](#-migrating-from-sharedpreferences-to-prf)
+- [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Persistent Services & Utilities](#️-persistent-services--utilities)
 - [Roadmap & Future Plans](#️-roadmap--future-plans)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
@@ -44,7 +44,7 @@ Or set it:
 await username.set('Joey');
 ```
 
-That’s it. You're done. Works with [all `prf` Types!](#-supported-prf-types)
+That’s it. You're done. Works with [all `prf` Types!](#-available-methods-for-all-prf-types)
 
 ---
 
@@ -67,7 +67,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Type-safe** — no casting, no runtime surprises
 - ✅ **Automatic caching** — values are stored in memory after the first read
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
-- ✅ **Supports more than just primitives** — [10+ types](#-supported-prf-types) without counting utilities.
+- ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types) without counting utilities.
 - ✅ **Built for testing** — easily reset or mock storage in tests
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
 - ✅ **Isolate-safe** — built on `SharedPreferencesAsync` for full isolate compatibility, **with caching on top**, making it faster and more ergonomic than working with raw `SharedPreferencesAsync` directly
@@ -237,7 +237,7 @@ Or use `PrfEncoded<TSource, TStore>` to define your own encoding logic (e.g., co
 
 Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence — without losing any existing data.
 
-In fact, you can use `prf` with your current keys and values out of the box, preserving all previously stored data. But while backwards compatibility is supported, we recommend reviewing [all built-in types and utilities](#-supported-prf-types) that `prf` provides — such as `PrfDuration`, `PrfCooldown`, and `PrfRateLimiter` — which may offer a cleaner, more powerful way to structure your logic going forward, without relying on legacy patterns or custom code.
+In fact, you can use `prf` with your current keys and values out of the box, preserving all previously stored data. But while backwards compatibility is supported, we recommend reviewing [all built-in types and utilities](#-available-methods-for-all-prf-types) that `prf` provides — such as `PrfDuration`, `PrfCooldown`, and `PrfRateLimiter` — which may offer a cleaner, more powerful way to structure your logic going forward, without relying on legacy patterns or custom code.
 
 ---
 
