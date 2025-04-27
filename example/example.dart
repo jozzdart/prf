@@ -5,8 +5,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Define variables (globally if you like)
-  final username = PrfString('username');
-  final highScore = PrfInt('high_score', defaultValue: 0);
+  final username = Prf<String>('username');
+  final highScore = Prf<int>('high_score', defaultValue: 0);
 
   final currentUser = PrfJson<User>(
     'current_user',
