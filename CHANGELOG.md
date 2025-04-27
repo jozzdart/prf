@@ -2,6 +2,30 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.1
+
+### Added
+
+- **Instant Cached Access**:  
+  Introduced `.cachedValue` getter for `Prf<T>` objects to access the last loaded value **without async**.
+- **`Prf.value<T>()` factory**:  
+  Added `Prf.value<T>()` constructor that automatically loads the stored value into memory, making `.cachedValue` immediately usable after initialization.
+
+  Example:
+
+  ```dart
+  final score = await Prf.value<int>('user_score');
+  print(score.cachedValue); // No async needed
+  ```
+
+  - After calling `Prf.value()`, you can access `.cachedValue` instantly.
+  - If no value exists, `.cachedValue` will be the `defaultValue` or `null`.
+
+### Notes
+
+- This feature improves UI performance where fast access to settings or preferences is needed.
+- Reminder: `Prf<T>` is optimized for speed but **not isolate-safe** — use `Prfy<T>` when isolate safety is required.
+
 ## 2.2.0
 
 ### Major Update
