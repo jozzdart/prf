@@ -10,8 +10,7 @@
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Includes 10+ built-in types and utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
 
-> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` and more.  
-> And also: `PrfCooldown` `PrfRateLimiter` for persistent cooldowns and rate limiters.
+> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +10 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -19,17 +18,19 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Setup & Basic Usage (Step-by-Step)](#-setup--basic-usage-step-by-step)
 - [Available Methods for All `prf` Types](#-available-methods-for-all-prf-types)
 - [Supported `prf` Types](#-supported-prf-types)
+- [Accessing `prf` Without async](#-accessing-prf-without-async)
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Persistent Services & Utilities](#️-persistent-services--utilities)
 - [Roadmap & Future Plans](#️-roadmap--future-plans)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
+- [Adding Custom Prfs (Advanced)](#️-how-to-add-a-custom-prf-type-advanced)
 
 # ⚡ Define → Get → Set → Done
 
 Just define your variable once — no strings, no boilerplate:
 
 ```dart
-final username = PrfString('username');
+final username = Prf<String>('username');
 ```
 
 Then get it:
@@ -44,7 +45,7 @@ Or set it:
 await username.set('Joey');
 ```
 
-That’s it. You're done. Works with [all `prf` Types!](#-available-methods-for-all-prf-types)
+That’s it. You're done. Works with [all supported `prf` Types!](#-available-methods-for-all-prf-types)
 
 ---
 
@@ -65,32 +66,32 @@ Working with `SharedPreferences` often leads to:
 
 - ✅ **Single definition** — just one line to define, then reuse anywhere
 - ✅ **Type-safe** — no casting, no runtime surprises
-- ✅ **Automatic caching** — values are stored in memory after the first read
+- ✅ **Automatic caching** — with `Prf<T>` for fast access
+- ✅ **True isolate safety** — with `Prfy<T>`
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
-- ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types) without counting utilities.
-- ✅ **Built for testing** — easily reset or mock storage in tests
+- ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
+- ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
-- ✅ **Isolate-safe** — built on `SharedPreferencesAsync` for full isolate compatibility, **with caching on top**, making it faster and more ergonomic than working with raw `SharedPreferencesAsync` directly
 - ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
-  - `PrfCooldown` – for managing cooldown windows (e.g. daily rewards)
-  - `PrfRateLimiter` – token-bucket limiter for X actions per time window (e.g. 1000 messages per 15 minutes)
+  - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
+  - `PrfRateLimiter` – token-bucket limiter (e.g. 1000 actions per 15 minutes)
 
 ---
 
 ### 🔁 `SharedPreferences` vs `prf`
 
-| Feature                         | `SharedPreferences` (raw)                                                                 | `prf`                                                               |
-| ------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Define Once, Reuse Anywhere** | ❌ Manual strings everywhere                                                              | ✅ One-line variable definition                                     |
-| **Type Safety**                 | ❌ Requires manual casting                                                                | ✅ Fully typed, no casting needed                                   |
-| **Readability**                 | ❌ Repetitive and verbose                                                                 | ✅ Clear, concise, expressive                                       |
-| **Centralized Keys**            | ❌ You manage key strings                                                                 | ✅ Keys are defined as variables                                    |
-| **Caching**                     | ❌ No built-in caching                                                                    | ✅ Automatic in-memory caching                                      |
-| **Lazy Initialization**         | ❌ Must await `getInstance()` manually                                                    | ✅ Internally managed                                               |
-| **Supports Primitives**         | ✅ Yes                                                                                    | ✅ Yes                                                              |
-| **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually)                                 | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON`     |
-| **Special Persistent Services** | ❌ None                                                                                   | ✅ `PrfCooldown`, `PrfRateLimiter`, and more in the future          |
-| **Isolate Support**             | ⚠️ Partial — only works with `SharedPreferencesAsync`, but still inherits all limitations | ✅ Full isolate-safe support with async backen and built-in caching |
+| Feature                         | `SharedPreferences` (raw)                                                 | `prf`                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Define Once, Reuse Anywhere** | ❌ Manual strings everywhere                                              | ✅ One-line variable definition                                                                      |
+| **Type Safety**                 | ❌ Requires manual casting                                                | ✅ Fully typed, no casting needed                                                                    |
+| **Readability**                 | ❌ Repetitive and verbose                                                 | ✅ Clear, concise, expressive                                                                        |
+| **Centralized Keys**            | ❌ You manage key strings                                                 | ✅ Keys are defined as variables                                                                     |
+| **Lazy Initialization**         | ❌ Must await `getInstance()` manually                                    | ✅ Internally managed                                                                                |
+| **Supports Primitives**         | ✅ Yes                                                                    | ✅ Yes                                                                                               |
+| **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually)                 | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON`                                      |
+| **Special Persistent Services** | ❌ None                                                                   | ✅ `PrfCooldown`, `PrfRateLimiter`, and more in the future                                           |
+| **Isolate Support**             | ⚠️ Partial — must manually choose between caching or no-caching APIs      | ✅ `Prfy<T>` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe)      |
+| **Caching**                     | ✅ Yes (`SharedPreferencesWithCache`) or ❌ No (`SharedPreferencesAsync`) | ✅ Automatic in-memory caching with `Prf<T>`<br>✅ No caching with `Prfy<T>` for true isolate-safety |
 
 # 📌 Code Comparison
 
@@ -102,21 +103,31 @@ await prefs.setString('username', 'Joey');
 final username = prefs.getString('username') ?? '';
 ```
 
-**Using `prf`:**
+**Using `prf` with cached access (`Prf<T>`):**
 
 ```dart
-final username = PrfString('username');
+final username = Prf<String>('username');
 await username.set('Joey');
 final name = await username.get();
 ```
+
+**Using `prf` with isolate-safe access (`Prfy<T>`):**
+
+```dart
+final username = Prfy<String>('username');
+await username.set('Joey');
+final name = await username.get();
+```
+
+---
 
 If you're tired of:
 
 - Duplicated string keys
 - Manual casting and null handling
-- Scattered boilerplate
+- Scattered async boilerplate
 
-Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence**.
+Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `Prfy`).
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
@@ -141,7 +152,7 @@ You only need **one line** to create a saved variable.
 For example, to save how many coins a player has:
 
 ```dart
-final playerCoins = PrfInt('player_coins', defaultValue: 0);
+final playerCoins = Prf<int>('player_coins', defaultValue: 0);
 ```
 
 > This means:
@@ -173,50 +184,87 @@ print('Coins: $coins'); // 100
 
 That’s it! 🎉 You don’t need to manage string keys or setup anything. Just define once, then use anywhere in your app.
 
+Perfect, I understand exactly the direction you're aiming for.  
+Since now `Prf<T>` and `Prfy<T>` **both** support all simple types **directly**, and only **enum** and **JSON** use separate classes,  
+we can **simplify** the structure and make it much **cleaner** — more modern, professional, and easier to read.
+
+Here’s the **new updated version** you asked for:
+
 # 🧰 Available Methods for All `prf` Types
 
-| Method                    | Description                                      |
-| ------------------------- | ------------------------------------------------ |
-| `get()`                   | Returns the current value (cached or from disk). |
-| `set(value)`              | Saves the value and updates the cache.           |
-| `remove()`                | Deletes the value from storage and memory.       |
-| `isNull()`                | Returns `true` if the value is `null`.           |
-| `getOrFallback(fallback)` | Returns the value or a fallback if `null`.       |
-| `existsOnPrefs()`         | Checks if the key exists in SharedPreferences.   |
+All `prf` types (both `Prf<T>` and `Prfy<T>`) support the following methods:
 
-> Available on all `prf` types — consistent, type-safe, and ready anywhere in your app.
+| Method                    | Description                                               |
+| ------------------------- | --------------------------------------------------------- |
+| `get()`                   | Returns the current value (cached or from disk).          |
+| `set(value)`              | Saves the value and updates the cache (if applicable).    |
+| `remove()`                | Deletes the value from storage (and cache if applicable). |
+| `isNull()`                | Returns `true` if the value is `null`.                    |
+| `getOrFallback(fallback)` | Returns the value or a fallback if `null`.                |
+| `existsOnPrefs()`         | Checks if the key exists in storage.                      |
+
+> ✅ Available on **all `Prf<T>` and `Prfy<T>` types** — consistent, type-safe, and ready to use anywhere in your app.
+
+---
 
 # 🔤 Supported `prf` Types
 
-Define your variable once with a type that fits your use case. Every type supports `.get()`, `.set()`, `.remove()`, and more — all cached, type-safe, and ready to use.
+You can define persistent variables for any of these types using either `Prf<T>` (cached) or `Prfy<T>` (isolate-safe, no cache):
 
-| Basic Types    | Class           | Common Use Cases                                      |
-| -------------- | --------------- | ----------------------------------------------------- |
-| `bool`         | `PrfBool`       | Feature flags, settings toggles                       |
-| `int`          | `PrfInt`        | Counters, scores, timestamps                          |
-| `double`       | `PrfDouble`     | Ratings, sliders, precise values                      |
-| `String`       | `PrfString`     | Usernames, tokens, IDs                                |
-| `List<String>` | `PrfStringList` | Tags, recent items, multi-select options              |
-| `enum`         | `PrfEnum<T>`    | Typed modes, states, user roles                       |
-| `T (via JSON)` | `PrfJson<T>`    | Full model objects with `toJson` / `fromJson`         |
-| `Uint8List`    | `PrfBytes`      | Binary data (images, keys, QR codes)                  |
-| `DateTime`     | `PrfDateTime`   | Timestamps, cooldowns, scheduled actions              |
-| `Duration`     | `PrfDuration`   | Intervals, delays, expiry timers                      |
-| `BigInt`       | `PrfBigInt`     | Cryptographic data, large counters, blockchain tokens |
-| `ThemeMode`    | `PrfThemeMode`  | Light/dark/system theme settings                      |
+- `bool`
+- `int`
+- `double`
+- `String`
+- `List<String>`
+- `Uint8List` (binary data)
+- `DateTime`
+- `Duration`
+- `BigInt`
 
-### ✅ All Types Support:
+### Specialized Types
 
-- `get()` – read the current value (cached or from disk)
-- `set(value)` – write and cache the value
-- `remove()` – delete from disk and cache
-- `isNull()` – check if null
-- `getOrFallback(default)` – safely access with fallback
-- `existsOnPrefs()` – check if a key is stored
+For enums and custom JSON models, use the dedicated classes:
+
+- `PrfEnum<T>` / `PrfyEnum<T>` — for enum values
+- `PrfJson<T>` / `PrfyJson<T>` — for custom model objects
+
+### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
+
+- `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
+- `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+
+---
+
+### 🎯 Example: Persisting an Enum
+
+Define your enum:
+
+```dart
+enum AppTheme { light, dark, system }
+```
+
+Store it using `PrfEnum` (cached) or `PrfyEnum` (isolate-safe):
+
+```dart
+final appTheme = PrfEnum<AppTheme>(
+  'app_theme',
+  values: AppTheme.values,
+);
+```
+
+Usage:
+
+```dart
+final currentTheme = await appTheme.get(); // AppTheme.light / dark / system
+await appTheme.set(AppTheme.dark);
+```
+
+---
 
 ### 🧠 Custom Types? No Problem
 
-Want to persist something more complex? Use `PrfJson<T>` with any model that supports `toJson` and `fromJson`.
+Want to persist something more complex?  
+Use `PrfJson<T>` with any model that supports `toJson` and `fromJson`:
 
 ```dart
 final userData = PrfJson<User>(
@@ -226,12 +274,38 @@ final userData = PrfJson<User>(
 );
 ```
 
-Or use `PrfEncoded<TSource, TStore>` to define your own encoding logic (e.g., compress/encrypt/etc).
+Need full control? You can create fully custom persistent types by:
 
-### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
+- Extending `CachedPrfObject<T>` (for cached access)
+- Or extending `BasePrfObject<T>` (for isolate-safe direct access)
+- And defining your own `PrfEncodedAdapter<T>` for custom serialization, compression, or encryption.
 
-- `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
-- `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+# ⚡ Accessing `prf` Without Async
+
+If you want instant, non-async access to a stored value, you can pre-load it into memory.
+Use `Prf.value<T>()` to create a `prf` object that automatically initializes and caches the value.
+
+Example:
+
+```dart
+final userScore = await Prf.value<int>('user_score');
+
+// Later, anywhere — no async needed:
+print(userScore.cachedValue); // e.g., 42
+```
+
+- `Prf.value<T>()` reads the stored value once and caches it.
+- You can access `.cachedValue` instantly after initialization.
+- If no value was stored yet, `.cachedValue` will be the `defaultValue` or `null`.
+
+✅ Best for fast access inside UI widgets, settings screens, and forms.  
+⚠️ Not suitable for use across isolates — use `Prfy<T>` if you need isolate safety.
+
+### 🚀 Quick Summary
+
+- `await Prf.value<T>()` → loads and caches the value.
+- `.cachedValue` → direct, instant access afterward.
+- No async needed for future reads!
 
 # 🔁 Migrating from SharedPreferences to `prf`
 
@@ -256,14 +330,13 @@ final isDark = await prefs.getBool('dark_mode');
 #### After (`prf`):
 
 ```dart
-final darkMode = PrfBool('dark_mode');
+final darkMode = Prf<bool>('dark_mode');
 await darkMode.set(true);
 final isDark = await darkMode.get();
 ```
 
-> ✅ **As long as you're using the same keys and types, your data will still be there. No migration needed.**  
-> 🧼 **Or — if you don't care about previously stored values**, you can start fresh and use `prf` types right away.  
-> They’re ready to go with clean APIs and built-in caching for all variable types (`bool`, `int`, `DateTime`, `Uint8List`, enums, and more).
+- ✅ **As long as you're using the same keys and types, your data will still be there. No migration needed.**
+- 🧼 **Or — if you don't care about previously stored values**, you can start fresh and use `prf` types right away. They’re ready to go with clean APIs and built-in caching for all variable types (`bool`, `int`, `DateTime`, `Uint8List`, enums, and more).
 
 ---
 
@@ -282,7 +355,7 @@ final name = prefs.getString('username');
 #### After (`prf`):
 
 ```dart
-final username = PrfString('username');
+final username = Prf<String>('username');
 await username.set('Joey');
 final name = await username.get();
 ```
@@ -304,7 +377,7 @@ If your app previously used `SharedPreferences` (the legacy API), and you're now
 Run this **before any reads or writes**, ideally at app startup:
 
 ```dart
-await Prf.migrateFromLegacyPrefsIfNeeded();
+await PrfService.migrateFromLegacyPrefsIfNeeded();
 ```
 
 > This ensures your old values are migrated into the new system.  
@@ -381,8 +454,6 @@ You can then use:
 - `getActivationCount()` — Returns the total number of activations
 - `removeAll()` — Deletes all stored values (for testing/debugging)
 - `anyStateExists()` — Returns `true` if any cooldown data exists in storage
-
-Here’s the **tutorial section** for `PrfCooldown`, production-grade, clear, and aligned with your README style:
 
 ---
 
@@ -504,7 +575,7 @@ It handles:
 
 - Token-based rate limiting
 - Automatic time-based token refill
-- Persistent state using `prf` types (`PrfDouble`, `PrfDateTime`)
+- Persistent state using `prf` types (`Prfy<double>`, `Prfy<DateTime>`)
 - Async-safe, isolate-compatible behavior with built-in caching
 
 Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
@@ -629,6 +700,11 @@ final exists = await limiter.anyStateExists();
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
 
+Here’s the **short, clean, production-ready README section** you asked for:  
+professional style, fits your updated `Prf.value<T>()` and `cachedValue` functionality:
+
+---
+
 # 🛣️ Roadmap & Future Plans
 
 `prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
@@ -706,9 +782,9 @@ final signupDate = signupDateStr != null
 ### ✅ Example: Same Logic with `prf`
 
 ```dart
-final username = PrfString('username');
-final isFirstLaunch = PrfBool('is_first_launch', defaultValue: true);
-final signupDate = PrfDateTime('signup_date');
+final username = Prf<String>('username');
+final isFirstLaunch = Prf<bool>('is_first_launch', defaultValue: true);
+final signupDate = Prf<DateTime>('signup_date');
 
 // Save
 await username.set('Joey');
@@ -736,9 +812,11 @@ Storing a `User` model in raw `SharedPreferences` requires:
 ### SharedPreferences with Model:
 
 ```dart
+// Get SharedPreferences
 final prefs = await SharedPreferences.getInstance();
-
+// Encode to JSON
 final json = jsonEncode(user.toJson());
+// Set value
 await prefs.setString('user_data', json);
 
 // Read
@@ -746,7 +824,9 @@ final raw = prefs.getString('user_data');
 User? user;
 if (raw != null) {
   try {
+    // Decode JSON
     final decoded = jsonDecode(raw);
+    // Convert to User
     user = User.fromJson(decoded);
   } catch (_) {
     // fallback or error
@@ -759,6 +839,7 @@ if (raw != null) {
 ### ✅ Same Logic with `prf`
 
 ```dart
+// Define once
 final userData = PrfJson<User>(
   'user_data',
   fromJson: User.fromJson,
@@ -772,7 +853,7 @@ await userData.set(user);
 final savedUser = await userData.get(); // User?
 ```
 
-🧠 Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
+Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 ---
 
@@ -785,6 +866,79 @@ final savedUser = await userData.get(); // User?
 - ✅ Supports advanced types: `DateTime`, `Uint8List`, `enum`, `JSON`
 - ✅ Automatic caching — fast access after first read
 - ✅ Test-friendly — easily reset, mock, or inspect values
+
+---
+
+# 🛠️ How to Add a Custom `prf` Type (Advanced)
+
+For most use cases, you can simply use the built-in `PrfEnum<T>`, `PrfJson<T>`, `PrfyEnum<T>`, or `PrfyJson<T>` to persist enums and custom models with minimal setup.
+
+This guide shows how to manually create a custom type adapter — useful when you need full control over encoding, compression, or storage behavior.
+
+Expanding `prf` is easy:  
+Just create a simple adapter and use it like any native type!
+
+## 1. Create Your Class
+
+```dart
+class Color {
+  final int r, g, b;
+  const Color(this.r, this.g, this.b);
+
+  Map<String, dynamic> toJson() => {'r': r, 'g': g, 'b': b};
+  factory Color.fromJson(Map<String, dynamic> json) => Color(
+    json['r'] ?? 0, json['g'] ?? 0, json['b'] ?? 0,
+  );
+}
+```
+
+### 2. Create an Adapter
+
+```dart
+import 'dart:convert';
+import 'package:prf/prf.dart';
+
+class ColorAdapter extends PrfEncodedAdapter<Color, String> {
+  @override
+  Color? decode(String? stored) =>
+      stored == null ? null : Color.fromJson(jsonDecode(stored));
+
+  @override
+  String encode(Color value) => jsonEncode(value.toJson());
+}
+```
+
+### 3. (Optional) Register It
+
+```dart
+PrfAdapterMap.instance.register<Color>(ColorAdapter());
+```
+
+> So you can use `Prf<Color>` without passing an adapter manually.
+
+### 4. Use It!
+
+```dart
+final favoriteColor = Prf<Color>('favorite_color');
+
+await favoriteColor.set(Color(255, 0, 0));
+final color = await favoriteColor.get();
+
+print(color?.r); // 255
+```
+
+For isolate-safe persistence:
+
+```dart
+final safeColor = Prfy<Color>('favorite_color');
+```
+
+## Summary
+
+- Create your class.
+- Create a `PrfEncodedAdapter`.
+- (Optional) Register it.
+- Use `Prf<T>` or `Prfy<T>` anywhere.
 
 ---
 

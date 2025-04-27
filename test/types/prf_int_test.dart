@@ -1,19 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 
 import '../utils/fake_prefs.dart';
 
-class PrfInt extends PrfVariable<int> {
-  PrfInt(String key, {int? defaultValue})
-      : super(
-          key,
-          (prefs, key) async => prefs.getInt(key),
-          (prefs, key, value) async => prefs.setInt(key, value),
-          defaultValue,
-        );
+class PrfInt extends Prf<int> {
+  PrfInt(super.key, {super.defaultValue});
 }
 
 void main() {

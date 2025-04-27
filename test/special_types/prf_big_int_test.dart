@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/special_types/prf_big_int.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
@@ -12,7 +12,7 @@ void main() {
   const key = 'test_big_int';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfBigInt', () {
+  group('Prf<BigInt>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -22,7 +22,7 @@ void main() {
 
     test('returns null if not set and no default provided', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       final value = await bigIntPref.getValue(preferences);
       expect(value, isNull);
     });
@@ -30,14 +30,14 @@ void main() {
     test('returns default if not set and default provided', () async {
       final (preferences, _) = getPreferences();
       final defaultValue = BigInt.parse('12345678901234567890');
-      final bigIntPref = PrfBigInt(key, defaultValue: defaultValue);
+      final bigIntPref = Prf<BigInt>(key, defaultValue: defaultValue);
       final value = await bigIntPref.getValue(preferences);
       expect(value, defaultValue);
     });
 
     test('sets and gets value correctly', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       final testValue =
           BigInt.parse('9876543210987654321098765432109876543210');
       await bigIntPref.setValue(preferences, testValue);
@@ -47,7 +47,7 @@ void main() {
 
     test('handles zero correctly', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       await bigIntPref.setValue(preferences, BigInt.zero);
       final value = await bigIntPref.getValue(preferences);
       expect(value, BigInt.zero);
@@ -55,7 +55,7 @@ void main() {
 
     test('handles negative values correctly', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       final testValue = BigInt.parse('-123456789012345678901234567890');
       await bigIntPref.setValue(preferences, testValue);
       final value = await bigIntPref.getValue(preferences);
@@ -64,7 +64,7 @@ void main() {
 
     test('updates existing value', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       final initialValue = BigInt.parse('11111111111111111111');
       final updatedValue = BigInt.parse('22222222222222222222');
 
@@ -79,7 +79,7 @@ void main() {
 
     test('removes value properly', () async {
       final (preferences, store) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       await bigIntPref.setValue(preferences, BigInt.from(42));
 
       await bigIntPref.removeValue(preferences);
@@ -95,14 +95,14 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       final isNull = await bigIntPref.isValueNull(preferences);
       expect(isNull, true);
     });
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
       await bigIntPref.setValue(preferences, BigInt.from(1));
       final isNull = await bigIntPref.isValueNull(preferences);
       expect(isNull, false);
@@ -110,7 +110,7 @@ void main() {
 
     test('caches value after first access', () async {
       final (preferences, store) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
 
       // Set the value directly in the store
       final testValue = BigInt.parse('987654321');
@@ -176,7 +176,7 @@ void main() {
     test('default value is persisted after first access', () async {
       final (preferences, store) = getPreferences();
       final defaultValue = BigInt.parse('314159265358979323846');
-      final bigIntPref = PrfBigInt(key, defaultValue: defaultValue);
+      final bigIntPref = Prf<BigInt>(key, defaultValue: defaultValue);
 
       final first = await bigIntPref.getValue(preferences);
       expect(first, defaultValue);
@@ -198,7 +198,7 @@ void main() {
 
     test('handles extremely large numbers', () async {
       final (preferences, _) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
 
       // A 1024-bit number
       final testValue = BigInt.parse(
@@ -215,7 +215,7 @@ void main() {
 
     test('handles corrupted base64 data gracefully', () async {
       final (preferences, store) = getPreferences();
-      final bigIntPref = PrfBigInt(key);
+      final bigIntPref = Prf<BigInt>(key);
 
       await store.setString(
           key, '!!not-valid-base64@@', sharedPreferencesOptions);

@@ -2,8 +2,6 @@ import 'dart:math';
 import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
 
-part 'prf_rate_limit_stats.dart';
-
 /// A robust, industry-grade token bucket rate limiter using `prf`.
 ///
 /// Limits actions to a defined number within a given duration,
@@ -21,8 +19,8 @@ class PrfRateLimiter {
   /// The time period over which tokens are fully replenished.
   final Duration refillDuration;
 
-  final PrfDouble _tokenCount;
-  final PrfDateTime _lastRefill;
+  final Prfy<double> _tokenCount;
+  final Prfy<DateTime> _lastRefill;
   final Lock _lock = Lock();
 
   /// Creates a new rate limiter with the specified prefix and configuration.
@@ -34,9 +32,9 @@ class PrfRateLimiter {
     prefix, {
     required this.maxTokens,
     required this.refillDuration,
-  })  : _tokenCount = PrfDouble('prf_${prefix}_rate_tokens',
+  })  : _tokenCount = Prfy<double>('prf_${prefix}_rate_tokens',
             defaultValue: maxTokens.toDouble()),
-        _lastRefill = PrfDateTime('prf_${prefix}_rate_last_refill',
+        _lastRefill = Prfy<DateTime>('prf_${prefix}_rate_last_refill',
             defaultValue: DateTime.now());
 
   /// Returns `true` if the limiter is currently rate-limited (no token available).
@@ -188,5 +186,44 @@ class PrfRateLimiter {
       refilledTokens: refilledTokens,
       cappedTokenCount: cappedTokenCount,
     );
+  }
+}
+
+class PrfRateLimiterStats {
+  final double tokens;
+  final DateTime lastRefill;
+  final double maxTokens;
+  final Duration refillDuration;
+  final DateTime now;
+  final double refillRatePerMs;
+  final double refilledTokens;
+  final double cappedTokenCount;
+
+  const PrfRateLimiterStats({
+    required this.tokens,
+    required this.lastRefill,
+    required this.maxTokens,
+    required this.refillDuration,
+    required this.now,
+    required this.refillRatePerMs,
+    required this.refilledTokens,
+    required this.cappedTokenCount,
+  });
+
+  @override
+  String toString() {
+    return '''
+--- RateLimiterStats: ---
+-------------------------
+    tokens stored:       $tokens
+    last refill:         $lastRefill
+    now:                 $now
+    elapsed ms:          ${now.difference(lastRefill).inMilliseconds}
+    refill rate/ms:      $refillRatePerMs
+    refilled tokens:     $refilledTokens
+    capped token count:  $cappedTokenCount
+    max tokens:          $maxTokens
+    refill duration:     ${refillDuration.inMilliseconds} ms
+''';
   }
 }

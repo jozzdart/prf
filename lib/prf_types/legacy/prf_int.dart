@@ -1,4 +1,4 @@
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/prf_types/prf.dart';
 
 /// A type-safe wrapper for storing and retrieving integer values in SharedPreferences.
 ///
@@ -10,16 +10,12 @@ import 'package:prf/core/prf_variable.dart';
 /// await playerScore.set(100);
 /// final score = await playerScore.get(); // 100
 /// ```
-class PrfInt extends PrfVariable<int> {
+@Deprecated(
+    'Use Prf<int> instead for cached access or Prfy<int> for isolate-safe access')
+class PrfInt extends Prf<int> {
   /// Creates a new integer preference variable with the specified [key].
   ///
   /// The optional [defaultValue] is returned if the preference is not found
   /// or if an error occurs while reading.
-  PrfInt(String key, {int? defaultValue})
-      : super(
-          key,
-          (prefs, key) async => await prefs.getInt(key),
-          (prefs, key, value) async => await prefs.setInt(key, value),
-          defaultValue,
-        );
+  PrfInt(super.key, {super.defaultValue});
 }

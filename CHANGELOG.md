@@ -2,6 +2,100 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.1
+
+### Added
+
+- **Instant Cached Access**:  
+  Introduced `.cachedValue` getter for `Prf<T>` objects to access the last loaded value **without async**.
+- **`Prf.value<T>()` factory**:  
+  Added `Prf.value<T>()` constructor that automatically loads the stored value into memory, making `.cachedValue` immediately usable after initialization.
+
+  Example:
+
+  ```dart
+  final score = await Prf.value<int>('user_score');
+  print(score.cachedValue); // No async needed
+  ```
+
+  - After calling `Prf.value()`, you can access `.cachedValue` instantly.
+  - If no value exists, `.cachedValue` will be the `defaultValue` or `null`.
+
+### Notes
+
+- This feature improves UI performance where fast access to settings or preferences is needed.
+- Reminder: `Prf<T>` is optimized for speed but **not isolate-safe** — use `Prfy<T>` when isolate safety is required.
+
+## 2.2.0
+
+### Major Update
+
+- **Unified API**:  
+  Consolidated all legacy `PrfX` classes (`PrfBool`, `PrfInt`, `PrfDouble`, etc.) into a single generic structure:
+
+  - `Prf<T>` — **Cached**, fast access (not isolate-safe by design).
+  - `Prfy<T>` — **Isolate-safe**, no internal caching, always reads from storage.
+
+- **Adapter-Based Architecture**:  
+  Added modular adapter system (`PrfAdapter<T>`) with built-in adapters for:
+
+  - Primitive types (`bool`, `int`, `double`, `String`, `List<String>`)
+  - Encoded types (`DateTime`, `Duration`, `BigInt`, `Uint8List`, Enums, JSON)
+
+- **Backward Compatibility**:  
+  Legacy `PrfX` classes remain available, internally powered by the new adapter system.
+
+- **Extensibility**:  
+  Developers can register custom type adapters via `PrfAdapterMap.instance.register()`.
+
+- **Internal Reorganization**:  
+  Major file structure improvements (`core/`, `prf_types/`, `prfy_types/`, `services/`) for better modularity and future expansion.
+
+### Fixed
+
+- **Isolate Safety Issue (Issue #3)** ([stuartmorgan-g](https://github.com/stuartmorgan-g)):  
+  Previously, `prf` incorrectly advertised full isolate safety while using internal caching.  
+  This release properly separates behavior:
+
+  - `Prfy<T>` values are **truly isolate-safe**, always reading from `SharedPreferencesAsync` without cache.
+  - `Prf<T>` values **use caching** for performance, but are **not isolate-safe** across isolates (expected Dart behavior).
+  - README and comparison tables have been updated to accurately reflect these distinctions and explain the cache behavior clearly.
+
+- Corrected claims about `shared_preferences` caching behavior — acknowledged that `SharedPreferencesWithCache` **does** have Dart-side caching.
+
+- Clarified that naive Dart caching, like in `Prf<T>`, shares the same limitations as `SharedPreferencesWithCache` regarding multi-isolate consistency.
+
+### Added
+
+- `PrfyJson<T>` — Safe JSON object storage across isolates.
+- `PrfyEnum<T>` — Safe enum storage across isolates.
+- `PrfJson<T>` — Cached JSON object storage.
+- `PrfEnum<T>` — Cached enum storage.
+- `DateTimeAdapter`, `DurationAdapter`, `BigIntAdapter`, `BytesAdapter` for encoded types.
+- `PrfCooldown` and `PrfRateLimiter` now internally use the new types.
+
+### Changed
+
+- Updated README to accurately describe:
+
+  - Isolate-safe usage patterns (`Prfy`).
+  - Cache-optimized usage patterns (`Prf`).
+  - Caching behavior and limitations compared to `shared_preferences`.
+
+- Improved internal documentation on the adapter registration system and best practices.
+
+## 2.1.3
+
+- Fixed issues related to pub.dev formatting
+
+## 2.1.2
+
+- Fixed problems with README formatting
+
+## 2.1.1
+
+- Shortened package description in pubspec.yaml to comply with pub.dev length requirements
+
 ## 2.1.0
 
 ### Added
@@ -124,28 +218,20 @@ If you’re upgrading and need old values — migrate once as shown above.
 
 ## 1.3.4
 
-### Added
-
 - `PrfJson<T>` class for storing JSON-serializable objects using `jsonEncode`/`jsonDecode`.
 - Graceful fallback when decoding invalid JSON or mismatched types.
 
 ## 1.3.3
-
-### Added
 
 - `PrfDateTime` using base64-encoded 64-bit integers to persist `DateTime` values with millisecond precision.
 - Integrated with `PrfEncoded` to reduce redundant logic.
 
 ## 1.3.2
 
-### Added
-
 - `PrfEncoded<TSource, TStore>` for reusable value transformation between domain objects and SharedPreferences-compatible types.
 - Supports encoding formats like JSON, binary, and base64.
 
 ## 1.3.1
-
-### Improved
 
 - Added `_exists` check inside `getValue()` to allow fallback to `defaultValue` if key is missing.
 - Improved caching logic to avoid unnecessary SharedPreferences reads.
@@ -163,8 +249,6 @@ If you’re upgrading and need old values — migrate once as shown above.
 - Removed requirement to manually call `Prf.init()`. Now fully lazy-loaded via `Prf.getInstance()`.
 
 ## 1.2.1
-
-### Fixed
 
 - Minor internal refactor to prevent reinitializing `_initFuture` in `Prf`.
 
@@ -187,30 +271,19 @@ If you’re upgrading and need old values — migrate once as shown above.
 
 ## 1.1.0
 
-### Added
-
-- `typedef` support for `SharedPrefsGetter<T>` and `SharedPrefsSetter<T>`.
+- Added `typedef` support for `SharedPrefsGetter<T>` and `SharedPrefsSetter<T>`.
 - Simplified `PrfVariable<T>` constructor by using delegates instead of abstract getter/setter classes.
-
-### Changed
-
 - Removed old abstract classes `PrfGetter` and `PrfSetter` in favor of inline functions.
 
 ## 1.0.2
-
-### Improved
 
 - Updated internal caching system for better performance on repeated `.get()` calls.
 
 ## 1.0.1
 
-### Added
-
 - Added `maybePrefs` and `isInitialized` to `Prf` for improved control over initialization state.
 
 ## 1.0.0
-
-### Initial Release
 
 - `PrfVariable<T>` base class with typed getter/setter support.
 - Manual `SharedPreferences` injection.

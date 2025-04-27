@@ -1,4 +1,4 @@
-import 'package:prf/core/prf_encoded.dart';
+import 'package:prf/prf.dart';
 
 /// A type-safe wrapper for storing and retrieving Duration values in SharedPreferences.
 ///
@@ -14,19 +14,12 @@ import 'package:prf/core/prf_encoded.dart';
 /// await timeout.set(Duration(seconds: 60));
 /// final duration = await timeout.get(); // Duration(seconds: 60)
 /// ```
-class PrfDuration extends PrfEncoded<Duration, int> {
+@Deprecated(
+    'Use Prf<Duration> instead for cached access or Prfy<Duration> for isolate-safe access')
+class PrfDuration extends Prf<Duration> {
   /// Creates a new Duration preference variable with the specified [key].
   ///
   /// The optional [defaultValue] is returned if the preference is not found
   /// or if an error occurs while reading.
-  PrfDuration(super.key, {super.defaultValue})
-      : super(
-          from: (micros) {
-            if (micros == null) return null;
-            return Duration(microseconds: micros);
-          },
-          to: (duration) => duration.inMicroseconds,
-          getter: (prefs, key) async => await prefs.getInt(key),
-          setter: (prefs, key, value) async => await prefs.setInt(key, value),
-        );
+  PrfDuration(super.key, {super.defaultValue});
 }

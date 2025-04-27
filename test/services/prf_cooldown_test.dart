@@ -17,9 +17,9 @@ void main() {
     }
 
     test('isCooldownActive returns false when not activated', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
       final isActive = await cooldown.isCooldownActive();
@@ -31,9 +31,9 @@ void main() {
     });
 
     test('isCooldownActive returns true right after activation', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
       await cooldown.activateCooldown();
@@ -46,9 +46,9 @@ void main() {
     });
 
     test('isExpired returns true when not activated', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
       final isExpired = await cooldown.isExpired();
@@ -60,9 +60,9 @@ void main() {
     });
 
     test('isExpired returns false right after activation', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
       await cooldown.activateCooldown();
@@ -71,9 +71,9 @@ void main() {
     });
 
     test('activateCooldown increments activation count', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -87,9 +87,9 @@ void main() {
     });
 
     test('reset clears activation time but keeps count', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -107,9 +107,9 @@ void main() {
     });
 
     test('completeReset clears activation time and resets count', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -124,9 +124,9 @@ void main() {
     });
 
     test('timeRemaining returns zero if not activated', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -134,9 +134,9 @@ void main() {
     });
 
     test('timeRemaining decreases over time', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 10));
 
@@ -153,9 +153,9 @@ void main() {
     });
 
     test('secondsRemaining returns correct integer value', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 30));
 
@@ -167,9 +167,9 @@ void main() {
     });
 
     test('percentRemaining starts at close to 1.0', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 5));
 
@@ -183,9 +183,9 @@ void main() {
     });
 
     test('percentRemaining decreases over time', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 5));
 
@@ -201,9 +201,9 @@ void main() {
     });
 
     test('getLastActivationTime returns null initially', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -212,9 +212,9 @@ void main() {
     });
 
     test('getLastActivationTime returns timestamp after activation', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -223,6 +223,7 @@ void main() {
       final afterActivation = DateTime.now();
 
       final lastTime = await cooldown.getLastActivationTime();
+
       expect(lastTime, isNotNull);
       expect(
           lastTime!.isAfter(beforeActivation) ||
@@ -235,9 +236,9 @@ void main() {
     });
 
     test('getEndTime returns null initially', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -246,9 +247,9 @@ void main() {
     });
 
     test('getEndTime returns correct end time', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final duration = Duration(hours: 2);
       final cooldown = PrfCooldown(testPrefix, duration: duration);
@@ -266,9 +267,9 @@ void main() {
     });
 
     test('whenExpires completes quickly when cooldown is not active', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -281,9 +282,9 @@ void main() {
     });
 
     test('whenExpires completes when cooldown expires', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown =
           PrfCooldown(testPrefix, duration: Duration(milliseconds: 500));
@@ -300,9 +301,9 @@ void main() {
     });
 
     test('tryActivate returns true when cooldown is not active', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -316,9 +317,9 @@ void main() {
     });
 
     test('tryActivate returns false when cooldown is active', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -335,9 +336,9 @@ void main() {
     });
 
     test('removeAll removes all stored values', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
@@ -355,9 +356,9 @@ void main() {
     });
 
     test('anyStateExists reports correct state', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final cooldown = PrfCooldown(testPrefix, duration: Duration(hours: 1));
 
