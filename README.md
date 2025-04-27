@@ -18,6 +18,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Setup & Basic Usage (Step-by-Step)](#-setup--basic-usage-step-by-step)
 - [Available Methods for All `prf` Types](#-available-methods-for-all-prf-types)
 - [Supported `prf` Types](#-supported-prf-types)
+- [Accessing `prf` Without async](#-accessing-prf-without-async)
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Persistent Services & Utilities](#️-persistent-services--utilities)
 - [Roadmap & Future Plans](#️-roadmap--future-plans)
@@ -278,6 +279,33 @@ Need full control? You can create fully custom persistent types by:
 - Extending `CachedPrfObject<T>` (for cached access)
 - Or extending `BasePrfObject<T>` (for isolate-safe direct access)
 - And defining your own `PrfEncodedAdapter<T>` for custom serialization, compression, or encryption.
+
+# ⚡ Accessing `prf` Without Async
+
+If you want instant, non-async access to a stored value, you can pre-load it into memory.
+Use `Prf.value<T>()` to create a `prf` object that automatically initializes and caches the value.
+
+Example:
+
+```dart
+final userScore = await Prf.value<int>('user_score');
+
+// Later, anywhere — no async needed:
+print(userScore.cachedValue); // e.g., 42
+```
+
+- `Prf.value<T>()` reads the stored value once and caches it.
+- You can access `.cachedValue` instantly after initialization.
+- If no value was stored yet, `.cachedValue` will be the `defaultValue` or `null`.
+
+✅ Best for fast access inside UI widgets, settings screens, and forms.  
+⚠️ Not suitable for use across isolates — use `Prfy<T>` if you need isolate safety.
+
+### 🚀 Quick Summary
+
+- `await Prf.value<T>()` → loads and caches the value.
+- `.cachedValue` → direct, instant access afterward.
+- No async needed for future reads!
 
 # 🔁 Migrating from SharedPreferences to `prf`
 
@@ -671,6 +699,11 @@ final exists = await limiter.anyStateExists();
 ```
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
+
+Here’s the **short, clean, production-ready README section** you asked for:  
+professional style, fits your updated `Prf.value<T>()` and `cachedValue` functionality:
+
+---
 
 # 🛣️ Roadmap & Future Plans
 
