@@ -1,20 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 
 import '../utils/fake_prefs.dart';
 
 // PrfDouble class under test
-class PrfDouble extends PrfVariable<double> {
-  PrfDouble(String key, {double? defaultValue})
-      : super(
-          key,
-          (prefs, key) async => prefs.getDouble(key),
-          (prefs, key, value) async => await prefs.setDouble(key, value),
-          defaultValue,
-        );
+class PrfDouble extends Prf<double> {
+  PrfDouble(super.key, {super.defaultValue});
 }
 
 void main() {

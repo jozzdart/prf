@@ -14,8 +14,8 @@ import 'package:prf/prf.dart';
 /// }
 /// ```
 class PrfCooldown {
-  final PrfDateTime _lastActivated;
-  final PrfInt _activationCount;
+  final Prfy<DateTime> _lastActivated;
+  final Prfy<int> _activationCount;
 
   /// The cooldown duration.
   final Duration duration;
@@ -25,8 +25,8 @@ class PrfCooldown {
   /// - The [prefix] is used to create unique keys for storing cooldown data.
   /// - The [duration] specifies how long the cooldown should last.
   PrfCooldown(String prefix, {required this.duration})
-      : _lastActivated = PrfDateTime('prf_${prefix}_cd_date_time'),
-        _activationCount = PrfInt('prf_${prefix}_cd_count', defaultValue: 0);
+      : _lastActivated = Prfy<DateTime>('prf_${prefix}_cd_date_time'),
+        _activationCount = Prfy<int>('prf_${prefix}_cd_count', defaultValue: 0);
 
   /// Returns true if the cooldown is still active.
   ///

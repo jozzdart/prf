@@ -1,4 +1,4 @@
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/prf_types/prf.dart';
 
 /// A type-safe wrapper for storing and retrieving string values in SharedPreferences.
 ///
@@ -10,16 +10,12 @@ import 'package:prf/core/prf_variable.dart';
 /// await username.set('Joey');
 /// final name = await username.get(); // 'Joey'
 /// ```
-class PrfString extends PrfVariable<String> {
+@Deprecated(
+    'Use Prf<String> instead for cached access or Prfy<String> for isolate-safe access')
+class PrfString extends Prf<String> {
   /// Creates a new string preference variable with the specified [key].
   ///
   /// The optional [defaultValue] is returned if the preference is not found
   /// or if an error occurs while reading.
-  PrfString(String key, {String? defaultValue})
-      : super(
-          key,
-          (prefs, key) async => await prefs.getString(key),
-          (prefs, key, value) async => await prefs.setString(key, value),
-          defaultValue,
-        );
+  PrfString(super.key, {super.defaultValue});
 }

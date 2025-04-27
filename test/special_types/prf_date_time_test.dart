@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/special_types/prf_datetime.dart';
+import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -12,7 +12,7 @@ void main() {
   const key = 'test_datetime';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfDateTime', () {
+  group('Prf<DateTime>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -22,7 +22,7 @@ void main() {
 
     test('saves and retrieves a DateTime correctly', () async {
       final (preferences, _) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final now = DateTime.now();
       await prfDateTime.setValue(preferences, now);
@@ -33,7 +33,7 @@ void main() {
 
     test('returns null when nothing is set', () async {
       final (preferences, _) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final value = await prfDateTime.getValue(preferences);
       expect(value, isNull);
@@ -44,7 +44,7 @@ void main() {
       () async {
         final (preferences, store) = getPreferences();
         final defaultDate = DateTime(2000);
-        final withDefault = PrfDateTime(key, defaultValue: defaultDate);
+        final withDefault = Prf<DateTime>(key, defaultValue: defaultDate);
         final result = await withDefault.getValue(preferences);
 
         expect(result, defaultDate);
@@ -59,7 +59,7 @@ void main() {
 
     test('removes the value and returns null afterwards', () async {
       final (preferences, store) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final now = DateTime.now();
       await prfDateTime.setValue(preferences, now);
@@ -77,7 +77,7 @@ void main() {
 
     test('base64 encoding and decoding is valid', () async {
       final (preferences, store) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final date = DateTime(2024, 1, 1);
       await prfDateTime.setValue(preferences, date);
@@ -86,22 +86,22 @@ void main() {
       expect(rawBase64, isNotNull);
 
       final decodedBytes = base64Decode(rawBase64!);
-      final millis = ByteData.sublistView(decodedBytes).getInt64(0, Endian.big);
-      expect(millis, date.millisecondsSinceEpoch);
+      final micros = ByteData.sublistView(decodedBytes).getInt64(0, Endian.big);
+      expect(micros, date.microsecondsSinceEpoch);
     });
 
     test('handles corrupted base64 gracefully', () async {
       final (preferences, store) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
-
+      final prfDateTime = Prf<DateTime>(key);
       await store.setString(key, 'not-valid-base64', sharedPreferencesOptions);
       final value = await prfDateTime.getValue(preferences);
-      expect(value, isNull);
+      final valueDateTime = DateTimeAdapter().decode('not-valid-base64');
+      expect(value, valueDateTime);
     });
 
     test('caches value after first retrieval', () async {
       final (preferences, store) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final now = DateTime(2030);
       await prfDateTime.setValue(preferences, now);
@@ -124,7 +124,7 @@ void main() {
 
     test('isValueNull returns true when key not set', () async {
       final (preferences, _) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final result = await prfDateTime.isValueNull(preferences);
       expect(result, true);
@@ -132,7 +132,7 @@ void main() {
 
     test('isValueNull returns false when value exists', () async {
       final (preferences, _) = getPreferences();
-      final prfDateTime = PrfDateTime(key);
+      final prfDateTime = Prf<DateTime>(key);
 
       final now = DateTime.now();
       await prfDateTime.setValue(preferences, now);

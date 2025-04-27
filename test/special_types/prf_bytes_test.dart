@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/special_types/prf_bytes.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
@@ -12,7 +12,7 @@ void main() {
   const key = 'test_bytes';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfBytes', () {
+  group('Prf<Uint8List>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -22,7 +22,7 @@ void main() {
 
     test('Returns null when no value is set', () async {
       final (preferences, _) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       final result = await prfBytes.getValue(preferences);
       expect(result, isNull);
@@ -30,7 +30,7 @@ void main() {
 
     test('Can set and get Uint8List value', () async {
       final (preferences, _) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       final original = Uint8List.fromList([1, 2, 3, 4, 5]);
       await prfBytes.setValue(preferences, original);
@@ -41,7 +41,7 @@ void main() {
 
     test('Encoded as base64 and stored as string', () async {
       final (preferences, store) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       final bytes = Uint8List.fromList([100, 200, 255]);
       final base64 = base64Encode(bytes);
@@ -54,7 +54,7 @@ void main() {
 
     test('Handles corrupted base64 data gracefully', () async {
       final (preferences, store) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       await store.setString(
           key, '!!not-valid-base64@@', sharedPreferencesOptions);
@@ -64,7 +64,7 @@ void main() {
 
     test('Removes value correctly', () async {
       final (preferences, store) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       final original = Uint8List.fromList([9, 8, 7]);
       await prfBytes.setValue(preferences, original);
@@ -83,7 +83,7 @@ void main() {
     test('Returns default value and stores it if not existing', () async {
       final (preferences, store) = getPreferences();
       final defaultBytes = Uint8List.fromList([1, 1, 1]);
-      final prfBytes = PrfBytes(key, defaultValue: defaultBytes);
+      final prfBytes = Prf<Uint8List>(key, defaultValue: defaultBytes);
 
       final result = await prfBytes.getValue(preferences);
       expect(result, equals(defaultBytes));
@@ -94,7 +94,7 @@ void main() {
 
     test('Caches value after first fetch', () async {
       final (preferences, store) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
 
       final bytes = Uint8List.fromList([42, 42]);
       await store.setString(key, base64Encode(bytes), sharedPreferencesOptions);
@@ -111,14 +111,14 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
       final isNull = await prfBytes.isValueNull(preferences);
       expect(isNull, true);
     });
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final prfBytes = PrfBytes(key);
+      final prfBytes = Prf<Uint8List>(key);
       await prfBytes.setValue(preferences, Uint8List.fromList([1, 2, 3]));
       final isNull = await prfBytes.isValueNull(preferences);
       expect(isNull, false);
