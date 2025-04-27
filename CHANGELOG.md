@@ -2,6 +2,10 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.2
+
+- Updated README
+
 ## 2.2.1
 
 ### Added
@@ -139,7 +143,7 @@ All notable changes to the **prf** package will be documented in this file.
   - You want to preserve previously stored values
 
 ```dart
-await Prf.migrateFromLegacyPrefsIfNeeded();
+await PrfService.migrateFromLegacyPrefsIfNeeded();
 ```
 
 ---

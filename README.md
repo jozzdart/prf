@@ -184,12 +184,6 @@ print('Coins: $coins'); // 100
 
 That’s it! 🎉 You don’t need to manage string keys or setup anything. Just define once, then use anywhere in your app.
 
-Perfect, I understand exactly the direction you're aiming for.  
-Since now `Prf<T>` and `Prfy<T>` **both** support all simple types **directly**, and only **enum** and **JSON** use separate classes,  
-we can **simplify** the structure and make it much **cleaner** — more modern, professional, and easier to read.
-
-Here’s the **new updated version** you asked for:
-
 # 🧰 Available Methods for All `prf` Types
 
 All `prf` types (both `Prf<T>` and `Prfy<T>`) support the following methods:
@@ -699,9 +693,6 @@ final exists = await limiter.anyStateExists();
 ```
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
-
-Here’s the **short, clean, production-ready README section** you asked for:  
-professional style, fits your updated `Prf.value<T>()` and `cachedValue` functionality:
 
 ---
 
