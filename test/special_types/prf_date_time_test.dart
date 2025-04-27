@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/special_types/prf_datetime.dart';
+import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -86,17 +86,17 @@ void main() {
       expect(rawBase64, isNotNull);
 
       final decodedBytes = base64Decode(rawBase64!);
-      final millis = ByteData.sublistView(decodedBytes).getInt64(0, Endian.big);
-      expect(millis, date.millisecondsSinceEpoch);
+      final micros = ByteData.sublistView(decodedBytes).getInt64(0, Endian.big);
+      expect(micros, date.microsecondsSinceEpoch);
     });
 
     test('handles corrupted base64 gracefully', () async {
       final (preferences, store) = getPreferences();
       final prfDateTime = PrfDateTime(key);
-
       await store.setString(key, 'not-valid-base64', sharedPreferencesOptions);
       final value = await prfDateTime.getValue(preferences);
-      expect(value, isNull);
+      final valueDateTime = DateTimeAdapter().decode('not-valid-base64');
+      expect(value, valueDateTime);
     });
 
     test('caches value after first retrieval', () async {

@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/core/core.dart';
+import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
-import 'package:prf/services/prf_rate_limiter.dart';
 
 import '../utils/fake_prefs.dart';
 
@@ -20,9 +19,9 @@ void main() {
     }
 
     setUp(() async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
       final limiter = PrfRateLimiter(
         testPrefix,
         maxTokens: 10,
@@ -32,9 +31,9 @@ void main() {
     });
 
     test('initializes with correct default values', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, store) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -55,9 +54,9 @@ void main() {
     });
 
     test('tryConsume decreases token count when tokens available', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -75,9 +74,9 @@ void main() {
     });
 
     test('tryConsume returns false when no tokens available', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -99,9 +98,9 @@ void main() {
     });
 
     test('tokens refill over time correctly', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       // Test with a small refill duration for quick testing
       final limiter = PrfRateLimiter(
@@ -129,9 +128,9 @@ void main() {
     });
 
     test('tokens are capped at maxTokens', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -151,9 +150,9 @@ void main() {
 
     test('timeUntilNextToken returns Duration.zero when tokens available',
         () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -168,9 +167,9 @@ void main() {
     test(
         'timeUntilNextToken returns positive duration when no tokens available',
         () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -191,9 +190,9 @@ void main() {
     });
 
     test('reset restores tokens to max', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -217,9 +216,9 @@ void main() {
     });
 
     test('anyStateExists returns true when state exists', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -234,9 +233,9 @@ void main() {
     });
 
     test('anyStateExists returns false after removeAll', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -254,9 +253,9 @@ void main() {
     });
 
     test('multiple limiters with different prefixes are isolated', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter1 = PrfRateLimiter(
         'prefix1',
@@ -282,9 +281,9 @@ void main() {
     });
 
     test('rate limiting works correctly over a sequence of attempts', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -311,9 +310,9 @@ void main() {
     });
 
     test('isLimitedNow returns correct status', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -340,9 +339,9 @@ void main() {
     });
 
     test('isReady returns opposite of isLimitedNow', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -365,9 +364,9 @@ void main() {
     });
 
     test('runIfAllowed executes function when tokens available', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -400,9 +399,9 @@ void main() {
     });
 
     test('nextAllowedTime returns correct DateTime', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,
@@ -431,9 +430,9 @@ void main() {
     });
 
     test('debugStats returns correct statistics', () async {
-      Prf.resetOverride();
+      PrfService.resetOverride();
       final (preferences, _) = getPreferences();
-      Prf.overrideWith(preferences);
+      PrfService.overrideWith(preferences);
 
       final limiter = PrfRateLimiter(
         testPrefix,

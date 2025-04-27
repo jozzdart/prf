@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prf/core/prf_variable.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 
@@ -106,11 +106,9 @@ void main() {
 }
 
 /// Returns a simple PrfVariable instance
-PrfVariable<String> _createStringVar(String key, {String? defaultValue}) {
-  return PrfVariable<String>(
+Prf<String> _createStringVar(String key, {String? defaultValue}) {
+  return Prf<String>(
     key,
-    (prefs, key) async => prefs.getString(key),
-    (prefs, key, value) async => prefs.setString(key, value),
-    defaultValue,
+    defaultValue: defaultValue,
   );
 }

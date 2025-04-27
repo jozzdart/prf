@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prf/types/prf_enum.dart';
+import 'package:prf/prf_types/prf_enum.dart';
 
 /// A type-safe wrapper for storing and retrieving [ThemeMode] values in SharedPreferences.
 ///
@@ -20,7 +20,5 @@ class PrfThemeMode extends PrfEnum<ThemeMode> {
   /// If [defaultValue] is not provided, it will use the system's current theme mode.
   /// This is determined at runtime when the value is first requested.
   PrfThemeMode(super.key, {super.defaultValue = ThemeMode.system})
-      : super(
-          values: ThemeMode.values,
-        );
+      : super(values: ThemeMode.values);
 }
