@@ -11,6 +11,8 @@ import 'package:prf/prf_types/prf.dart';
 /// await recentSearches.set(['flutter', 'dart', 'prf']);
 /// final searches = await recentSearches.get(); // ['flutter', 'dart', 'prf']
 /// ```
+@Deprecated(
+    'Use Prf<List<String>> instead for cached access or Prfy<List<String>> for isolate-safe access')
 class PrfStringList extends Prf<List<String>> {
   /// Creates a new string list preference variable with the specified [key].
   ///

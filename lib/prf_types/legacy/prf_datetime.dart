@@ -14,6 +14,8 @@ import 'package:prf/prf.dart';
 /// await lastLogin.set(DateTime.now());
 /// final loginTime = await lastLogin.get();
 /// ```
+@Deprecated(
+    'Use Prf<DateTime> instead for cached access or Prfy<DateTime> for isolate-safe access')
 class PrfDateTime extends Prf<DateTime> {
   /// Creates a new DateTime preference variable with the specified [key].
   ///

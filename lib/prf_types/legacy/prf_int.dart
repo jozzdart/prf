@@ -10,6 +10,8 @@ import 'package:prf/prf_types/prf.dart';
 /// await playerScore.set(100);
 /// final score = await playerScore.get(); // 100
 /// ```
+@Deprecated(
+    'Use Prf<int> instead for cached access or Prfy<int> for isolate-safe access')
 class PrfInt extends Prf<int> {
   /// Creates a new integer preference variable with the specified [key].
   ///

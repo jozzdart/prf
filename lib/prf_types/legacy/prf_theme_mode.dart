@@ -14,6 +14,8 @@ import 'package:prf/prf_types/prf_enum.dart';
 /// await themeMode.set(ThemeMode.dark);
 /// final currentTheme = await themeMode.get(); // ThemeMode.dark
 /// ```
+@Deprecated(
+    'Use PrfEnum<ThemeMode> instead for cached access or PrfyEnum<ThemeMode> for isolate-safe access')
 class PrfThemeMode extends PrfEnum<ThemeMode> {
   /// Creates a new ThemeMode preference variable with the specified [key].
   ///

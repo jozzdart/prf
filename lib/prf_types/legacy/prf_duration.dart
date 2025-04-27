@@ -14,6 +14,8 @@ import 'package:prf/prf.dart';
 /// await timeout.set(Duration(seconds: 60));
 /// final duration = await timeout.get(); // Duration(seconds: 60)
 /// ```
+@Deprecated(
+    'Use Prf<Duration> instead for cached access or Prfy<Duration> for isolate-safe access')
 class PrfDuration extends Prf<Duration> {
   /// Creates a new Duration preference variable with the specified [key].
   ///

@@ -14,6 +14,8 @@ import 'package:prf/prf.dart';
 /// await largeNumber.set(BigInt.parse('1234567890123456789012345678901234567890'));
 /// final number = await largeNumber.get();
 /// ```
+@Deprecated(
+    'Use Prf<BigInt> instead for cached access or Prfy<BigInt> for isolate-safe access')
 class PrfBigInt extends Prf<BigInt> {
   /// Creates a new BigInt preference variable with the specified [key].
   ///

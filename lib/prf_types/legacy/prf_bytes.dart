@@ -16,6 +16,8 @@ import 'package:prf/prf.dart';
 /// await imageData.set(Uint8List.fromList([...]));
 /// final bytes = await imageData.get();
 /// ```
+@Deprecated(
+    'Use Prf<Uint8List> instead for cached access or Prfy<Uint8List> for isolate-safe access')
 class PrfBytes extends Prf<Uint8List> {
   /// Creates a new bytes preference variable with the specified [key].
   ///

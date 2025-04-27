@@ -11,6 +11,8 @@ import 'package:prf/prf_types/prf.dart';
 /// await darkMode.set(true);
 /// final isDarkMode = await darkMode.get(); // true
 /// ```
+@Deprecated(
+    'Use Prf<bool> instead for cached access or Prfy<bool> for isolate-safe access')
 class PrfBool extends Prf<bool> {
   /// Creates a new boolean preference variable with the specified [key].
   ///

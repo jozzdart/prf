@@ -10,6 +10,8 @@ import 'package:prf/prf_types/prf.dart';
 /// await username.set('Joey');
 /// final name = await username.get(); // 'Joey'
 /// ```
+@Deprecated(
+    'Use Prf<String> instead for cached access or Prfy<String> for isolate-safe access')
 class PrfString extends Prf<String> {
   /// Creates a new string preference variable with the specified [key].
   ///

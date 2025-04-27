@@ -11,6 +11,8 @@ import 'package:prf/prf_types/prf.dart';
 /// await userRating.set(4.5);
 /// final rating = await userRating.get(); // 4.5
 /// ```
+@Deprecated(
+    'Use Prf<double> instead for cached access or Prfy<double> for isolate-safe access')
 class PrfDouble extends Prf<double> {
   /// Creates a new double preference variable with the specified [key].
   ///
