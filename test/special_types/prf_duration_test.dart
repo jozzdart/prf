@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/prf_types/legacy/prf_duration.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
@@ -10,7 +10,7 @@ void main() {
   const key = 'test_duration';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfDuration', () {
+  group('Prf<Duration>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -20,7 +20,7 @@ void main() {
 
     test('returns null if not set and no default provided', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
       final value = await durationPref.getValue(preferences);
       expect(value, isNull);
     });
@@ -28,14 +28,14 @@ void main() {
     test('returns default if not set and default provided', () async {
       final (preferences, _) = getPreferences();
       final defaultDuration = Duration(minutes: 5);
-      final durationPref = PrfDuration(key, defaultValue: defaultDuration);
+      final durationPref = Prf<Duration>(key, defaultValue: defaultDuration);
       final value = await durationPref.getValue(preferences);
       expect(value, defaultDuration);
     });
 
     test('sets and gets value correctly', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
       final testDuration = Duration(hours: 2, minutes: 30);
 
       await durationPref.setValue(preferences, testDuration);
@@ -46,7 +46,7 @@ void main() {
 
     test('updates existing value', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       await durationPref.setValue(preferences, Duration(seconds: 30));
       var value = await durationPref.getValue(preferences);
@@ -59,7 +59,7 @@ void main() {
 
     test('stores duration as microseconds using int', () async {
       final (preferences, store) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
       final testDuration = Duration(milliseconds: 1500); // 1.5 seconds
 
       await durationPref.setValue(preferences, testDuration);
@@ -70,7 +70,7 @@ void main() {
 
     test('restores duration from microseconds int value', () async {
       final (preferences, store) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       // Set directly as int (1.5 seconds = 1,500,000 microseconds)
       final microseconds = 1500000;
@@ -82,7 +82,7 @@ void main() {
 
     test('handles zero duration', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       await durationPref.setValue(preferences, Duration.zero);
       final value = await durationPref.getValue(preferences);
@@ -92,7 +92,7 @@ void main() {
 
     test('handles very large durations', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       final largeDuration = Duration(days: 365 * 10); // 10 years
       await durationPref.setValue(preferences, largeDuration);
@@ -103,7 +103,7 @@ void main() {
 
     test('handles negative durations', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       final negativeDuration = Duration(days: -30); // -30 days
       await durationPref.setValue(preferences, negativeDuration);
@@ -114,7 +114,7 @@ void main() {
 
     test('caches value after first fetch', () async {
       final (preferences, store) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       final initialDuration = Duration(minutes: 10);
       await store.setInt(
@@ -134,7 +134,7 @@ void main() {
 
     test('removes value correctly', () async {
       final (preferences, store) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
 
       await durationPref.setValue(preferences, Duration(hours: 1));
       await durationPref.removeValue(preferences);
@@ -151,14 +151,14 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
       final isNull = await durationPref.isValueNull(preferences);
       expect(isNull, true);
     });
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final durationPref = PrfDuration(key);
+      final durationPref = Prf<Duration>(key);
       await durationPref.setValue(preferences, Duration(seconds: 45));
       final isNull = await durationPref.isValueNull(preferences);
       expect(isNull, false);
@@ -168,7 +168,7 @@ void main() {
         () async {
       final (preferences, store) = getPreferences();
       final defaultDuration = Duration(days: 1);
-      final durationPref = PrfDuration(key, defaultValue: defaultDuration);
+      final durationPref = Prf<Duration>(key, defaultValue: defaultDuration);
 
       final value = await durationPref.getValue(preferences);
       expect(value, defaultDuration);

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/prf_types/legacy/prf_bool.dart';
+import 'package:prf/prf_types/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
@@ -10,7 +10,7 @@ void main() {
   const key = 'test_bool';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfBool', () {
+  group('Prf<bool>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -20,21 +20,21 @@ void main() {
 
     test('returns null if not set and no default provided', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       final value = await boolPref.getValue(preferences);
       expect(value, isNull);
     });
 
     test('returns default if not set and default provided', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key, defaultValue: true);
+      final boolPref = Prf<bool>(key, defaultValue: true);
       final value = await boolPref.getValue(preferences);
       expect(value, true);
     });
 
     test('sets and gets value correctly', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       await boolPref.setValue(preferences, true);
       final value = await boolPref.getValue(preferences);
       expect(value, true);
@@ -42,7 +42,7 @@ void main() {
 
     test('updates existing value', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       await boolPref.setValue(preferences, false);
       var value = await boolPref.getValue(preferences);
       expect(value, false);
@@ -54,7 +54,7 @@ void main() {
 
     test('removes value properly', () async {
       final (preferences, store) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       await boolPref.setValue(preferences, true);
 
       await boolPref.removeValue(preferences);
@@ -70,14 +70,14 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       final isNull = await boolPref.isValueNull(preferences);
       expect(isNull, true);
     });
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       await boolPref.setValue(preferences, true);
       final isNull = await boolPref.isValueNull(preferences);
       expect(isNull, false);
@@ -85,7 +85,7 @@ void main() {
 
     test('caches value after first access', () async {
       final (preferences, store) = getPreferences();
-      final boolPref = PrfBool(key);
+      final boolPref = Prf<bool>(key);
       await store.setBool(key, true, sharedPreferencesOptions);
 
       final value1 = await boolPref.getValue(preferences);
@@ -99,7 +99,7 @@ void main() {
 
     test('default value is persisted after first access', () async {
       final (preferences, store) = getPreferences();
-      final boolPref = PrfBool(key, defaultValue: true);
+      final boolPref = Prf<bool>(key, defaultValue: true);
 
       final first = await boolPref.getValue(preferences);
       expect(first, true);
