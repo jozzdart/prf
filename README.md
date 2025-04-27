@@ -22,6 +22,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Persistent Services & Utilities](#️-persistent-services--utilities)
 - [Roadmap & Future Plans](#️-roadmap--future-plans)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
+- [Adding Custom Prfs (Advanced)](#️-how-to-add-a-custom-prf-type-advanced)
 
 # ⚡ Define → Get → Set → Done
 
@@ -65,7 +66,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Single definition** — just one line to define, then reuse anywhere
 - ✅ **Type-safe** — no casting, no runtime surprises
 - ✅ **Automatic caching** — with `Prf<T>` for fast access
-- ✅ **True isolate safety** — with `Prfy<T>`, using only `SharedPreferencesAsync`, no cache
+- ✅ **True isolate safety** — with `Prfy<T>`
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
 - ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
@@ -832,6 +833,79 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 - ✅ Supports advanced types: `DateTime`, `Uint8List`, `enum`, `JSON`
 - ✅ Automatic caching — fast access after first read
 - ✅ Test-friendly — easily reset, mock, or inspect values
+
+---
+
+# 🛠️ How to Add a Custom `prf` Type (Advanced)
+
+For most use cases, you can simply use the built-in `PrfEnum<T>`, `PrfJson<T>`, `PrfyEnum<T>`, or `PrfyJson<T>` to persist enums and custom models with minimal setup.
+
+This guide shows how to manually create a custom type adapter — useful when you need full control over encoding, compression, or storage behavior.
+
+Expanding `prf` is easy:  
+Just create a simple adapter and use it like any native type!
+
+## 1. Create Your Class
+
+```dart
+class Color {
+  final int r, g, b;
+  const Color(this.r, this.g, this.b);
+
+  Map<String, dynamic> toJson() => {'r': r, 'g': g, 'b': b};
+  factory Color.fromJson(Map<String, dynamic> json) => Color(
+    json['r'] ?? 0, json['g'] ?? 0, json['b'] ?? 0,
+  );
+}
+```
+
+### 2. Create an Adapter
+
+```dart
+import 'dart:convert';
+import 'package:prf/prf.dart';
+
+class ColorAdapter extends PrfEncodedAdapter<Color, String> {
+  @override
+  Color? decode(String? stored) =>
+      stored == null ? null : Color.fromJson(jsonDecode(stored));
+
+  @override
+  String encode(Color value) => jsonEncode(value.toJson());
+}
+```
+
+### 3. (Optional) Register It
+
+```dart
+PrfAdapterMap.instance.register<Color>(ColorAdapter());
+```
+
+> So you can use `Prf<Color>` without passing an adapter manually.
+
+### 4. Use It!
+
+```dart
+final favoriteColor = Prf<Color>('favorite_color');
+
+await favoriteColor.set(Color(255, 0, 0));
+final color = await favoriteColor.get();
+
+print(color?.r); // 255
+```
+
+For isolate-safe persistence:
+
+```dart
+final safeColor = Prfy<Color>('favorite_color');
+```
+
+## Summary
+
+- Create your class.
+- Create a `PrfEncodedAdapter`.
+- (Optional) Register it.
+- Use `Prf<T>` or `Prfy<T>` anywhere.
 
 ---
 
