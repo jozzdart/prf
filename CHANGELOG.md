@@ -2,6 +2,64 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.0
+
+### Major Update
+
+- **Unified API**:  
+  Consolidated all legacy `PrfX` classes (`PrfBool`, `PrfInt`, `PrfDouble`, etc.) into a single generic structure:
+
+  - `Prf<T>` — **Cached**, fast access (not isolate-safe by design).
+  - `Prfy<T>` — **Isolate-safe**, no internal caching, always reads from storage.
+
+- **Adapter-Based Architecture**:  
+  Added modular adapter system (`PrfAdapter<T>`) with built-in adapters for:
+
+  - Primitive types (`bool`, `int`, `double`, `String`, `List<String>`)
+  - Encoded types (`DateTime`, `Duration`, `BigInt`, `Uint8List`, Enums, JSON)
+
+- **Backward Compatibility**:  
+  Legacy `PrfX` classes remain available, internally powered by the new adapter system.
+
+- **Extensibility**:  
+  Developers can register custom type adapters via `PrfAdapterMap.instance.register()`.
+
+- **Internal Reorganization**:  
+  Major file structure improvements (`core/`, `prf_types/`, `prfy_types/`, `services/`) for better modularity and future expansion.
+
+### Fixed
+
+- **Isolate Safety Issue (Issue #3)** ([stuartmorgan-g](https://github.com/stuartmorgan-g)):  
+  Previously, `prf` incorrectly advertised full isolate safety while using internal caching.  
+  This release properly separates behavior:
+
+  - `Prfy<T>` values are **truly isolate-safe**, always reading from `SharedPreferencesAsync` without cache.
+  - `Prf<T>` values **use caching** for performance, but are **not isolate-safe** across isolates (expected Dart behavior).
+  - README and comparison tables have been updated to accurately reflect these distinctions and explain the cache behavior clearly.
+
+- Corrected claims about `shared_preferences` caching behavior — acknowledged that `SharedPreferencesWithCache` **does** have Dart-side caching.
+
+- Clarified that naive Dart caching, like in `Prf<T>`, shares the same limitations as `SharedPreferencesWithCache` regarding multi-isolate consistency.
+
+### Added
+
+- `PrfyJson<T>` — Safe JSON object storage across isolates.
+- `PrfyEnum<T>` — Safe enum storage across isolates.
+- `PrfJson<T>` — Cached JSON object storage.
+- `PrfEnum<T>` — Cached enum storage.
+- `DateTimeAdapter`, `DurationAdapter`, `BigIntAdapter`, `BytesAdapter` for encoded types.
+- `PrfCooldown` and `PrfRateLimiter` now internally use the new types.
+
+### Changed
+
+- Updated README to accurately describe:
+
+  - Isolate-safe usage patterns (`Prfy`).
+  - Cache-optimized usage patterns (`Prf`).
+  - Caching behavior and limitations compared to `shared_preferences`.
+
+- Improved internal documentation on the adapter registration system and best practices.
+
 ## 2.1.3
 
 - Fixed issues related to pub.dev formatting
