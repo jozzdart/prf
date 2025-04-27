@@ -1,16 +1,26 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Abstract adapter for converting between Dart types and SharedPreferences.
+///
+/// Adapters enable type-safe access to SharedPreferences by handling
+/// the conversion between a Dart type [T] and the native types
+/// supported by SharedPreferences.
 abstract class PrfAdapter<T> {
-  /// Function to retrieve the value from SharedPreferences.
+  /// Retrieves a value of type [T] from SharedPreferences.
+  ///
+  /// Returns null if the value doesn't exist or cannot be converted.
   Future<T?> getter(SharedPreferencesAsync prefs, String key);
 
-  /// Function to save the value to SharedPreferences.
+  /// Stores a value of type [T] in SharedPreferences.
   Future<void> setter(SharedPreferencesAsync prefs, String key, T value);
 
+  /// Creates a new adapter.
   const PrfAdapter();
 }
 
-/// Bool adapter implementation
+/// Adapter for boolean values.
+///
+/// Uses the native bool support in SharedPreferences.
 class BoolAdapter extends PrfAdapter<bool> {
   @override
   Future<bool?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -23,10 +33,13 @@ class BoolAdapter extends PrfAdapter<bool> {
     await prefs.setBool(key, value);
   }
 
+  /// Creates a new boolean adapter.
   const BoolAdapter();
 }
 
-/// Int adapter implementation
+/// Adapter for integer values.
+///
+/// Uses the native int support in SharedPreferences.
 class IntAdapter extends PrfAdapter<int> {
   @override
   Future<int?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -39,10 +52,13 @@ class IntAdapter extends PrfAdapter<int> {
     await prefs.setInt(key, value);
   }
 
+  /// Creates a new integer adapter.
   const IntAdapter();
 }
 
-/// Double adapter implementation
+/// Adapter for double values.
+///
+/// Uses the native double support in SharedPreferences.
 class DoubleAdapter extends PrfAdapter<double> {
   @override
   Future<double?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -55,10 +71,13 @@ class DoubleAdapter extends PrfAdapter<double> {
     await prefs.setDouble(key, value);
   }
 
+  /// Creates a new double adapter.
   const DoubleAdapter();
 }
 
-/// String adapter implementation
+/// Adapter for string values.
+///
+/// Uses the native string support in SharedPreferences.
 class StringAdapter extends PrfAdapter<String> {
   @override
   Future<String?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -71,10 +90,13 @@ class StringAdapter extends PrfAdapter<String> {
     await prefs.setString(key, value);
   }
 
+  /// Creates a new string adapter.
   const StringAdapter();
 }
 
-/// StringList adapter implementation
+/// Adapter for lists of strings.
+///
+/// Uses the native string list support in SharedPreferences.
 class StringListAdapter extends PrfAdapter<List<String>> {
   @override
   Future<List<String>?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -87,5 +109,6 @@ class StringListAdapter extends PrfAdapter<List<String>> {
     await prefs.setStringList(key, value);
   }
 
+  /// Creates a new string list adapter.
   const StringListAdapter();
 }

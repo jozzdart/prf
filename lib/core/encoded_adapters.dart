@@ -4,7 +4,13 @@ import 'dart:typed_data';
 import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Base adapter for types that need encoding before storing in SharedPreferences.
+///
+/// This abstract class handles the conversion between a type [T] and a storage type [TStore]
+/// that is directly supported by SharedPreferences (like String or int).
+/// Implementations need to provide [encode] and [decode] methods.
 abstract class PrfEncodedAdapter<T, TStore> extends PrfAdapter<T> {
+  /// The adapter used to store the encoded values.
   final PrfAdapter<TStore> _storingAdapter =
       PrfAdapterMap.instance.of<TStore>();
 
@@ -20,16 +26,29 @@ abstract class PrfEncodedAdapter<T, TStore> extends PrfAdapter<T> {
     await _storingAdapter.setter(prefs, key, encoded);
   }
 
+  /// Encodes a value of type [T] to the storage type [TStore].
   TStore encode(T value);
 
+  /// Decodes a value of storage type [TStore] back to type [T].
+  ///
+  /// Returns null if the stored value is null or cannot be decoded.
   T? decode(TStore? stored);
 
+  /// Creates a new encoded adapter.
   PrfEncodedAdapter();
 }
 
+/// Adapter for Enum values.
+///
+/// Stores enum values as their integer indices.
 class EnumAdapter<T extends Enum> extends PrfEncodedAdapter<T, int> {
+  /// The list of all possible enum values in their declaration order.
   final List<T> values;
 
+  /// Creates a new enum adapter with the specified list of enum values.
+  ///
+  /// The [values] list should contain all possible values of the enum,
+  /// typically obtained via `EnumType.values`.
   EnumAdapter(this.values);
 
   @override
@@ -44,11 +63,20 @@ class EnumAdapter<T extends Enum> extends PrfEncodedAdapter<T, int> {
   int encode(T value) => value.index;
 }
 
-/// JSON adapter implementation that requires fromJson and toJson converters
+/// Adapter for objects that can be converted to and from JSON.
+///
+/// Allows storing complex objects by serializing them to JSON strings.
 class JsonAdapter<T> extends PrfEncodedAdapter<T, String> {
+  /// Function to convert from a JSON map to type [T].
   final T Function(Map<String, dynamic> json) fromJson;
+
+  /// Function to convert from type [T] to a JSON map.
   final Map<String, dynamic> Function(T object) toJson;
 
+  /// Creates a new JSON adapter with the specified conversion functions.
+  ///
+  /// [fromJson] converts a JSON map to the target type [T].
+  /// [toJson] converts an instance of [T] to a JSON map.
   JsonAdapter({required this.fromJson, required this.toJson});
 
   @override
@@ -69,7 +97,11 @@ class JsonAdapter<T> extends PrfEncodedAdapter<T, String> {
   String encode(T value) => jsonEncode(toJson(value));
 }
 
+/// Adapter for DateTime objects.
+///
+/// Stores DateTime as base64-encoded binary representation of microseconds since epoch.
 class DateTimeAdapter extends PrfEncodedAdapter<DateTime, String> {
+  /// Creates a new DateTime adapter.
   DateTimeAdapter();
 
   @override
@@ -93,8 +125,11 @@ class DateTimeAdapter extends PrfEncodedAdapter<DateTime, String> {
   }
 }
 
-/// Duration adapter implementation
+/// Adapter for Duration objects.
+///
+/// Stores Duration as microseconds in an integer.
 class DurationAdapter extends PrfEncodedAdapter<Duration, int> {
+  /// Creates a new Duration adapter.
   DurationAdapter();
 
   @override
@@ -107,8 +142,11 @@ class DurationAdapter extends PrfEncodedAdapter<Duration, int> {
   int encode(Duration value) => value.inMicroseconds;
 }
 
-/// BigInt adapter implementation
+/// Adapter for BigInt objects.
+///
+/// Stores BigInt as base64-encoded binary representation with sign bit.
 class BigIntAdapter extends PrfEncodedAdapter<BigInt, String> {
+  /// Creates a new BigInt adapter.
   BigIntAdapter();
 
   @override
@@ -164,8 +202,11 @@ class BigIntAdapter extends PrfEncodedAdapter<BigInt, String> {
   }
 }
 
-/// Bytes (Uint8List) adapter implementation
+/// Adapter for binary data (Uint8List).
+///
+/// Stores binary data as base64-encoded strings.
 class BytesAdapter extends PrfEncodedAdapter<Uint8List, String> {
+  /// Creates a new binary data adapter.
   BytesAdapter();
 
   @override
