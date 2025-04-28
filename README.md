@@ -309,8 +309,7 @@ print(userScore.cachedValue); // e.g., 42
 - You can access `.cachedValue` instantly after initialization.
 - If no value was stored yet, `.cachedValue` will be the `defaultValue` or `null`.
 
-✅ Best for fast access inside UI widgets, settings screens, and forms.
-⚠️ Not suitable for use across isolates — use `PrfIso<T>` if you need isolate safety.
+✅ Best for fast access inside UI widgets, settings screens, and forms. ⚠️ Not suitable for use across isolates — use `.isolated` or `PrfIso<T>` if you need isolate safety.
 
 ### 🚀 Quick Summary
 
