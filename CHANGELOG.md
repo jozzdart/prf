@@ -29,6 +29,7 @@ final isoValue = Prf<String>('username').isolated;
   - `PrfyJson<T>` → `PrfIso.json<T>(...)`
   - `PrfyEnum<T>` → `PrfIso.enumerated<T>(...)`
   - Or alternatively: `Prf.json<T>(...).isolated`, `Prf.enumerated<T>(...).isolated`
+- Added extensive tests for every single adapter, with more than 300 tests - all adapters are heavily tested to ensure data integrity.
 
 ## 2.2.3
 
