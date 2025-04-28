@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:prf/prf.dart';
-import 'package:prf/prfy_types/prfi.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// A robust, industry-grade token bucket rate limiter using `prf`.

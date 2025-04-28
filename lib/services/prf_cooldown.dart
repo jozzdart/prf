@@ -1,5 +1,4 @@
 import 'package:prf/prf.dart';
-import 'package:prf/prfy_types/prfi.dart';
 
 /// A utility for managing cooldown logic using persisted DateTime and Activation Count.
 ///
