@@ -8,9 +8,9 @@
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
 </p>
 
-No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Includes 10+ built-in types and utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
+No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Includes 20+ built-in types and utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
 
-> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +10 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
+> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
