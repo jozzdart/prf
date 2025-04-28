@@ -11,8 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Implementations need to provide [encode] and [decode] methods.
 abstract class PrfEncodedAdapter<T, TStore> extends PrfAdapter<T> {
   /// The adapter used to store the encoded values.
-  final PrfAdapter<TStore> _storingAdapter =
-      PrfAdapterMap.instance.of<TStore>();
+  final PrfAdapter<TStore> _storingAdapter;
 
   @override
   Future<T?> getter(SharedPreferencesAsync prefs, String key) async {
@@ -35,7 +34,7 @@ abstract class PrfEncodedAdapter<T, TStore> extends PrfAdapter<T> {
   T? decode(TStore? stored);
 
   /// Creates a new encoded adapter.
-  PrfEncodedAdapter();
+  const PrfEncodedAdapter(this._storingAdapter);
 }
 
 /// Adapter for Enum values.
@@ -49,7 +48,7 @@ class EnumAdapter<T extends Enum> extends PrfEncodedAdapter<T, int> {
   ///
   /// The [values] list should contain all possible values of the enum,
   /// typically obtained via `EnumType.values`.
-  EnumAdapter(this.values);
+  const EnumAdapter(this.values) : super(const IntAdapter());
 
   @override
   T? decode(int? index) {
@@ -77,7 +76,8 @@ class JsonAdapter<T> extends PrfEncodedAdapter<T, String> {
   ///
   /// [fromJson] converts a JSON map to the target type [T].
   /// [toJson] converts an instance of [T] to a JSON map.
-  JsonAdapter({required this.fromJson, required this.toJson});
+  const JsonAdapter({required this.fromJson, required this.toJson})
+      : super(const StringAdapter());
 
   @override
   T? decode(String? jsonString) {
@@ -102,7 +102,7 @@ class JsonAdapter<T> extends PrfEncodedAdapter<T, String> {
 /// Stores DateTime as base64-encoded binary representation of microseconds since epoch.
 class DateTimeAdapter extends PrfEncodedAdapter<DateTime, String> {
   /// Creates a new DateTime adapter.
-  DateTimeAdapter();
+  const DateTimeAdapter() : super(const StringAdapter());
 
   @override
   DateTime? decode(String? base64) {
@@ -130,7 +130,7 @@ class DateTimeAdapter extends PrfEncodedAdapter<DateTime, String> {
 /// Stores Duration as microseconds in an integer.
 class DurationAdapter extends PrfEncodedAdapter<Duration, int> {
   /// Creates a new Duration adapter.
-  DurationAdapter();
+  const DurationAdapter() : super(const IntAdapter());
 
   @override
   Duration? decode(int? stored) {
@@ -147,7 +147,7 @@ class DurationAdapter extends PrfEncodedAdapter<Duration, int> {
 /// Stores BigInt as base64-encoded binary representation with sign bit.
 class BigIntAdapter extends PrfEncodedAdapter<BigInt, String> {
   /// Creates a new BigInt adapter.
-  BigIntAdapter();
+  const BigIntAdapter() : super(const StringAdapter());
 
   @override
   BigInt? decode(String? base64) {
@@ -207,7 +207,7 @@ class BigIntAdapter extends PrfEncodedAdapter<BigInt, String> {
 /// Stores binary data as base64-encoded strings.
 class BytesAdapter extends PrfEncodedAdapter<Uint8List, String> {
   /// Creates a new binary data adapter.
-  BytesAdapter();
+  const BytesAdapter() : super(const StringAdapter());
 
   @override
   Uint8List? decode(String? base64) {
@@ -221,4 +221,75 @@ class BytesAdapter extends PrfEncodedAdapter<Uint8List, String> {
 
   @override
   String encode(Uint8List value) => base64Encode(value);
+}
+
+/// Adapter for lists of integers.
+///
+/// Stores integer lists as base64-encoded binary data, with each integer
+/// represented as a 4-byte big-endian value.
+class IntListAdapter extends PrfEncodedAdapter<List<int>, String> {
+  /// Creates a new integer list adapter.
+  const IntListAdapter() : super(const StringAdapter());
+
+  @override
+  List<int>? decode(String? base64String) {
+    if (base64String == null) return null;
+    try {
+      final bytes = base64Decode(base64String);
+      if (bytes.length % 4 != 0) return null; // invalid length
+
+      final result = <int>[];
+      final byteData = ByteData.sublistView(bytes);
+      for (var i = 0; i < byteData.lengthInBytes; i += 4) {
+        result.add(byteData.getInt32(i, Endian.big)); // or Endian.little
+      }
+      return result;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  String encode(List<int> value) {
+    final bytes = Uint8List(value.length * 4);
+    final byteData = ByteData.sublistView(bytes);
+    for (var i = 0; i < value.length; i++) {
+      byteData.setInt32(i * 4, value[i], Endian.big); // or Endian.little
+    }
+    return base64Encode(bytes);
+  }
+}
+
+/// Adapter for numeric values.
+///
+/// Stores numeric values as doubles in SharedPreferences.
+/// This adapter can handle both integer and floating-point numbers,
+/// converting them to and from double values.
+class NumAdapter extends PrfEncodedAdapter<num, double> {
+  /// Creates a new numeric adapter.
+  const NumAdapter() : super(const DoubleAdapter());
+
+  @override
+  num? decode(double? stored) => stored;
+
+  @override
+  double encode(num value) => value.toDouble();
+}
+
+/// Adapter for URI values.
+///
+/// Stores URI values as strings in SharedPreferences.
+/// Uses [Uri.tryParse] for safe parsing of stored strings back to URI objects.
+class UriAdapter extends PrfEncodedAdapter<Uri, String> {
+  /// Creates a new URI adapter.
+  const UriAdapter() : super(const StringAdapter());
+
+  @override
+  Uri? decode(String? stored) {
+    if (stored == null) return null;
+    return Uri.tryParse(stored);
+  }
+
+  @override
+  String encode(Uri value) => value.toString();
 }
