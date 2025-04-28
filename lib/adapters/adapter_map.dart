@@ -75,9 +75,9 @@ class PrfAdapterMap {
     register<List<String>>(const StringListAdapter());
 
     // Register special types
-    register<DateTime>(DateTimeAdapter());
-    register<Duration>(DurationAdapter());
-    register<BigInt>(BigIntAdapter());
-    register<Uint8List>(BytesAdapter());
+    register<DateTime>(const DateTimeAdapter());
+    register<Duration>(const DurationAdapter());
+    register<BigInt>(const BigIntAdapter());
+    register<Uint8List>(const BytesAdapter());
   }
 }

@@ -1,4 +1,4 @@
-import 'package:prf/prf.dart';
+import 'package:prf/core/base_adapter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Base class for preference objects that provides core functionality for storing

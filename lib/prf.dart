@@ -50,11 +50,21 @@
 /// See [PrfAdapter] and [PrfAdapterMap] for details.
 library;
 
-export 'core/adapter_map.dart';
-export 'core/adapters.dart';
+export 'adapters/adapter_map.dart';
+export 'adapters/encoded/big_int_adapter.dart';
+export 'adapters/encoded/bytes_adapter.dart';
+export 'adapters/encoded/date_time_adapter.dart';
+export 'adapters/encoded/duration_adapter.dart';
+export 'adapters/encoded/int_list_adapter.dart';
+export 'adapters/encoded/num_adapter.dart';
+export 'adapters/encoded/uri_adapter.dart';
+export 'adapters/enum_adapter.dart';
+export 'adapters/json_adapter.dart';
+export 'adapters/native_adapters.dart';
+export 'core/base_adapter.dart';
 export 'core/base_object.dart';
 export 'core/cached_object.dart';
-export 'core/encoded_adapters.dart';
+export 'core/encoded_adapter.dart';
 export 'core/extensions.dart';
 export 'core/prf_service.dart';
 export 'prf.dart';
