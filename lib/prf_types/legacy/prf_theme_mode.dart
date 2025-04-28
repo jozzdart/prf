@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prf/prfy_types/prf_enum.dart';
+import 'package:prf/prf_types/legacy/prf_enum.dart';
 
 /// A cached preference for ThemeMode.
 ///
