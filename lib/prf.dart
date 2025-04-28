@@ -51,16 +51,16 @@
 library;
 
 export 'adapters/adapter_map.dart';
-export 'adapters/encoded/big_int_adapter.dart';
-export 'adapters/encoded/bool_list.dart';
-export 'adapters/encoded/bytes_adapter.dart';
-export 'adapters/encoded/date_time_adapter.dart';
-export 'adapters/encoded/duration_adapter.dart';
-export 'adapters/encoded/int_list_adapter.dart';
-export 'adapters/encoded/num_adapter.dart';
-export 'adapters/encoded/uri_adapter.dart';
-export 'adapters/encoded/date_time_list.dart';
-export 'adapters/encoded/list_double.dart';
+export 'adapters/encoded/big_int.dart';
+export 'adapters/list/bool.dart';
+export 'adapters/encoded/bytes.dart';
+export 'adapters/encoded/date_time.dart';
+export 'adapters/encoded/duration.dart';
+export 'adapters/list/int.dart';
+export 'adapters/encoded/num.dart';
+export 'adapters/encoded/uri.dart';
+export 'adapters/list/date_time.dart';
+export 'adapters/list/double.dart';
 export 'adapters/enum_adapter.dart';
 export 'adapters/json_adapter.dart';
 export 'adapters/native_adapters.dart';

@@ -1,9 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/adapters/adapter_map.dart';
-import 'package:prf/adapters/native_adapters.dart';
-import 'package:prf/core/base_adapter.dart';
+import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomType {}
