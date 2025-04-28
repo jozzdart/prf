@@ -2,6 +2,43 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.4
+
+- Added factory methods:
+  - `Prf.json<T>(...)` and `Prf.enumerated<T>(...)`
+  - `PrfIso.json(...)` and `PrfIso.enumerated(...)`
+- Added `.isolated` getter on `Prf<T>` for isolate-safe access.
+- Expanded native type support:
+  - Built-in adapters for `num`, `Uri`, `List<int>`, `List<bool>`, `List<double>`, `List<DateTime>` now supported out of the box with all `prf` values! (with efficient binary encoding under the hood)
+- All adapters are now `const` for reduced memory usage and better performance.
+- Updated README documentation.
+- Now isolated `prfs` can easily be created like this:
+
+```dart
+final isoValue = Prf<String>('username').isolated;
+```
+
+**Changes and Deprecations:**
+
+- Renamed `Prfy<T>` → `PrfIso<T>`.
+- Added deprecation annotations with migration instructions.
+- Deprecated classes (to be removed in v3.0.0):
+  - `PrfJson<T>` → `Prf.json<T>(...)`
+  - `PrfEnum<T>` → `Prf.enumerated<T>(...)`
+  - `Prfy<T>` → `PrfIso<T>`
+  - `PrfyJson<T>` → `PrfIso.json<T>(...)`
+  - `PrfyEnum<T>` → `PrfIso.enumerated<T>(...)`
+  - Or alternatively: `Prf.json<T>(...).isolated`, `Prf.enumerated<T>(...).isolated`
+- Added extensive tests for every single adapter, with more than 300 tests - all adapters are heavily tested to ensure data integrity.
+
+## 2.2.3
+
+- Fixed `Prf.value<T>()` not being static as intended.
+
+## 2.2.2
+
+- Updated README
+
 ## 2.2.1
 
 ### Added
@@ -139,7 +176,7 @@ All notable changes to the **prf** package will be documented in this file.
   - You want to preserve previously stored values
 
 ```dart
-await Prf.migrateFromLegacyPrefsIfNeeded();
+await PrfService.migrateFromLegacyPrefsIfNeeded();
 ```
 
 ---
@@ -165,11 +202,11 @@ await Prf.migrateFromLegacyPrefsIfNeeded();
 ```
 
 This safely copies data from the legacy storage backend to the new one.  
-It’s safe to run every time — the migration will only happen once.
+It's safe to run every time — the migration will only happen once.
 
 ---
 
-### ✅ What’s new in 2.0.0:
+### ✅ What's new in 2.0.0:
 
 - Internals now use `SharedPreferencesAsync`
 - Full **isolate-safety**, suitable for background plugins like `firebase_messaging`
@@ -193,8 +230,8 @@ It’s safe to run every time — the migration will only happen once.
 
 This is a critical under-the-hood upgrade to ensure `prf` is compatible with modern Flutter apps, isolate-safe, and ready for the future of shared preferences.
 
-If your app is new, or you don’t care about previously stored data — you're done ✅  
-If you’re upgrading and need old values — migrate once as shown above.
+If your app is new, or you don't care about previously stored data — you're done ✅  
+If you're upgrading and need old values — migrate once as shown above.
 
 ## 1.3.8
 
