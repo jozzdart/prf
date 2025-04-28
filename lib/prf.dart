@@ -5,14 +5,14 @@
 ///
 /// PRF offers a clean, concise API for storing and retrieving values with zero
 /// boilerplate, no string repetition, and strong type safety. It supports both
-/// cached access ([Prf]) for performance and isolate-safe access ([Prfi]) for
+/// cached access ([Prf]) for performance and isolate-safe access ([PrfIso]) for
 /// reliability across multiple isolates.
 ///
 /// ## Key Features:
 ///
 /// * **Type Safety** — Define variables once, use them anywhere with full type checking
 /// * **Caching** — Automatic in-memory caching with [Prf] for fast access
-/// * **Isolate Safety** — [Prfi] ensures true isolate-safe access (always reads from disk)
+/// * **Isolate Safety** — [PrfIso] ensures true isolate-safe access (always reads from disk)
 /// * **Extended Type Support** — Beyond primitives: [DateTime], [BigInt], [Duration], enums, JSON models, and binary data
 /// * **Zero Setup** — No manual initialization — define and use immediately
 /// * **Production Utilities** — [PrfCooldown] for managing cooldowns, [PrfRateLimiter] for rate limiting
@@ -38,8 +38,8 @@
 ///
 /// Use simple factory methods instead of dedicated classes:
 ///
-/// * `Prf.enumerated<T>()` / `Prfi.enumerated<T>()` — for enum values
-/// * `Prf.json<T>()` / `Prfi.json<T>()` — for custom JSON model objects
+/// * `Prf.enumerated<T>()` / `PrfIso.enumerated<T>()` — for enum values
+/// * `Prf.json<T>()` / `PrfIso.json<T>()` — for custom JSON model objects
 ///
 /// ## Custom Adapters
 ///

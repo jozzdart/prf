@@ -2,18 +2,18 @@ import 'package:prf/prf.dart';
 
 /// An isolate-safe JSON preference.
 ///
-/// This class is deprecated. Use [Prfi.json] instead.
+/// This class is deprecated. Use [PrfIso.json] instead.
 ///
 /// Example:
 /// ```dart
-/// final settings = Prfi.json<Settings>(
+/// final settings = PrfIso.json<Settings>(
 ///   'settings',
 ///   fromJson: Settings.fromJson,
 ///   toJson: (settings) => settings.toJson(),
 /// );
 /// ```
 @Deprecated(
-    'Use Prfi.json instead. This class will be removed in a future version.')
+    'Use PrfIso.json instead. This class will be removed in a future version.')
 class PrfyJson<T> extends BasePrfObject<T> {
   /// The adapter used for JSON conversion.
   final PrfAdapter<T> _adapter;
@@ -28,7 +28,7 @@ class PrfyJson<T> extends BasePrfObject<T> {
   /// - [toJson] is a function that converts an instance of type [T] to a JSON map.
   /// - [defaultValue] is the optional default value to use when no value exists.
   @Deprecated(
-      'Use Prfi.json instead. This constructor will be removed in a future version.')
+      'Use PrfIso.json instead. This constructor will be removed in a future version.')
   PrfyJson(
     super.key, {
     required T Function(Map<String, dynamic> json) fromJson,

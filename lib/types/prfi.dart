@@ -7,34 +7,34 @@ import 'package:prf/prf.dart';
 /// For non-isolate-safe preferences with caching, use [Prf] instead.
 ///
 /// The class supports various types through adapters, including:
-/// - Basic types (String, int, bool, double)
+/// - Basic types (String, int, bool, double, Uint8List & more!)
 /// - JSON-serializable objects via [json] factory
 /// - Enum values via [enumerated] factory
 ///
 /// Example:
 /// ```dart
 /// // Basic type
-/// final username = Prfi<String>('username');
+/// final username = PrfIso<String>('username');
 /// await username.set('Alice');
 /// final name = await username.get(); // Always reads from disk
 ///
 /// // JSON object
-/// final user = Prfi.json<User>(
+/// final user = PrfIso.json<User>(
 ///   'user',
 ///   fromJson: User.fromJson,
 ///   toJson: (user) => user.toJson(),
 /// );
 ///
 /// // Enum value
-/// final theme = Prfi.enumerated<Theme>(
+/// final theme = PrfIso.enumerated<Theme>(
 ///   'theme',
 ///   values: Theme.values,
 ///   defaultValue: Theme.light,
 /// );
 /// ```
-class Prfi<T> extends BasePrfObject<T> {
+class PrfIso<T> extends BasePrfObject<T> {
   /// Creates a new isolate-safe preference object with the given [key] and optional [defaultValue].
-  Prfi(super.key, {super.defaultValue}) : _customAdapter = null {
+  PrfIso(super.key, {super.defaultValue}) : _customAdapter = null {
     _resolvedAdapter = PrfAdapterMap.instance.of<T>();
   }
 
@@ -47,20 +47,20 @@ class Prfi<T> extends BasePrfObject<T> {
 
   /// Creates a new preference for a JSON-serializable object.
   ///
-  /// This factory method sets up a [Prfi] instance with a [JsonAdapter] for converting
+  /// This factory method sets up a [PrfIso] instance with a [JsonAdapter] for converting
   /// between the object and its JSON representation.
   ///
   /// - [key] is the key to store the preference under.
   /// - [fromJson] converts a JSON map to an instance of type [T].
   /// - [toJson] converts an instance of type [T] to a JSON map.
   /// - [defaultValue] is the value to use if no value exists for the key.
-  static Prfi<T> json<T>(
+  static PrfIso<T> json<T>(
     String key, {
     required T Function(Map<String, dynamic> json) fromJson,
     required Map<String, dynamic> Function(T object) toJson,
     T? defaultValue,
   }) {
-    return Prfi._withAdapter(
+    return PrfIso._withAdapter(
       key,
       adapter: JsonAdapter<T>(fromJson: fromJson, toJson: toJson),
       defaultValue: defaultValue,
@@ -69,25 +69,25 @@ class Prfi<T> extends BasePrfObject<T> {
 
   /// Creates a new preference for an enum value.
   ///
-  /// This factory method sets up a [Prfi] instance with an [EnumAdapter] for converting
+  /// This factory method sets up a [PrfIso] instance with an [EnumAdapter] for converting
   /// between the enum and its integer index representation.
   ///
   /// - [key] is the key to store the preference under.
   /// - [values] is the list of all possible enum values, typically EnumType.values.
   /// - [defaultValue] is the value to use if no value exists for the key.
-  static Prfi<T> enumerated<T extends Enum>(
+  static PrfIso<T> enumerated<T extends Enum>(
     String key, {
     required List<T> values,
     T? defaultValue,
   }) {
-    return Prfi._withAdapter(
+    return PrfIso._withAdapter(
       key,
       adapter: EnumAdapter<T>(values),
       defaultValue: defaultValue,
     );
   }
 
-  Prfi._withAdapter(
+  PrfIso._withAdapter(
     super.key, {
     required PrfAdapter<T> adapter,
     super.defaultValue,

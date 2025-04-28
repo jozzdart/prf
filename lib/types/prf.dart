@@ -4,10 +4,10 @@ import 'package:prf/prf.dart';
 ///
 /// This implementation caches values in memory for faster access after initial read,
 /// making it more efficient for repeated access but not suitable for use across isolates.
-/// For isolate-safe preferences, use [Prfi] instead.
+/// For isolate-safe preferences, use [PrfIso] instead.
 ///
 /// The class supports various types through adapters, including:
-/// - Basic types (String, int, bool, double)
+/// - Basic types (String, int, bool, double, Uint8List & more!)
 /// - JSON-serializable objects via [json] factory
 /// - Enum values via [enumerated] factory
 ///
