@@ -12,7 +12,7 @@ void main() {
   const key = 'test_enum';
   const sharedPreferencesOptions = SharedPreferencesOptions();
 
-  group('PrfEnum Tests', () {
+  group('Prf.enumerated Tests', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -22,7 +22,8 @@ void main() {
 
     test('Returns null when no value is set', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       final result = await prfEnum.getValue(preferences);
       expect(result, isNull);
@@ -30,7 +31,8 @@ void main() {
 
     test('Correctly sets and gets enum value', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await prfEnum.setValue(preferences, TestStatus.success);
       final result = await prfEnum.getValue(preferences);
@@ -39,7 +41,8 @@ void main() {
 
     test('Correctly removes enum value', () async {
       final (preferences, store) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await prfEnum.setValue(preferences, TestStatus.loading);
       await prfEnum.removeValue(preferences);
@@ -56,7 +59,8 @@ void main() {
 
     test('Handles invalid index gracefully (too high)', () async {
       final (preferences, store) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await store.setInt(key, 99, sharedPreferencesOptions); // invalid index
       final result = await prfEnum.getValue(preferences);
@@ -65,7 +69,8 @@ void main() {
 
     test('Handles invalid index gracefully (negative)', () async {
       final (preferences, store) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await store.setInt(key, -5, sharedPreferencesOptions); // invalid index
       final result = await prfEnum.getValue(preferences);
@@ -74,7 +79,7 @@ void main() {
 
     test('Works with defaultValue when missing', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(
+      final prfEnum = Prf.enumerated<TestStatus>(
         key,
         values: TestStatus.values,
         defaultValue: TestStatus.idle,
@@ -86,7 +91,7 @@ void main() {
 
     test('Uses defaultValue only when no value is stored', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(
+      final prfEnum = Prf.enumerated<TestStatus>(
         key,
         values: TestStatus.values,
         defaultValue: TestStatus.loading,
@@ -104,7 +109,8 @@ void main() {
 
     test('Caches value after first access', () async {
       final (preferences, store) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await store.setInt(
           key, TestStatus.success.index, sharedPreferencesOptions);
@@ -120,7 +126,7 @@ void main() {
 
     test('Default value is persisted after first access', () async {
       final (preferences, store) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(
+      final prfEnum = Prf.enumerated<TestStatus>(
         key,
         values: TestStatus.values,
         defaultValue: TestStatus.idle,
@@ -135,7 +141,8 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       final isNull = await prfEnum.isValueNull(preferences);
       expect(isNull, true);
@@ -143,7 +150,8 @@ void main() {
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final prfEnum = PrfEnum<TestStatus>(key, values: TestStatus.values);
+      final prfEnum =
+          Prf.enumerated<TestStatus>(key, values: TestStatus.values);
 
       await prfEnum.setValue(preferences, TestStatus.loading);
       final isNull = await prfEnum.isValueNull(preferences);

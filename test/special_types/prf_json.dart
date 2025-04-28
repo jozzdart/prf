@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prf/prf_types/prf_json.dart';
+import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
@@ -36,7 +36,7 @@ void main() {
   const sharedPreferencesOptions = SharedPreferencesOptions();
   final testUser = User(name: 'Alice', age: 30);
 
-  group('PrfJson<User>', () {
+  group('Prf.json<User>', () {
     (SharedPreferencesAsync, FakeSharedPreferencesAsync) getPreferences() {
       final FakeSharedPreferencesAsync store = FakeSharedPreferencesAsync();
       SharedPreferencesAsyncPlatform.instance = store;
@@ -46,7 +46,7 @@ void main() {
 
     test('returns null if not set and no default provided', () async {
       final (preferences, _) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -59,7 +59,7 @@ void main() {
     test('returns default if not set and default provided', () async {
       final (preferences, _) = getPreferences();
       final fallbackUser = User(name: 'Fallback', age: 99);
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -72,7 +72,7 @@ void main() {
 
     test('sets and gets value correctly', () async {
       final (preferences, _) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -85,7 +85,7 @@ void main() {
 
     test('updates existing value', () async {
       final (preferences, _) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -103,7 +103,7 @@ void main() {
 
     test('removes value properly', () async {
       final (preferences, store) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -124,7 +124,7 @@ void main() {
 
     test('isValueNull returns true when no value', () async {
       final (preferences, _) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -136,7 +136,7 @@ void main() {
 
     test('isValueNull returns false when value is set', () async {
       final (preferences, _) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -149,7 +149,7 @@ void main() {
 
     test('caches value after first access', () async {
       final (preferences, store) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -170,7 +170,7 @@ void main() {
     test('default value is persisted after first access', () async {
       final (preferences, store) = getPreferences();
       final fallbackUser = User(name: 'Defaulty', age: 55);
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),
@@ -188,7 +188,7 @@ void main() {
 
     test('invalid JSON returns null', () async {
       final (preferences, store) = getPreferences();
-      final prfUser = PrfJson<User>(
+      final prfUser = Prf.json<User>(
         key,
         fromJson: User.fromJson,
         toJson: (user) => user.toJson(),

@@ -2,6 +2,35 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.4
+
+- Added factory methods:
+  - `Prf.json<T>(...)` and `Prf.enumerated<T>(...)`
+  - `PrfIso.json(...)` and `PrfIso.enumerated(...)`
+- Added `.isolated` getter on `Prf<T>` for isolate-safe access.
+- Expanded native type support:
+  - Built-in adapters for `num`, `Uri`, `List<int>`, `List<bool>`, `List<double>`, `List<DateTime>` now supported out of the box with all `prf` values! (with efficient binary encoding under the hood)
+- All adapters are now `const` for reduced memory usage and better performance.
+- Updated README documentation.
+- Now isolated `prfs` can easily be created like this:
+
+```dart
+final isoValue = Prf<String>('username').isolated;
+```
+
+**Changes and Deprecations:**
+
+- Renamed `Prfy<T>` → `PrfIso<T>`.
+- Added deprecation annotations with migration instructions.
+- Deprecated classes (to be removed in v3.0.0):
+  - `PrfJson<T>` → `Prf.json<T>(...)`
+  - `PrfEnum<T>` → `Prf.enumerated<T>(...)`
+  - `Prfy<T>` → `PrfIso<T>`
+  - `PrfyJson<T>` → `PrfIso.json<T>(...)`
+  - `PrfyEnum<T>` → `PrfIso.enumerated<T>(...)`
+  - Or alternatively: `Prf.json<T>(...).isolated`, `Prf.enumerated<T>(...).isolated`
+- Added extensive tests for every single adapter, with more than 300 tests - all adapters are heavily tested to ensure data integrity.
+
 ## 2.2.3
 
 - Fixed `Prf.value<T>()` not being static as intended.
