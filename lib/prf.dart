@@ -5,22 +5,23 @@
 ///
 /// PRF offers a clean, concise API for storing and retrieving values with zero
 /// boilerplate, no string repetition, and strong type safety. It supports both
-/// cached access ([Prf]) for performance and isolate-safe access ([Prfy]) for
+/// cached access ([Prf]) for performance and isolate-safe access ([Prfi]) for
 /// reliability across multiple isolates.
 ///
 /// ## Key Features:
 ///
-/// * **Type Safety**: Define variables once, use them anywhere with full type checking
-/// * **Caching**: Automatic in-memory caching with [Prf] for performance
-/// * **Isolate Safety**: [Prfy] provides true isolate-safe access by always reading from disk
-/// * **Extended Type Support**: Beyond primitives - [DateTime], [BigInt], [Duration], enums, and custom JSON models
-/// * **Zero Setup**: No initialization required - define variables and start using them
-/// * **Production Utilities**: [PrfCooldown] for managing cooldown periods and [PrfRateLimiter] for rate limiting
+/// * **Type Safety** — Define variables once, use them anywhere with full type checking
+/// * **Caching** — Automatic in-memory caching with [Prf] for fast access
+/// * **Isolate Safety** — [Prfi] ensures true isolate-safe access (always reads from disk)
+/// * **Extended Type Support** — Beyond primitives: [DateTime], [BigInt], [Duration], enums, JSON models, and binary data
+/// * **Zero Setup** — No manual initialization — define and use immediately
+/// * **Production Utilities** — [PrfCooldown] for managing cooldowns, [PrfRateLimiter] for rate limiting
+/// * **Custom Adapters** — Extend behavior easily with custom serialization, compression, encryption
 ///
 /// ## Basic Usage:
 ///
 /// ```dart
-/// // Define once
+/// // Define persistent variables
 /// final username = Prf<String>('username');
 /// final darkMode = Prf<bool>('dark_mode', defaultValue: false);
 ///
@@ -35,14 +36,18 @@
 ///
 /// ## Specialized Types
 ///
-/// * `PrfEnum<T>` / `PrfyEnum<T>` - For enum values
-/// * `PrfJson<T>` / `PrfyJson<T>` - For custom model objects
+/// Use simple factory methods instead of dedicated classes:
+///
+/// * `Prf.enumerated<T>()` / `Prfi.enumerated<T>()` — for enum values
+/// * `Prf.json<T>()` / `Prfi.json<T>()` — for custom JSON model objects
 ///
 /// ## Custom Adapters
 ///
-/// PRF supports custom type conversion through its adapter system. The library
-/// provides built-in adapters for common types, and you can extend it with your
-/// own adapters for custom serialization, compression, or encryption.
+/// PRF supports a fully modular adapter system.
+/// Built-in adapters cover common types, but you can easily create and register
+/// your own for any custom type, compressed format, or encrypted payload.
+///
+/// See [PrfAdapter] and [PrfAdapterMap] for details.
 library;
 
 export 'core/adapter_map.dart';
@@ -64,8 +69,8 @@ export 'prf_types/legacy/prf_string.dart';
 export 'prf_types/legacy/prf_string_list.dart';
 export 'prf_types/legacy/prf_theme_mode.dart';
 export 'prf_types/prf.dart';
-export 'prf_types/prf_enum.dart';
-export 'prf_types/prf_json.dart';
+export 'prfy_types/prf_enum.dart';
+export 'prfy_types/prf_json.dart';
 export 'prfy_types/prfy.dart';
 export 'prfy_types/prfy_enum.dart';
 export 'prfy_types/prfy_json.dart';
