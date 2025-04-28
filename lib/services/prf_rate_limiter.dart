@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:prf/prf.dart';
+import 'package:prf/prfy_types/prfi.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// A robust, industry-grade token bucket rate limiter using `prf`.
@@ -19,8 +20,8 @@ class PrfRateLimiter {
   /// The time period over which tokens are fully replenished.
   final Duration refillDuration;
 
-  final Prfy<double> _tokenCount;
-  final Prfy<DateTime> _lastRefill;
+  final Prfi<double> _tokenCount;
+  final Prfi<DateTime> _lastRefill;
   final Lock _lock = Lock();
 
   /// Creates a new rate limiter with the specified prefix and configuration.
@@ -32,9 +33,9 @@ class PrfRateLimiter {
     prefix, {
     required this.maxTokens,
     required this.refillDuration,
-  })  : _tokenCount = Prfy<double>('prf_${prefix}_rate_tokens',
+  })  : _tokenCount = Prfi<double>('prf_${prefix}_rate_tokens',
             defaultValue: maxTokens.toDouble()),
-        _lastRefill = Prfy<DateTime>('prf_${prefix}_rate_last_refill',
+        _lastRefill = Prfi<DateTime>('prf_${prefix}_rate_last_refill',
             defaultValue: DateTime.now());
 
   /// Returns `true` if the limiter is currently rate-limited (no token available).
