@@ -27,7 +27,7 @@ class Prf<T> extends CachedPrfObject<T> {
   ///
   /// - [key] is the key to store the preference under.
   /// - [defaultValue] is the value to use if no value exists for the key.
-  Future<Prf<T>> value(
+  static Future<Prf<T>> value<T>(
     String key, {
     T? defaultValue,
   }) async {

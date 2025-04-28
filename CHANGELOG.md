@@ -2,6 +2,10 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.3
+
+- Fixed `Prf.value<T>()` not being static as intended.
+
 ## 2.2.2
 
 - Updated README
@@ -169,11 +173,11 @@ await Prf.migrateFromLegacyPrefsIfNeeded();
 ```
 
 This safely copies data from the legacy storage backend to the new one.  
-It’s safe to run every time — the migration will only happen once.
+It's safe to run every time — the migration will only happen once.
 
 ---
 
-### ✅ What’s new in 2.0.0:
+### ✅ What's new in 2.0.0:
 
 - Internals now use `SharedPreferencesAsync`
 - Full **isolate-safety**, suitable for background plugins like `firebase_messaging`
@@ -197,8 +201,8 @@ It’s safe to run every time — the migration will only happen once.
 
 This is a critical under-the-hood upgrade to ensure `prf` is compatible with modern Flutter apps, isolate-safe, and ready for the future of shared preferences.
 
-If your app is new, or you don’t care about previously stored data — you're done ✅  
-If you’re upgrading and need old values — migrate once as shown above.
+If your app is new, or you don't care about previously stored data — you're done ✅  
+If you're upgrading and need old values — migrate once as shown above.
 
 ## 1.3.8
 
