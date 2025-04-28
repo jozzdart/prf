@@ -8,7 +8,7 @@ void main() async {
   final username = Prf<String>('username');
   final highScore = Prf<int>('high_score', defaultValue: 0);
 
-  final currentUser = PrfJson<User>(
+  final currentUser = Prf.json<User>(
     'current_user',
     fromJson: (json) => User.fromJson(json),
     toJson: (user) => user.toJson(),
