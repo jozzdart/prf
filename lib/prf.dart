@@ -59,6 +59,8 @@ export 'adapters/encoded/duration_adapter.dart';
 export 'adapters/encoded/int_list_adapter.dart';
 export 'adapters/encoded/num_adapter.dart';
 export 'adapters/encoded/uri_adapter.dart';
+export 'adapters/encoded/date_time_list.dart';
+export 'adapters/encoded/list_double.dart';
 export 'adapters/enum_adapter.dart';
 export 'adapters/json_adapter.dart';
 export 'adapters/native_adapters.dart';

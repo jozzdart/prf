@@ -85,5 +85,7 @@ class PrfAdapterMap {
     // List adapters
     register<List<int>>(const IntListAdapter());
     register<List<bool>>(const BoolListAdapter());
+    register<List<double>>(const DoubleListAdapter());
+    register<List<DateTime>>(const DateTimeListAdapter());
   }
 }
