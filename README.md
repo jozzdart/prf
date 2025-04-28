@@ -8,9 +8,9 @@
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
 </p>
 
-No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Includes 20+ built-in types and utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
+No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
 
-> Way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -118,7 +118,7 @@ final name = await username.get();
 **Using `prf` with isolate-safe access (`PrfIso<T>`):**
 
 ```dart
-final username = PrfIso<String>('username');
+final username = Prf<String>('username').isolated;
 await username.set('Joey');
 final name = await username.get();
 ```
@@ -209,11 +209,21 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 All of these work out of the box:
 
-- `bool` `int` `double` `num` `String` `Duration` `DateTime` `Uri` `BigInt`
-- `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
+- `bool`
+- `int`
+- `double`
+- `num`
+- `String`
+- `Duration`
+- `DateTime`
+- `Uri`
+- `BigInt`
+- `List<String>`
+- `List<int>`
+- `List<bool>`
+- `List<double>`
+- `List<DateTime>`
 - `Uint8List` (binary data)
-
-You can define persistent variables for any of these types using either `Prf<T>` (cached, good for most use cases) or `PrfIso<T>` (isolate-safe, no cache).
 
 ### Specialized Types
 
