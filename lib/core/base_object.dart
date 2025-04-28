@@ -19,22 +19,17 @@ abstract class BasePrfObject<T> {
   /// Creates a new preference object with the given [key] and optional [defaultValue].
   const BasePrfObject(this.key, {this.defaultValue});
 
-  /// Checks if the preference exists in SharedPreferences.
-  Future<bool> _exists(SharedPreferencesAsync prefs) async {
-    return await prefs.containsKey(key);
-  }
-
   /// Gets the value from SharedPreferences.
   ///
   /// If the value doesn't exist and [defaultValue] is provided,
   /// stores the default value and returns it.
   Future<T?> getValue(SharedPreferencesAsync prefs) async {
-    final exists = await _exists(prefs);
-    if (!exists && defaultValue != null) {
+    final value = await adapter.getter(prefs, key);
+    if (value == null && defaultValue != null) {
       await setValue(prefs, defaultValue as T);
       return defaultValue;
     }
-    return await adapter.getter(prefs, key);
+    return value;
   }
 
   /// Checks if the stored value is null.

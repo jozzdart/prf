@@ -40,15 +40,25 @@ void main() {
       adapterMap.registerAll();
 
       expect(adapterMap.registered, true);
+
+      // native
       expect(adapterMap.contains<bool>(), true);
       expect(adapterMap.contains<int>(), true);
       expect(adapterMap.contains<double>(), true);
       expect(adapterMap.contains<String>(), true);
       expect(adapterMap.contains<List<String>>(), true);
+
+      // encoded
+      expect(adapterMap.contains<num>(), true);
       expect(adapterMap.contains<DateTime>(), true);
       expect(adapterMap.contains<Duration>(), true);
       expect(adapterMap.contains<BigInt>(), true);
       expect(adapterMap.contains<Uint8List>(), true);
+      expect(adapterMap.contains<Uri>(), true);
+
+      // lists
+      expect(adapterMap.contains<List<int>>(), true);
+      expect(adapterMap.contains<List<bool>>(), true);
     });
 
     test('of<T>() automatically registers adapters if none registered', () {

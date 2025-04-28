@@ -75,9 +75,15 @@ class PrfAdapterMap {
     register<List<String>>(const StringListAdapter());
 
     // Register special types
+    register<num>(const NumAdapter());
     register<DateTime>(const DateTimeAdapter());
     register<Duration>(const DurationAdapter());
     register<BigInt>(const BigIntAdapter());
     register<Uint8List>(const BytesAdapter());
+    register<Uri>(const UriAdapter());
+
+    // List adapters
+    register<List<int>>(const IntListAdapter());
+    register<List<bool>>(const BoolListAdapter());
   }
 }

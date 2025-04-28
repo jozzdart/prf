@@ -52,6 +52,7 @@ library;
 
 export 'adapters/adapter_map.dart';
 export 'adapters/encoded/big_int_adapter.dart';
+export 'adapters/encoded/bool_list.dart';
 export 'adapters/encoded/bytes_adapter.dart';
 export 'adapters/encoded/date_time_adapter.dart';
 export 'adapters/encoded/duration_adapter.dart';
