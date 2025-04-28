@@ -1,19 +1,18 @@
 import 'package:prf/prf.dart';
 
-/// An isolate-safe preference object that provides type-safe access to SharedPreferences.
+/// An isolate-safe preference object.
 ///
-/// Unlike [Prf], this implementation does not cache values in memory, making it
-/// suitable for use across isolates but requiring disk reads for each access.
-/// Use this when you need preferences that are always consistent across isolates.
+/// This class is deprecated. Use [Prfi] instead.
 ///
 /// Example:
 /// ```dart
-/// final settings = Prfy<bool>('dark_mode', defaultValue: false);
-/// await settings.set(true);
-/// final isDarkMode = await settings.get(); // Always reads from disk
+/// final username = Prfi<String>('username');
 /// ```
+@Deprecated('Use Prfi instead. This class will be removed in a future version.')
 class Prfy<T> extends BasePrfObject<T> {
   /// Creates a new isolate-safe preference object with the given [key] and optional [defaultValue].
+  @Deprecated(
+      'Use Prfi instead. This class will be removed in a future version.')
   Prfy(super.key, {super.defaultValue});
 
   /// Gets the appropriate adapter for type [T] from the adapter registry.
