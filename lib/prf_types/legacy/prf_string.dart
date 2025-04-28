@@ -1,21 +1,17 @@
-import 'package:prf/prf_types/prf.dart';
+import 'package:prf/prf.dart';
 
-/// A type-safe wrapper for storing and retrieving string values in SharedPreferences.
+/// A cached preference object for String values.
 ///
-/// Use this class for storing text data like usernames, tokens, IDs, or any textual content.
+/// This class is deprecated. Use [Prf] instead.
 ///
 /// Example:
 /// ```dart
-/// final username = PrfString('username');
-/// await username.set('Joey');
-/// final name = await username.get(); // 'Joey'
+/// final username = Prf<String>('username');
 /// ```
-@Deprecated(
-    'Use Prf<String> instead for cached access or Prfy<String> for isolate-safe access')
+@Deprecated('Use Prf instead. This class will be removed in a future version.')
 class PrfString extends Prf<String> {
-  /// Creates a new string preference variable with the specified [key].
-  ///
-  /// The optional [defaultValue] is returned if the preference is not found
-  /// or if an error occurs while reading.
+  /// Creates a new cached String preference.
+  @Deprecated(
+      'Use Prf instead. This constructor will be removed in a future version.')
   PrfString(super.key, {super.defaultValue});
 }

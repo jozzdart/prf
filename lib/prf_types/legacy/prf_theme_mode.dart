@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:prf/prf_types/prf_enum.dart';
+import 'package:prf/prfy_types/prf_enum.dart';
 
-/// A type-safe wrapper for storing and retrieving [ThemeMode] values in SharedPreferences.
+/// A cached preference for ThemeMode.
 ///
-/// This class automatically handles the conversion between ThemeMode enum values and
-/// their integer indices for storage.
-///
-/// The default value is based on the current system theme if not specified otherwise.
+/// This class is deprecated. Use [Prf.enumerated] instead.
 ///
 /// Example:
 /// ```dart
-/// final themeMode = PrfThemeMode('app_theme_mode');
-/// await themeMode.set(ThemeMode.dark);
-/// final currentTheme = await themeMode.get(); // ThemeMode.dark
+/// final theme = Prf.enumerated<ThemeMode>('theme', values: ThemeMode.values);
 /// ```
 @Deprecated(
-    'Use PrfEnum<ThemeMode> instead for cached access or PrfyEnum<ThemeMode> for isolate-safe access')
+    'Use Prf.enumerated instead. This class will be removed in a future version.')
 class PrfThemeMode extends PrfEnum<ThemeMode> {
-  /// Creates a new ThemeMode preference variable with the specified [key].
-  ///
-  /// If [defaultValue] is not provided, it will use the system's current theme mode.
-  /// This is determined at runtime when the value is first requested.
+  /// Creates a new cached ThemeMode preference.
+  @Deprecated(
+      'Use Prf.enumerated instead. This constructor will be removed in a future version.')
   PrfThemeMode(super.key, {super.defaultValue = ThemeMode.system})
       : super(values: ThemeMode.values);
 }

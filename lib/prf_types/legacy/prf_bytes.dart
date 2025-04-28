@@ -2,26 +2,19 @@ import 'dart:typed_data';
 
 import 'package:prf/prf.dart';
 
-/// A type-safe wrapper for storing and retrieving binary data (Uint8List) in SharedPreferences.
+/// A cached preference for Uint8List.
 ///
-/// This class automatically handles the conversion between binary data and base64 encoded strings
-/// for storage in SharedPreferences.
-///
-/// Use this class for storing binary data like images, cryptographic keys,
-/// or any other raw byte content.
+/// This class is deprecated. Use [Prf] directly instead.
 ///
 /// Example:
 /// ```dart
-/// final imageData = PrfBytes('profile_image');
-/// await imageData.set(Uint8List.fromList([...]));
-/// final bytes = await imageData.get();
+/// final bytes = Prf<Uint8List>('bytes');
 /// ```
 @Deprecated(
-    'Use Prf<Uint8List> instead for cached access or Prfy<Uint8List> for isolate-safe access')
+    'Use Prf<Uint8List> directly instead. This class will be removed in a future version.')
 class PrfBytes extends Prf<Uint8List> {
-  /// Creates a new bytes preference variable with the specified [key].
-  ///
-  /// The optional [defaultValue] is returned if the preference is not found
-  /// or if an error occurs while reading.
+  /// Creates a new cached bytes preference.
+  @Deprecated(
+      'Use Prf<Uint8List> directly instead. This constructor will be removed in a future version.')
   PrfBytes(super.key, {super.defaultValue});
 }

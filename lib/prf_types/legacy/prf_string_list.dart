@@ -1,22 +1,17 @@
-import 'package:prf/prf_types/prf.dart';
+import 'package:prf/prf.dart';
 
-/// A type-safe wrapper for storing and retrieving string lists in SharedPreferences.
+/// A cached string list preference.
 ///
-/// Use this class for storing collections of strings like tags, recent searches,
-/// selected items, or any array of text data.
+/// This class is deprecated. Use [Prf] instead.
 ///
 /// Example:
 /// ```dart
-/// final recentSearches = PrfStringList('recent_searches', defaultValue: []);
-/// await recentSearches.set(['flutter', 'dart', 'prf']);
-/// final searches = await recentSearches.get(); // ['flutter', 'dart', 'prf']
+/// final tags = Prf<List<String>>('tags');
 /// ```
-@Deprecated(
-    'Use Prf<List<String>> instead for cached access or Prfy<List<String>> for isolate-safe access')
+@Deprecated('Use Prf instead. This class will be removed in a future version.')
 class PrfStringList extends Prf<List<String>> {
-  /// Creates a new string list preference variable with the specified [key].
-  ///
-  /// The optional [defaultValue] is returned if the preference is not found
-  /// or if an error occurs while reading.
+  /// Creates a new string list preference.
+  @Deprecated(
+      'Use Prf instead. This constructor will be removed in a future version.')
   PrfStringList(super.key, {super.defaultValue});
 }

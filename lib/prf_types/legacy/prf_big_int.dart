@@ -1,25 +1,17 @@
 import 'package:prf/prf.dart';
 
-/// A type-safe wrapper for storing and retrieving BigInt values in SharedPreferences.
+/// A cached BigInt preference.
 ///
-/// This class automatically handles the conversion between BigInt objects and
-/// their binary representation (encoded as base64 strings) for efficient storage.
-///
-/// Use this class for storing large integers that exceed the range of regular integers,
-/// such as very large IDs, cryptographic values, or mathematical calculations.
+/// This class is deprecated. Use [Prf] instead.
 ///
 /// Example:
 /// ```dart
-/// final largeNumber = PrfBigInt('large_number');
-/// await largeNumber.set(BigInt.parse('1234567890123456789012345678901234567890'));
-/// final number = await largeNumber.get();
+/// final balance = Prf<BigInt>('balance');
 /// ```
-@Deprecated(
-    'Use Prf<BigInt> instead for cached access or Prfy<BigInt> for isolate-safe access')
+@Deprecated('Use Prf instead. This class will be removed in a future version.')
 class PrfBigInt extends Prf<BigInt> {
-  /// Creates a new BigInt preference variable with the specified [key].
-  ///
-  /// The optional [defaultValue] is returned if the preference is not found
-  /// or if an error occurs while reading.
+  /// Creates a new BigInt preference.
+  @Deprecated(
+      'Use Prf instead. This constructor will be removed in a future version.')
   PrfBigInt(super.key, {super.defaultValue});
 }

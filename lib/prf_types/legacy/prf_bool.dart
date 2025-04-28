@@ -1,22 +1,17 @@
-import 'package:prf/prf_types/prf.dart';
+import 'package:prf/prf.dart';
 
-/// A type-safe wrapper for storing and retrieving boolean values in SharedPreferences.
+/// A cached boolean preference.
 ///
-/// Use this class for storing true/false flags like user preferences, feature toggles,
-/// or settings states.
+/// This class is deprecated. Use [Prf] instead.
 ///
 /// Example:
 /// ```dart
-/// final darkMode = PrfBool('dark_mode', defaultValue: false);
-/// await darkMode.set(true);
-/// final isDarkMode = await darkMode.get(); // true
+/// final darkMode = Prf<bool>('dark_mode');
 /// ```
-@Deprecated(
-    'Use Prf<bool> instead for cached access or Prfy<bool> for isolate-safe access')
+@Deprecated('Use Prf instead. This class will be removed in a future version.')
 class PrfBool extends Prf<bool> {
-  /// Creates a new boolean preference variable with the specified [key].
-  ///
-  /// The optional [defaultValue] is returned if the preference is not found
-  /// or if an error occurs while reading.
+  /// Creates a new boolean preference.
+  @Deprecated(
+      'Use Prf instead. This constructor will be removed in a future version.')
   PrfBool(super.key, {super.defaultValue});
 }
