@@ -45,7 +45,11 @@ Or set it:
 await username.set('Joey');
 ```
 
-That’s it. You're done. Works with [all supported `prf` Types!](#-available-methods-for-all-prf-types)
+That’s it. You're done. Works out of the box with all of these:
+
+- `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
+- `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
+- [JSON & enums](#-supported-prf-types)
 
 ---
 
@@ -203,24 +207,20 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 # 🔤 Supported `prf` Types
 
-You can define persistent variables for any of these types using either `Prf<T>` (cached, good for most use cases) or `PrfIso<T>` (isolate-safe, no cache):
+All of these work out of the box:
 
-- `bool`
-- `int`
-- `double`
-- `String`
-- `List<String>`
+- `bool` `int` `double` `num` `String` `Duration` `DateTime` `Uri` `BigInt`
+- `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
 - `Uint8List` (binary data)
-- `DateTime`
-- `Duration`
-- `BigInt`
+
+You can define persistent variables for any of these types using either `Prf<T>` (cached, good for most use cases) or `PrfIso<T>` (isolate-safe, no cache).
 
 ### Specialized Types
 
 For enums and custom JSON models, use the built-in factory methods:
 
-- `Prf.enumerated<T>()` / `PrfIso.enumerated<T>()` — for enum values
-- `Prf.json<T>()` / `PrfIso.json<T>()` — for custom model objects
+- `Prf.enumerated<T>()` — for enum values
+- `Prf.json<T>()` — for custom model objects
 
 ### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
 
@@ -921,7 +921,9 @@ print(color?.r); // 255
 For isolate-safe persistence:
 
 ```dart
-final safeColor = PrfIso<Color>('favorite_color');
+final safeColor = favoriteColor.isolated;                // Same
+final safeColor = Prf<Color>('favorite_color').isolated; // Same
+final safeColor = PrfIso<Color>('favorite_color');       // Same
 ```
 
 ## Summary
