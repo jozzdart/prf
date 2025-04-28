@@ -11,6 +11,16 @@ import 'package:prf/prf.dart';
 /// - JSON-serializable objects via [json] factory
 /// - Enum values via [enumerated] factory
 ///
+/// You can also create an isolate-safe preference from an existing [Prf] instance
+/// using the `.isolated` getter:
+///
+/// ```dart
+/// // Create a cached preference and then get an isolate-safe version
+/// final isolatedUsername = Prf<String>('username').isolated;
+/// await isolatedUsername.set('Alice');
+/// final name = await isolatedUsername.get();
+/// ```
+///
 /// Example:
 /// ```dart
 /// // Basic type
@@ -83,6 +93,19 @@ class PrfIso<T> extends BasePrfObject<T> {
     return PrfIso._withAdapter(
       key,
       adapter: EnumAdapter<T>(values),
+      defaultValue: defaultValue,
+    );
+  }
+
+  /// Creates a new preference using a custom adapter.
+  static PrfIso<T> customAdapter<T>(
+    String key, {
+    required PrfAdapter<T> adapter,
+    T? defaultValue,
+  }) {
+    return PrfIso._withAdapter(
+      key,
+      adapter: adapter,
       defaultValue: defaultValue,
     );
   }

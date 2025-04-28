@@ -115,4 +115,30 @@ class Prf<T> extends CachedPrfObject<T> {
       defaultValue: defaultValue,
     );
   }
+
+  /// Creates a new preference using a custom adapter.
+  static Prf<T> customAdapter<T>(
+    String key, {
+    required PrfAdapter<T> adapter,
+    T? defaultValue,
+  }) {
+    return Prf._withAdapter(
+      key,
+      adapter: adapter,
+      defaultValue: defaultValue,
+    );
+  }
+
+  /// Creates an isolate-safe version of this preference.
+  ///
+  /// Returns a [PrfIso] instance that shares the same key, adapter, and default value
+  /// as this preference, but without caching. This is useful when you need to access
+  /// the preference from a different isolate.
+  ///
+  /// Example:
+  /// ```dart
+  /// final isolatedPref = Prf<String>('username').isolated; // Safe to use across isolates
+  /// ```
+  PrfIso<T> get isolated => PrfIso.customAdapter<T>(key,
+      adapter: adapter, defaultValue: defaultValue);
 }
