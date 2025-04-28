@@ -71,7 +71,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Single definition** — just one line to define, then reuse anywhere
 - ✅ **Type-safe** — no casting, no runtime surprises
 - ✅ **Automatic caching** — with `Prf<T>` for fast access
-- ✅ **True isolate safety** — with `PrfIso<T>`
+- ✅ **True isolate safety** — with `.isolated`
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
 - ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
@@ -201,7 +201,14 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 | `getOrFallback(fallback)` | Returns the value or a fallback if `null`.                |
 | `existsOnPrefs()`         | Checks if the key exists in storage.                      |
 
-> ✅ Available on **all `Prf<T>` and `PrfIso<T>` types** — consistent, type-safe, and ready to use anywhere in your app.
+> ✅ Available on **all `Prf<T>` and `PrfIso<T>` types** — consistent, type-safe, and ready to use anywhere in your app. It's even easier to make prf isolate safe just by calling `.isolate` on your prfs!
+
+These are practically the same:
+
+```dart
+final safeUser = Prf<String>('username').isolated;
+final safeUser = PrfIso<String>('username');
+```
 
 ---
 
