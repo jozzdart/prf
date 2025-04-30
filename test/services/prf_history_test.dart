@@ -230,7 +230,7 @@ void main() {
 
     test('key returns assigned key', () async {
       final history = PrfHistory<int>('my_history_key');
-      expect(history.key, 'my_history_key');
+      expect(history.key, PrfHistory.keyFromName('my_history_key'));
     });
 
     test('json factory stores and retrieves model', () async {
