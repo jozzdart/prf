@@ -4,57 +4,25 @@ All notable changes to the **prf** package will be documented in this file.
 
 ## 2.3.0
 
-#### 🧭 Tracker Services
-
-Introduced a new "Tracker" utilities:
-
-- 📖 See the `README` for full documentation, examples, and usage tips (:
-- **`PrfStreakTracker`** — a smart persistent streak tracker that increases if the action is performed every aligned period (e.g. every day), and resets if a period is missed. Ideal for motivating behavior like "7-day login streaks", "daily habits", or "wseekly contributions".
-
-  ```dart
-  final streak = PrfStreakTracker('login_streak', period: TrackerPeriod.daily);
-  await streak.bump(); // +1 if not broken
-  final count = await streak.currentStreak(); // current streak length
-  final isBroken = await streak.isStreakBroken(); // true if missed a day
-  ```
-
-  Includes advanced methods for:
-
-  - `.currentStreak()` and `.bump()` with optional amount
-  - `.isStreakBroken()`
-  - `.percentRemaining()` until streak expires
-  - `.nextResetTime()` and `.streakAge()` and much more, Read the `README`!
-
-- **`PrfPeriodicCounter`** — a drop-in persistent counter that resets itself automatically at the start of each aligned period (e.g. daily, hourly, every 5 minutes).  
-  Tracks actions like "daily logins", "hourly submissions", or "weekly attempts" with zero boilerplate.
-
-  ```dart
-  final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
-  await counter.increment();  // +1 today
-  final total = await counter.get(); // auto-resets each day at midnight
-  ```
-
-  Backed by `PrfIso<int>` and supports `.get()`, `.increment()`, `.reset()`, `.clear()` and `hasState()` and much more! Read the `README`
-
-- **`PrfRolloverCounter`** — a sliding-window version of the above counter. Resets itself after a fixed duration (e.g. every 10 minutes from last use).  
-  Great for rolling metrics like "actions per hour" or "countdowns between retries".
-
-  ```dart
-  final counter = PrfRolloverCounter('retry_count', resetEvery: Duration(minutes: 10));
-  await counter.increment();  // +1 now
-  final remaining = await counter.get(); // Current count (auto resets if needed)
-  final remaining = await counter.timeRemaining(); // Duration until reset
-  ```
-
-  Exposes helpful time-based utilities like `.timeRemaining()`, `.getEndTime()`, `.percentElapsed()`, and `.whenExpires()` for rich UI feedback and much more! Read the `README`
-
-- All tracker tools are now covered by **extensive tests** — including 150 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
-- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
-
 ### General Additions
 
 - Added `Back to Table of Contents` links to all README sections for improved navigation.
 - All utilities & services now support an optional `useCache: true` parameter to enable faster memory-cached access for single-isolate apps. They remain **isolate-safe by default**, but enabling caching **disables isolate safety**. See the `README` for guidance on when to enable it.
+
+### 🧭 Tracker Services
+
+Introduced a suite of new tracker utilities — see the 📖 `README` for full documentation, examples, and usage tips:
+
+- **`PrfStreakTracker`** — Persistent streak tracker that increases when an action is performed every aligned period (e.g. daily), and resets if a period is missed. Ideal for login streaks, daily habits, and weekly goals. Includes methods for checking streak length, detecting breaks, and calculating time left before expiration.
+
+- **`PrfPeriodicCounter`** — A persistent counter that resets itself automatically at the start of each aligned period (e.g. daily, hourly, weekly). Perfect for counting recurring actions like logins or submissions. Supports incrementing, getting, resetting, and clearing the count.
+
+- **`PrfRolloverCounter`** — A sliding-window counter that resets itself after a fixed duration (e.g. 10 minutes after last use). Useful for rolling metrics like "actions per hour" or "retry cooldowns". Includes time-aware utilities like time remaining, end time, and percentage elapsed.
+
+- **`PrfActivityCounter`** — A time-based analytics tracker that aggregates values over hour, day, month, and year spans. Useful for building heatmaps, tracking activity frequency, or logging usage patterns. Supports advanced queries like `.summary()`, `.total()`, `.all()`, and `.maxValue()`, with uncapped yearly data retention.
+
+- All tracker tools are now covered by **extensive tests** — including 220 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
+- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
 
 ### Fixed
 

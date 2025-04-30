@@ -91,6 +91,7 @@ Working with `SharedPreferences` often leads to:
   - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
   - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
   - `PrfRateLimiter` – token-bucket rate limiter (e.g. 1000 actions per 15 minutes)
+  - `PrfActivityCounter` – persistent analytics tracker across hour/day/month/year spans (e.g. usage, activity, history heatmaps)
 
 ---
 
@@ -268,6 +269,7 @@ For enums and custom JSON models, use the built-in factory methods:
 - `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
 - `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- `PrfActivityCounter` — for persistent tracking of activity across hour/day/month/year spans (e.g. usage stats, analytics heatmaps)
 
 ---
 
@@ -452,11 +454,12 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 
 ### Included utilities:
 
-- 🔁 [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
-- 📈 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
-- 📅 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
+- ⏲ [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
+- 🔥 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
+- 📈 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
 - ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- 📆 [**PrfActivityCounter**](#-prfactivitycounter--persistent-activity-tracker) — multi-resolution activity tracker across hour/day/month/year (e.g. usage stats, user engagement heatmaps)
 
 ---
 
@@ -471,6 +474,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | 📈 Count how many times per day/hour/etc.    | `PrfPeriodicCounter` | Aligned period-based counter, resets at the start of each time window |
 | ⏳ Count over a sliding window               | `PrfRolloverCounter` | Resets X duration after last activity, rolling logic                  |
 | 📊 Real rate-limiting (N actions per Y time) | `PrfRateLimiter`     | Token bucket algorithm with refill over time                          |
+| 🗓 Track detailed usage history over time     | `PrfActivityCounter` | Persistent span-based history (hour/day/month/year) with total/stats  |
 
 ---
 
@@ -482,14 +486,14 @@ Each persistent utility is tailored for a specific pattern of time-based control
 > → Fixed cooldown timer from last activation  
 > → Great for claim buttons, retry delays, or cooldown locks
 
-**📈 `PrfStreakTracker`**
+**🔥 `PrfStreakTracker`**
 
 > _"Maintain a daily learning streak"_  
 > → Aligned periods (`daily`, `weekly`, etc.)  
 > → Resets if user misses a full period  
 > → Ideal for habit chains, gamified streaks
 
-**📅 `PrfPeriodicCounter`**
+**📈 `PrfPeriodicCounter`**
 
 > _"How many times today?"_  
 > → Auto-reset at the start of each period (e.g. midnight)  
@@ -508,6 +512,13 @@ Each persistent utility is tailored for a specific pattern of time-based control
 > → Replenishes tokens over time (not per action)  
 > → Great for APIs, messaging, or hard quota control
 
+**📆 `PrfActivityCounter`**
+
+> _"Track usage over time by hour, day, month, year"_  
+> → Persistent time-series counter  
+> → Supports summaries, totals, active dates, and trimming  
+> → Ideal for activity heatmaps, usage analytics, or historical stats
+
 ### 🧠 TL;DR Cheat Sheet
 
 | Goal                               | Use                  |
@@ -517,6 +528,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | "Count per hour / day / week"      | `PrfPeriodicCounter` |
 | "Reset X minutes after last use"   | `PrfRolloverCounter` |
 | "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
+| "Track activity history over time" | `PrfActivityCounter` |
 
 #### ⚡ Optional `useCache` Parameter
 
@@ -545,7 +557,7 @@ final limiter = PrfRateLimiter(
 
 > ⚠️ **Warning**: Enabling `useCache` disables isolate safety. Use only when you're sure no other isolate accesses the same key.
 
-# 🕒 `PrfCooldown` Persistent Cooldown Utility
+# ⏲ `PrfCooldown` Persistent Cooldown Utility
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
@@ -696,7 +708,7 @@ final exists = await cooldown.anyStateExists(); // Returns true if anything is s
 > You can create as many cooldowns as you need — each with a unique prefix.
 > All state is persisted, isolate-safe, and instantly reusable.
 
-# 📈 `PrfStreakTracker` Persistent Streak Tracker
+# 🔥 `PrfStreakTracker` Persistent Streak Tracker
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
@@ -866,7 +878,7 @@ await streak.clear();                    // Removes all saved state
 final hasData = await streak.hasState(); // Checks if any value exists
 ```
 
-# 📅 `PrfPeriodicCounter` Aligned Timed Counter
+# 📈 `PrfPeriodicCounter` Aligned Timed Counter
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
@@ -1323,7 +1335,175 @@ final exists = await limiter.anyStateExists();
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
 
+# 📊 `PrfActivityCounter` – Persistent Activity Tracker
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfActivityCounter` is a powerful utility for **tracking user activity over time**, across `hour`, `day`, `month`, and `year` spans. It is designed for scenarios where you want to **record frequency**, **analyze trends**, or **generate statistics** over long periods, with full persistence across app restarts and isolates.
+
+It handles:
+
+- Span-based persistent counters (hourly, daily, monthly, yearly)
+- Automatic time-based bucketing using `DateTime.now()`
+- Per-span data access and aggregation
+- Querying historical data without manual cleanup
+- Infinite year tracking
+
 ---
+
+### 🔧 How to Use
+
+- `add(int amount)` — Adds to the current time bucket (across all spans)
+- `increment()` — Shortcut for `add(1)`
+- `amountThis(span)` — Gets current value for now’s `hour`, `day`, `month`, or `year`
+- `amountFor(span, date)` — Gets the value for any given date and span
+- `summary()` — Returns a map of all spans for the current time (`{year: X, month: Y, ...}`)
+- `total(span)` — Total sum of all recorded entries in that span
+- `all(span)` — Returns `{index: value}` map of non-zero entries for a span
+- `maxValue(span)` — Returns the largest value ever recorded for the span
+- `activeDates(span)` — Returns a list of `DateTime` objects where any activity was tracked
+- `hasAnyData()` — Returns `true` if any activity has ever been recorded
+- `thisHour`, `today`, `thisMonth`, `thisYear` — Shorthand for `amountThis(...)`
+- `reset()` — Clears all data in sall spans
+- `clear(span)` — Clears a single span
+- `clearAllKnown([...])` — Clears multiple spans at once
+- `removeAll()` — Permanently deletes all stored data for this counter
+
+**PrfActivityCounter** tracks activity simultaneously across all of the following spans:
+
+- `ActivitySpan.hour` — hourly activity (rolling 24-hour window)
+- `ActivitySpan.day` — daily activity (up to 31 days)
+- `ActivitySpan.month` — monthly activity (up to 12 months)
+- `ActivitySpan.year` — yearly activity (from year 2000 onward, uncapped)
+
+---
+
+#### ✅ Define an Activity Counter
+
+```dart
+final counter = PrfActivityCounter('user_events');
+```
+
+This creates a persistent activity counter with a unique prefix. It automatically manages:
+
+- Hourly counters
+- Daily counters
+- Monthly counters
+- Yearly counters
+
+---
+
+#### ➕ Add or Increment Activity
+
+```dart
+await counter.add(5);    // Adds 5 to all time buckets
+await counter.increment(); // Adds 1 (shortcut)
+```
+
+Each call will update the counter in all spans (`hour`, `day`, `month`, and `year`) based on `DateTime.now()`.
+
+---
+
+#### 📊 Get Current Time Span Counts
+
+```dart
+final currentHour = await counter.thisHour;
+final today = await counter.today;
+final thisMonth = await counter.thisMonth;
+final thisYear = await counter.thisYear;
+```
+
+You can also use:
+
+```dart
+await counter.amountThis(ActivitySpan.day);
+await counter.amountThis(ActivitySpan.month);
+```
+
+---
+
+#### 📅 Read Specific Time Buckets
+
+```dart
+final value = await counter.amountFor(ActivitySpan.year, DateTime(2022));
+```
+
+Works for any `ActivitySpan` and `DateTime`.
+
+---
+
+#### 📈 Get Summary of All Current Spans
+
+```dart
+final summary = await counter.summary();
+// {ActivitySpan.year: 12, ActivitySpan.month: 7, ...}
+```
+
+---
+
+#### 🔢 Get Total Accumulated Value
+
+```dart
+final sum = await counter.total(ActivitySpan.day); // Sum of all recorded days
+```
+
+---
+
+#### 📍 View All Non-Zero Buckets
+
+```dart
+final map = await counter.all(ActivitySpan.month); // {5: 3, 6: 10, 7: 1}
+```
+
+Returns a `{index: value}` map of all non-zero entries.
+
+---
+
+#### 🚩 View Active Dates
+
+```dart
+final days = await counter.activeDates(ActivitySpan.day);
+```
+
+Returns a list of `DateTime` objects representing each tracked entry.
+
+---
+
+#### 📈 View Max Value in Span
+
+```dart
+final peak = await counter.maxValue(ActivitySpan.hour);
+```
+
+Returns the highest value recorded in that span.
+
+---
+
+#### 🔍 Check If Any Data Exists
+
+```dart
+final exists = await counter.hasAnyData();
+```
+
+---
+
+#### 🧼 Reset or Clear Data
+
+```dart
+await counter.reset(); // Clears all spans
+await counter.clear(ActivitySpan.month); // Clears only month data
+await counter.clearAllKnown([ActivitySpan.year, ActivitySpan.hour]);
+```
+
+---
+
+#### ❌ Permanently Remove Data
+
+```dart
+await counter.removeAll();
+```
+
+Deletes all stored values associated with this key. Use this in tests or during debug cleanup.
 
 # 🛣️ Roadmap & Future Plans
 
