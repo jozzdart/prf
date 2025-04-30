@@ -7,6 +7,12 @@
         <img src="https://img.shields.io/github/license/jozzzzep/prf?style=flat-square">
         <img src="https://img.shields.io/pub/points/prf?style=flat-square">
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
+        
+</p>
+<p align="center">
+  <a href="https://buymeacoffee.com/yosefd99v" target="https://buymeacoffee.com/yosefd99v">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Support (:-blue?logo=buymeacoffee&style=flat-square" />
+  </a>
 </p>
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
@@ -81,6 +87,8 @@ Working with `SharedPreferences` often leads to:
 - ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
   - `PrfRateLimiter` – token-bucket limiter (e.g. 1000 actions per 15 minutes)
+  - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
+  - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
 
 ---
 
@@ -256,6 +264,7 @@ For enums and custom JSON models, use the built-in factory methods:
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
 - `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
+- `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
 
 ---
 
@@ -443,6 +452,7 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 - 🔁 [**PrfCooldown**](#-prfcooldown--persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter--persistent-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
 - 📅 [**PrfPeriodicCounter**](#-prfperiodiccounter--aligned-time-based-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
+- ⏳ [**PrfRolloverCounter**](#-prfrollovercounter--sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
 
 ---
 
@@ -921,6 +931,141 @@ final next = counter.nextPeriodStart;          // start of the next period
 final left = counter.timeUntilNextPeriod;      // how long until reset
 final elapsed = counter.elapsedInCurrentPeriod; // time passed in current period
 final percent = counter.percentElapsed;        // progress [0.0–1.0]
+```
+
+---
+
+### ⏳ `PrfRolloverCounter` – Sliding Window Counter
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfRolloverCounter` is a persistent counter that automatically resets itself after a fixed duration from the last update. Ideal for tracking **rolling activity windows**, such as "submissions per hour", "attempts every 10 minutes", or "usage in the past day".
+
+It handles:
+
+- Time-based expiration with a sliding duration window
+- Persistent storage using `PrfIso<int>` for full isolate-safety
+- Seamless session persistence and automatic reset logic
+- Rich time utilities to support countdowns, progress indicators, and timer-based UI logic
+
+---
+
+### 🔧 How to Use
+
+- `get()` — Returns the current counter value (auto-resets if expired)
+- `increment([amount])` — Increases the count by `amount` (default: `1`)
+- `reset()` — Manually resets the counter and sets a new expiration time
+- `clear()` — Deletes all stored state from preferences
+- `hasState()` — Returns `true` if any saved state exists
+- `peek()` — Returns the current value without triggering a reset
+- `getLastUpdateTime()` — Returns the last update timestamp, or `null` if never used
+- `isCurrentlyExpired()` — Returns `true` if the current window has expired
+- `timeSinceLastUpdate()` — Returns how much time has passed since last use
+- `timeRemaining()` — Returns how much time remains before auto-reset
+- `secondsRemaining()` — Same as above, in seconds
+- `percentElapsed()` — Progress of the current window as a `0.0–1.0` value
+- `getEndTime()` — Returns the `DateTime` when the current window ends
+- `whenExpires()` — Completes when the reset window expires
+
+---
+
+#### ✅ Define a Rollover Counter
+
+```dart
+final counter = PrfRolloverCounter('usage_counter', resetEvery: Duration(minutes: 10));
+```
+
+This creates a persistent counter that resets automatically 10 minutes after the last update. It uses the key `'usage_counter'` to store:
+
+- Last update timestamp
+- Rolling count value
+
+---
+
+#### ➕ Increment the Counter
+
+```dart
+await counter.increment();         // +1
+await counter.increment(5);        // +5
+```
+
+This also refreshes the rollover timer.
+
+---
+
+#### 📈 Get the Current Value
+
+```dart
+final count = await counter.get(); // Auto-resets if expired
+```
+
+You can also check the value without affecting expiration:
+
+```dart
+final value = await counter.peek();
+```
+
+---
+
+#### 🔄 Reset or Clear the Counter
+
+```dart
+await counter.reset(); // Sets count to 0 and updates timestamp
+await counter.clear(); // Deletes all stored state
+```
+
+---
+
+#### 🕓 Check Expiration Status
+
+```dart
+final expired = await counter.isCurrentlyExpired(); // true/false
+```
+
+You can also inspect metadata:
+
+```dart
+final lastUsed = await counter.getLastUpdateTime();
+final since = await counter.timeSinceLastUpdate();
+```
+
+---
+
+#### ⏳ Check Time Remaining
+
+```dart
+final duration = await counter.timeRemaining();
+final seconds = await counter.secondsRemaining();
+final percent = await counter.percentElapsed(); // 0.0–1.0
+```
+
+These can be used for progress bars, countdowns, etc.
+
+---
+
+#### 📅 Get the End Time
+
+```dart
+final end = await counter.getEndTime(); // DateTime when it auto-resets
+```
+
+---
+
+#### 💤 Wait for Expiry
+
+```dart
+await counter.whenExpires(); // Completes when timer ends
+```
+
+Useful for polling, UI disable windows, etc.
+
+---
+
+#### 🧪 Test Utilities
+
+```dart
+await counter.clear();          // Removes all saved values
+final exists = await counter.hasState(); // true if anything stored
 ```
 
 ---
