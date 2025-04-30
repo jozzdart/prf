@@ -16,7 +16,7 @@
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
-> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` `PrfTrackers` for production ready persistent cooldowns, rate limiters and stats.
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
 
 #### Table of Contents
 
@@ -87,9 +87,10 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
 - ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
-  - `PrfRateLimiter` – token-bucket limiter (e.g. 1000 actions per 15 minutes)
+  - `PrfStreakTracker` – period-based streak counter that resets if a period is missed (e.g. daily activity streaks)
   - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
   - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
+  - `PrfRateLimiter` – token-bucket rate limiter (e.g. 1000 actions per 15 minutes)
 
 ---
 
@@ -263,9 +264,10 @@ For enums and custom JSON models, use the built-in factory methods:
 ### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
-- `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- `PrfStreakTracker` — for maintaining aligned activity streaks (e.g. daily habits, consecutive logins); resets if a full period is missed
 - `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
 - `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
+- `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
 
 ---
 
@@ -450,14 +452,13 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 
 ### Included utilities:
 
-- 🔁 [**PrfCooldown**](#-prfcooldown--persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
-- 📊 [**PrfRateLimiter**](#-prfratelimiter--persistent-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
-- 📅 [**PrfPeriodicCounter**](#-prfperiodiccounter--aligned-time-based-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
-- ⏳ [**PrfRolloverCounter**](#-prfrollovercounter--sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
+- 🔁 [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
+- 📈 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
+- 📅 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
+- ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
+- 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
 
----
-
-### 🕒 `PrfCooldown` – Persistent Cooldown Utility
+# 🕒 `PrfCooldown` Persistent Cooldown Utility
 
 `PrfCooldown` is a plug-and-play utility for managing **cooldown windows** (e.g. daily rewards, button lockouts, retry delays) that persist across sessions and isolates — no timers, no manual bookkeeping, no re-implementation every time.
 
@@ -599,153 +600,184 @@ print('Used $count times');
 #### 🧪 Test Utilities
 
 ```dart
-await cooldown.removeAll();      // Clears all stored cooldown state
+await cooldown.removeAll();                     // Clears all stored cooldown state
 final exists = await cooldown.anyStateExists(); // Returns true if anything is stored
 ```
-
----
 
 > You can create as many cooldowns as you need — each with a unique prefix.
 > All state is persisted, isolate-safe, and instantly reusable.
 
-# 📊 `PrfRateLimiter` – Persistent Token Bucket Rate Limiter
+# 📈 `PrfStreakTracker` Persistent Streak Tracker
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
-`PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
+`PrfStreakTracker` is a drop-in utility for managing **activity streaks** — like daily check-ins, learning streaks, or workout chains — with automatic expiration logic and aligned time periods.  
+It resets automatically if a full period is missed, and persists streak progress across sessions and isolates.
 
 It handles:
 
-- Token-based rate limiting
-- Automatic time-based token refill
-- Persistent state using `prf` types (`PrfIso<double>`, `PrfIso<DateTime>`)
-- Async-safe, isolate-compatible behavior
-
-Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
+- Aligned period tracking (`daily`, `weekly`, etc.) via `TrackerPeriod`
+- Persistent storage with `prf` using `PrfIso<int>` and `DateTime`
+- Automatic streak expiration logic if a period is skipped
+- Useful metadata like last update time, next reset estimate, and time remaining
 
 ---
 
 ### 🔧 How to Use
 
-Create a limiter with a unique key, a max token count, and a refill window:
+- `bump([amount])` — Marks the current period as completed and increases the streak
+- `currentStreak()` — Returns the current streak value (auto-resets if expired)
+- `isStreakBroken()` — Returns `true` if the streak has been broken (a period was missed)
+- `isStreakActive()` — Returns `true` if the streak is still active
+- `nextResetTime()` — Returns when the streak will break if not continued
+- `percentRemaining()` — Progress indicator (0.0–1.0) until streak break
+- `streakAge()` — Time passed since the last streak bump
+- `reset()` — Fully resets the streak to 0 and clears last update
+- `peek()` — Returns the current value without checking expiration
+- `getLastUpdateTime()` — Returns the timestamp of the last streak update
+- `timeSinceLastUpdate()` — Returns how long ago the last streak bump occurred
+- `isCurrentlyExpired()` — Returns `true` if the streak is expired _right now_
+- `hasState()` — Returns `true` if any streak data is saved
+- `clear()` — Deletes all streak data (value + timestamp)
 
-```dart
-final limiter = PrfRateLimiter('chat_send', maxTokens: 100, refillDuration: Duration(minutes: 15));
-```
+You can also access **period-related properties**:
 
-You can then use:
-
-- `tryConsume()` — Tries to use 1 token; returns `true` if allowed, or `false` if rate-limited
-- `isLimitedNow()` — Returns `true` if no tokens are currently available
-- `isReady()` — Returns `true` if at least one token is available
-- `getAvailableTokens()` — Returns the current number of usable tokens (calculated live)
-- `timeUntilNextToken()` — Returns a `Duration` until at least one token will be available
-- `nextAllowedTime()` — Returns the exact `DateTime` when a token will be available
-- `reset()` — Resets to full token count and updates last refill to now
-- `removeAll()` — Deletes all limiter state (for testing/debugging)
-- `anyStateExists()` — Returns `true` if limiter data exists in storage
-- `runIfAllowed(action)` — Runs a callback if allowed, otherwise returns `null`
-- `debugStats()` — Returns detailed internal stats for logging and debugging
-
-The limiter uses fractional tokens internally to maintain precise refill rates, even across app restarts. No timers or background services required — it just works.
-
----
-
-#### ✅ `PrfRateLimiter` Basic Setup
-
-Create a limiter with a key, a maximum number of actions, and a refill duration:
-
-```dart
-final limiter = PrfRateLimiter(
-  'chat_send',
-  maxTokens: 100,
-  refillDuration: Duration(minutes: 15),
-);
-```
-
-This example allows up to **100 actions per 15 minutes**. The token count is automatically replenished over time — even after app restarts.
+- `currentPeriodStart` — Returns the `DateTime` representing the current aligned period start
+- `nextPeriodStart` — Returns the `DateTime` when the next period will begin
+- `timeUntilNextPeriod` — Returns a `Duration` until the next reset occurs
+- `elapsedInCurrentPeriod` — How much time has passed since the period began
+- `percentElapsed` — A progress indicator (0.0 to 1.0) showing how far into the period we are
 
 ---
 
-#### 🚀 Check & Consume
+### ⏱ Available Periods (`TrackerPeriod`)
 
-To attempt an action:
+You can choose from a wide range of aligned time intervals:
 
-```dart
-final canSend = await limiter.tryConsume();
+- Seconds:  
+  `seconds10`, `seconds20`, `seconds30`
 
-if (canSend) {
-  // Allowed – proceed with the action
-} else {
-  // Blocked – too many actions, rate limit hit
-}
-```
+- Minutes:  
+  `minutes1`, `minutes2`, `minutes3`, `minutes5`, `minutes10`,  
+  `minutes15`, `minutes20`, `minutes30`
 
-Returns `true` if a token was available and consumed, or `false` if the limit was exceeded.
+- Hours:  
+  `hourly`, `every2Hours`, `every3Hours`, `every6Hours`, `every12Hours`
 
----
+- Days and longer:  
+  `daily`, `weekly`, `monthly`
 
-#### 🧮 Get Available Tokens
-
-To check how many tokens are usable at the moment:
-
-```dart
-final tokens = await limiter.getAvailableTokens();
-print('Tokens left: ${tokens.toStringAsFixed(2)}');
-```
-
-Useful for debugging, showing rate limit progress, or enabling/disabling UI actions.
+Each period is aligned automatically — e.g., daily resets at midnight, weekly at the start of the week, monthly on the 1st.
 
 ---
 
-#### ⏳ Time Until Next Token
-
-To wait or show feedback until the next token becomes available:
+#### ✅ Define a Streak Tracker
 
 ```dart
-final waitTime = await limiter.timeUntilNextToken();
-print('Try again in: ${waitTime.inSeconds}s');
+final streak = PrfStreakTracker('daily_exercise', period: TrackerPeriod.daily);
 ```
 
-You can also get the actual time point:
+This creates a persistent streak tracker that:
 
-```dart
-final nextTime = await limiter.nextAllowedTime();
-```
+- Uses the key `'daily_exercise'`
+- Tracks aligned daily periods (e.g. 00:00–00:00)
+- Increases the streak when `bump()` is called
+- Resets automatically if a full period is missed
 
 ---
 
-#### 🔁 Reset the Limiter
-
-To fully refill the bucket and reset the refill clock:
+#### ⚡ Mark a Period as Completed
 
 ```dart
-await limiter.reset();
+await streak.bump();
 ```
 
-Use this after manual overrides, feature unlocks, or privileged user actions.
+This will:
+
+- Reset the streak to 0 if the last bump was too long ago (missed period)
+- Then increment the streak by 1
+- Then update the internal timestamp to the current aligned time
 
 ---
 
-#### 🧼 Clear All Stored State
-
-To wipe all saved token/refill data (for debugging or tests):
+#### 📊 Get Current Streak Count
 
 ```dart
-await limiter.removeAll();
+final current = await streak.currentStreak();
 ```
 
-To check if the limiter has any stored state:
-
-```dart
-final exists = await limiter.anyStateExists();
-```
-
-With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
+Returns the current streak (resets first if broken).
 
 ---
 
-### 📅 `PrfPeriodicCounter` – Aligned Time-Based Counter
+#### 🧯 Manually Reset the Streak
+
+```dart
+await streak.reset();
+```
+
+Sets the value back to 0 and clears the last update timestamp.
+
+---
+
+#### ❓ Check if Streak Is Broken
+
+```dart
+final isBroken = await streak.isStreakBroken();
+```
+
+Returns `true` if the last streak bump is too old (i.e. period missed).
+
+---
+
+#### 📈 View Streak Age
+
+```dart
+final age = await streak.streakAge();
+```
+
+Returns how much time passed since the last bump (or `null` if never set).
+
+---
+
+#### ⏳ See When the Streak Will Break
+
+```dart
+final time = await streak.nextResetTime();
+```
+
+Returns the timestamp of the next break opportunity (end of allowed window).
+
+---
+
+#### 📉 Percent of Time Remaining
+
+```dart
+final percent = await streak.percentRemaining();
+```
+
+Returns a `double` between `0.0` and `1.0` indicating time left before the streak is considered broken.
+
+---
+
+#### 👁 Peek at the Current Value
+
+```dart
+final raw = await streak.peek();
+```
+
+Returns the current stored streak **without checking if it expired**.
+
+---
+
+#### 🧪 Debug or Clear State
+
+```dart
+await streak.clear();                    // Removes all saved state
+final hasData = await streak.hasState(); // Checks if any value exists
+```
+
+# 📅 `PrfPeriodicCounter` Aligned Timed Counter
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
@@ -934,9 +966,7 @@ final elapsed = counter.elapsedInCurrentPeriod; // time passed in current period
 final percent = counter.percentElapsed;        // progress [0.0–1.0]
 ```
 
----
-
-### ⏳ `PrfRolloverCounter` – Sliding Window Counter
+# ⏳ `PrfRolloverCounter` Sliding Window Counter
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
@@ -1069,6 +1099,141 @@ await counter.clear();          // Removes all saved values
 final exists = await counter.hasState(); // true if anything stored
 ```
 
+# 📊 `PrfRateLimiter` Token Bucket Rate Limiter
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
+
+It handles:
+
+- Token-based rate limiting
+- Automatic time-based token refill
+- Persistent state using `prf` types (`PrfIso<double>`, `PrfIso<DateTime>`)
+- Async-safe, isolate-compatible behavior
+
+Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
+
+---
+
+### 🔧 How to Use
+
+Create a limiter with a unique key, a max token count, and a refill window:
+
+```dart
+final limiter = PrfRateLimiter('chat_send', maxTokens: 100, refillDuration: Duration(minutes: 15));
+```
+
+You can then use:
+
+- `tryConsume()` — Tries to use 1 token; returns `true` if allowed, or `false` if rate-limited
+- `isLimitedNow()` — Returns `true` if no tokens are currently available
+- `isReady()` — Returns `true` if at least one token is available
+- `getAvailableTokens()` — Returns the current number of usable tokens (calculated live)
+- `timeUntilNextToken()` — Returns a `Duration` until at least one token will be available
+- `nextAllowedTime()` — Returns the exact `DateTime` when a token will be available
+- `reset()` — Resets to full token count and updates last refill to now
+- `removeAll()` — Deletes all limiter state (for testing/debugging)
+- `anyStateExists()` — Returns `true` if limiter data exists in storage
+- `runIfAllowed(action)` — Runs a callback if allowed, otherwise returns `null`
+- `debugStats()` — Returns detailed internal stats for logging and debugging
+
+The limiter uses fractional tokens internally to maintain precise refill rates, even across app restarts. No timers or background services required — it just works.
+
+---
+
+#### ✅ `PrfRateLimiter` Basic Setup
+
+Create a limiter with a key, a maximum number of actions, and a refill duration:
+
+```dart
+final limiter = PrfRateLimiter(
+  'chat_send',
+  maxTokens: 100,
+  refillDuration: Duration(minutes: 15),
+);
+```
+
+This example allows up to **100 actions per 15 minutes**. The token count is automatically replenished over time — even after app restarts.
+
+---
+
+#### 🚀 Check & Consume
+
+To attempt an action:
+
+```dart
+final canSend = await limiter.tryConsume();
+
+if (canSend) {
+  // Allowed – proceed with the action
+} else {
+  // Blocked – too many actions, rate limit hit
+}
+```
+
+Returns `true` if a token was available and consumed, or `false` if the limit was exceeded.
+
+---
+
+#### 🧮 Get Available Tokens
+
+To check how many tokens are usable at the moment:
+
+```dart
+final tokens = await limiter.getAvailableTokens();
+print('Tokens left: ${tokens.toStringAsFixed(2)}');
+```
+
+Useful for debugging, showing rate limit progress, or enabling/disabling UI actions.
+
+---
+
+#### ⏳ Time Until Next Token
+
+To wait or show feedback until the next token becomes available:
+
+```dart
+final waitTime = await limiter.timeUntilNextToken();
+print('Try again in: ${waitTime.inSeconds}s');
+```
+
+You can also get the actual time point:
+
+```dart
+final nextTime = await limiter.nextAllowedTime();
+```
+
+---
+
+#### 🔁 Reset the Limiter
+
+To fully refill the bucket and reset the refill clock:
+
+```dart
+await limiter.reset();
+```
+
+Use this after manual overrides, feature unlocks, or privileged user actions.
+
+---
+
+#### 🧼 Clear All Stored State
+
+To wipe all saved token/refill data (for debugging or tests):
+
+```dart
+await limiter.removeAll();
+```
+
+To check if the limiter has any stored state:
+
+```dart
+final exists = await limiter.anyStateExists();
+```
+
+With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
+
 ---
 
 # 🛣️ Roadmap & Future Plans
@@ -1081,15 +1246,11 @@ final exists = await counter.hasState(); // true if anything stored
 
 - **Improved performance**
   Smarter caching and leaner async operations.
-
 - Additional type support, Encryption, and more.
-
 - **Custom storage**
   Support for alternative adapters (Hive, Isar, file system).
-
 - **Testing & tooling**
   In-memory test adapter, debug inspection tools, and test utilities.
-
 - **Optional code generation**
   Annotations for auto-registering variables and reducing manual setup.
 

@@ -75,6 +75,7 @@ export 'services/prf_cooldown.dart';
 export 'services/prf_periodic_counter.dart';
 export 'services/prf_rate_limiter.dart';
 export 'services/prf_rollover_counter.dart';
+export 'services/prf_streak_tracker.dart';
 export 'services/trackers/base_counter_tracker.dart';
 export 'services/trackers/base_tracker.dart';
 export 'services/trackers/tracker_period.dart';

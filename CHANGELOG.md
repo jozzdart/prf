@@ -2,13 +2,29 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
-## 2.2.5
+## 2.3.0
 
 #### 🧭 Tracker Services
 
 Introduced a new high-level utility:
 
 - 📖 See the `README` for full documentation, examples, and usage tips (:
+- **`PrfStreakTracker`** — a smart persistent streak tracker that increases if the action is performed every aligned period (e.g. every day), and resets if a period is missed. Ideal for motivating behavior like "7-day login streaks", "daily habits", or "wseekly contributions".
+
+  ```dart
+  final streak = PrfStreakTracker('login_streak', period: TrackerPeriod.daily);
+  await streak.bump(); // +1 if not broken
+  final count = await streak.currentStreak(); // current streak length
+  final isBroken = await streak.isStreakBroken(); // true if missed a day
+  ```
+
+  Includes advanced methods for:
+
+  - `.currentStreak()` and `.bump()` with optional amount
+  - `.isStreakBroken()`
+  - `.percentRemaining()` until streak expires
+  - `.nextResetTime()` and `.streakAge()` and much more, Read the `README`!
+
 - **`PrfPeriodicCounter`** — a drop-in persistent counter that resets itself automatically at the start of each aligned period (e.g. daily, hourly, every 5 minutes).  
   Tracks actions like "daily logins", "hourly submissions", or "weekly attempts" with zero boilerplate.
 
