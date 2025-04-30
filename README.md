@@ -1,3 +1,4 @@
+<a id="back-to-top"></a>
 ![img](https://i.imgur.com/pAUltto.png)
 
 <h3 align="center"><i>Define. Get. Set. Done.</i></h3>
@@ -8,9 +9,9 @@
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
 </p>
 
-No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
+No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
-> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` `PrfTrackers` for production ready persistent cooldowns, rate limiters and stats.
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -50,6 +51,7 @@ That’s it. You're done. Works out of the box with all of these:
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
 - `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
 - [JSON & enums](#-supported-prf-types)
+- [Special Services & Utilities](#️-persistent-services--utilities)
 
 ---
 
@@ -132,6 +134,8 @@ If you're tired of:
 - Scattered async boilerplate
 
 Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `PrfIso`).
+
+↪️ Back to [Table of Contents](#back-to-top)
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
@@ -243,6 +247,7 @@ For enums and custom JSON models, use the built-in factory methods:
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
 
 ---
 
@@ -416,13 +421,14 @@ With `prf`, you get:
 
 In addition to typed variables, `prf` includes **ready-to-use persistent utilities** for common real-world use cases — built on top of the same caching and async-safe architecture.
 
-These utilities handle state automatically across sessions and isolates, with no manual logic or timers.
+These utilities handle state automatically across sessions and isolates, with no manual logic or timers.  
 They’re fully integrated into `prf`, use built-in types under the hood, and require no extra setup. Just define and use.
 
 ### Included utilities:
 
 - 🔁 [**PrfCooldown**](#-prfcooldown--persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter--persistent-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- 📅 [**PrfPeriodicCounter**](#-prfperiodiccounter--aligned-time-based-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
 
 ---
 
@@ -590,6 +596,8 @@ It handles:
 
 Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
 
+↪️ Back to [ Persistent Services & Utilities](#️-persistent-services--utilities) ⚙️
+
 ---
 
 ### 🔧 How to Use
@@ -709,6 +717,76 @@ final exists = await limiter.anyStateExists();
 ```
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
+
+---
+
+### 📅 `PrfPeriodicCounter` – Aligned Time-Based Counter
+
+`PrfPeriodicCounter` is a persistent counter that **automatically resets at the start of each aligned time period**, such as _daily_, _hourly_, or every _10 minutes_. It’s perfect for tracking time-bound events like “daily logins,” “hourly uploads,” or “weekly tasks,” without writing custom reset logic.
+
+It handles:
+
+- Aligned period math (e.g. resets every day at 00:00)
+- Persistent storage via `prf` (`PrfIso<int>` and `PrfIso<DateTime>`)
+- Auto-expiring values based on time alignment
+- Counter tracking with optional increment amounts
+- Period progress and time tracking
+
+↪️ Back to [ Persistent Services & Utilities](#️-persistent-services--utilities) ⚙️
+
+---
+
+### 🔧 How to Use
+
+Create a periodic counter with a unique key and a `TrackerPeriod`:
+
+```dart
+final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
+```
+
+You can then use:
+
+- `get()` — Returns the current counter value (auto-resets if needed)
+- `increment()` — Increments the counter, by a given amount (1 is the default)
+- `reset()` — Manually resets the counter and aligns the timestamp to the current period start
+- `peek()` — Returns the current value without checking or triggering expiration
+- `raw()` — Alias for `peek()` (useful for debugging or display)
+- `isNonZero()` — Returns `true` if the counter value is greater than zero
+- `clearValueOnly()` — Resets only the counter, without modifying the timestamp
+- `clear()` — Removes all stored values, including the timestamp
+- `hasState()` — Returns `true` if any persistent state exists
+- `isCurrentlyExpired()` — Returns `true` if the counter would reset right now
+- `getLastUpdateTime()` — Returns the last reset-aligned timestamp
+- `timeSinceLastUpdate()` — Returns how long it’s been since the last reset
+
+You can also access **period-related properties**:
+
+- `currentPeriodStart` — Returns the `DateTime` representing the current aligned period start
+- `nextPeriodStart` — Returns the `DateTime` when the next period will begin
+- `timeUntilNextPeriod` — Returns a `Duration` until the next reset occurs
+- `elapsedInCurrentPeriod` — How much time has passed since the period began
+- `percentElapsed` — A progress indicator (0.0 to 1.0) showing how far into the period we are
+
+---
+
+### ⏱ Available Periods (`TrackerPeriod`)
+
+You can choose from a wide range of aligned time intervals:
+
+- Seconds:  
+  `seconds10`, `seconds20`, `seconds30`
+
+- Minutes:  
+  `minutes1`, `minutes2`, `minutes3`, `minutes5`, `minutes10`,  
+  `minutes15`, `minutes20`, `minutes30`
+
+- Hours:  
+  `hourly`, `every2Hours`, `every3Hours`, `every6Hours`, `every12Hours`
+
+- Days and longer:  
+  `daily`, `weekly`, `monthly`
+
+Each period is aligned automatically — e.g., daily resets at midnight, weekly at the start of the week, monthly on the 1st.
 
 ---
 
