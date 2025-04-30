@@ -22,6 +22,10 @@ void main() async {
   //final savedName = await username.getOrFallback('Guest');
   //final score = await highScore.getOrFallback(0);
   //final user = await currentUser.get();
+
+  final valueVar = 'some_key'.prf<int>();
+  await valueVar.set(11);
+  await valueVar.get();
 }
 
 // Simple model for PrfJson demo

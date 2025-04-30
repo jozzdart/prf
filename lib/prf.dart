@@ -50,6 +50,7 @@
 /// See [PrfAdapter] and [PrfAdapterMap] for details.
 library;
 
+export 'adapters/adapter_extensions.dart';
 export 'adapters/adapter_map.dart';
 export 'adapters/encoded/big_int.dart';
 export 'adapters/encoded/bytes.dart';
@@ -65,11 +66,14 @@ export 'adapters/list/bytes.dart';
 export 'adapters/list/date_time.dart';
 export 'adapters/list/double.dart';
 export 'adapters/list/duration.dart';
+export 'adapters/list/enum.dart';
 export 'adapters/list/int.dart';
+export 'adapters/list/json.dart';
 export 'adapters/list/num.dart';
 export 'adapters/list/uri.dart';
 export 'adapters/list_binary.dart';
 export 'adapters/native_adapters.dart';
+export 'types/string_extensions.dart';
 export 'core/base_adapter.dart';
 export 'core/base_object.dart';
 export 'core/base_service_object.dart';
@@ -77,9 +81,10 @@ export 'core/cached_object.dart';
 export 'core/encoded_adapter.dart';
 export 'core/extensions.dart';
 export 'core/prf_service.dart';
-export 'prf.dart';
+export 'services/adapter_list_extensions.dart';
 export 'services/prf_activity_counter.dart';
 export 'services/prf_cooldown.dart';
+export 'services/prf_history.dart';
 export 'services/prf_periodic_counter.dart';
 export 'services/prf_rate_limiter.dart';
 export 'services/prf_rollover_counter.dart';

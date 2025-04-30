@@ -1,6 +1,24 @@
-# Changelog
+## 2.3.1
 
-All notable changes to the **prf** package will be documented in this file.
+- Added `PrfHistory<T>`: a reusable persisted history tracker for any type. Supports max length trimming, deduplication, isolation safety, and flexible factory constructors for enums and JSON models. Also added `.historyTracker(name)` extension on `PrfAdapter<List<T>>` for simplified `PrfHistory<T>` creation.
+
+- Added `.prf<T>()` and `.prfCustomAdapter<T>()` extensions on `String` for quick and concise variable creation.
+
+```dart
+    final coinsPrf = 'player_coins'.prf<int>(); // works with all types now
+```
+
+- Added `.prf(key)` extension on `PrfAdapter<T>` for direct use of custom adapters without boilerplate.
+
+```dart
+  final colorPrf = ColorAdapter().prf('saved_color'); // no need to specify types
+```
+
+- Added `Prf.jsonList<T>()` for easy creation of cached and isolate-safe preferences for lists of JSON-serializable objects.
+- Added `Prf.enumeratedList<T>()` for type-safe enum list preferences backed by native `List<int>` storage.
+- Added `JsonListAdapter<T>`: stores a `List<T>` where each item is a JSON string using native `List<String>` support.
+- Added `EnumListAdapter<T>`: stores a list of enums as their integer indices using native `List<int>` support.
+- Fixed broken or incorrect navigation links in the README.
 
 ## 2.3.0
 

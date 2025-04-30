@@ -16,8 +16,6 @@
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
-> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
-
 #### Table of Contents
 
 - [Introduction](#-define--get--set--done)
@@ -28,10 +26,9 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Supported `prf` Types](#-supported-prf-types)
 - [Accessing `prf` Without async](#-accessing-prf-without-async)
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
-- [Persistent Services & Utilities](#️-persistent-services--utilities)
-- [Roadmap & Future Plans](#️-roadmap--future-plans)
+- [Persistent Services & Utilities](#-persistent-services-and-utilities)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
-- [Adding Custom Prfs (Advanced)](#️-how-to-add-a-custom-prf-type-advanced)
+- [Adding Custom prfs](#️-how-to-add-custom-prf-types-advanced)
 
 # ⚡ Define → Get → Set → Done
 
@@ -55,10 +52,10 @@ await username.set('Joey');
 
 That’s it. You're done. Works out of the box with all of these:
 
-- `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
-- Also lists `List<String>` `List<int>` `List<***>` with all supported types!
+- `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary)
+- Also lists `List<String>` `List<int>` `List<***>` of all supported types!
 - [JSON & enums](#-supported-prf-types)
-- [Special Services & Utilities](#️-persistent-services--utilities)
+- [Special Services & Utilities](#-persistent-services-and-utilities)
 
 > All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
@@ -75,6 +72,8 @@ Working with `SharedPreferences` often leads to:
 
 `prf` solves all of that with a **one-line variable definition** that’s **type-safe**, **cached**, and **instantly usable** throughout your app. No key management, no setup, no boilerplate, no `.getString(...)` everywhere.
 
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
+
 ---
 
 ### What Sets `prf` Apart?
@@ -87,9 +86,10 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Supports more than just primitives** — [20+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
-- ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
+- ✅ [**Persistent utilities included**](#-persistent-services-and-utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
   - `PrfStreakTracker` – period-based streak counter that resets if a period is missed (e.g. daily activity streaks)
+  - `PrfHistory<T>` – for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
   - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
   - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
   - `PrfRateLimiter` – token-bucket rate limiter (e.g. 1000 actions per 15 minutes)
@@ -150,7 +150,23 @@ If you're tired of:
 - Manual casting and null handling
 - Scattered async boilerplate
 
-Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `PrfIso`).
+Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `.isolated` or `PrfIso`).
+
+### 💡 Alternatively, Use `.prf()` from String Keys
+
+```dart
+final username = 'username'.prf<String>();
+await username.set('Joey');
+final name = await username.get();
+```
+
+Isolate-safe version:
+
+```dart
+final username = 'username'.prf<String>().isolated;
+await username.set('Joey');
+final name = await username.get();
+```
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
@@ -177,14 +193,13 @@ You only need **one line** to create a saved variable.
 For example, to save how many coins a player has:
 
 ```dart
-final playerCoins = Prf<int>('player_coins', defaultValue: 0);
+final playerCoins = Prf<int>('player_coins');
 ```
 
 > This means:
 >
 > - You're saving an `int` (number)
 > - The key is `'player_coins'`
-> - If it's empty, it starts at `0`
 
 ---
 
@@ -204,10 +219,36 @@ To read how many coins the player has:
 
 ```dart
 final coins = await playerCoins.get();
+```
+
+```dart
 print('Coins: $coins'); // 100
 ```
 
 That’s it! 🎉 You don’t need to manage string keys or setup anything. Just define once, then use anywhere in your app.
+
+---
+
+### Step 5 (Optional): Use `.prf<T>()` Shortcut
+
+Instead of defining the key explicitly, you can use the `.prf<T>()` extension on a string:
+
+```dart
+final playerCoins = 'player_coins'.prf<int>();
+```
+
+From there it behave the same as defining using `Prf<T>`
+
+```dart
+await playerCoins.set(100);
+final coins = await playerCoins.get();
+```
+
+```dart
+print('Coins: $coins');
+```
+
+This works exactly the same — just a stylistic preference if you like chaining on string keys.
 
 # 🧰 Available Methods for All `prf` Types
 
@@ -226,6 +267,11 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 > ✅ Available on **all `Prf<T>` and `PrfIso<T>` types** — consistent, type-safe, and ready to use anywhere in your app. It's even easier to make prf isolate safe just by calling `.isolate` on your prfs!
 
+#### 🛰 Need Isolate Safety?
+
+Every `Prf` object supports the `.isolated` getter — no matter the type (enums, bytes, JSON, lists, etc).  
+It returns a `PrfIso` that works safely across isolates (no caching, always reads from disk).
+
 These are practically the same:
 
 ```dart
@@ -243,19 +289,7 @@ final safeUser = PrfIso<String>('username');       // Same
 
 _All of these work out of the box:_
 
-- `bool`
-- `int`
-- `double`
-- `num`
-- `String`
-- `Duration`
-- `DateTime`
-- `Uri`
-- `BigInt`
-- `Uint8List` (binary data)
-
-Also work with lists out of the box:
-
+- `bool` `int` `double` `num` `String` `Duration` `DateTime` `Uri` `BigInt` `Uint8List` (binary)
 - `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
 
 ### Specialized Types
@@ -263,12 +297,15 @@ Also work with lists out of the box:
 For enums and custom JSON models, use the built-in factory methods:
 
 - `Prf.enumerated<T>()` — for enum values
+- `Prf.enumeratedList<T>()` — for lists of enum values
 - `Prf.json<T>()` — for custom model objects
+- `Prf.jsonList<T>()` — for lists of custom model objects
 
-### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
+### Also [See Persistent Services & Utilities:](#-persistent-services-and-utilities)
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
 - `PrfStreakTracker` — for maintaining aligned activity streaks (e.g. daily habits, consecutive logins); resets if a full period is missed
+- `PrfHistory<T>` — for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
 - `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
 - `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
@@ -300,6 +337,30 @@ final currentTheme = await appTheme.get(); // AppTheme.light / dark / system
 await appTheme.set(AppTheme.dark);
 ```
 
+### 📚 Persisting a List of Enums
+
+Define your enum:
+
+```dart
+enum Permission { read, write, delete }
+```
+
+Store a list using `Prf.enumeratedList` (cached) or `PrfIso.enumeratedList` (isolate-safe):
+
+```dart
+final permissions = Prf.enumeratedList<Permission>(
+  'user_permissions',
+  values: Permission.values,
+);
+```
+
+Usage:
+
+```dart
+final current = await permissions.get(); // [Permission.read, Permission.write]
+await permissions.set([Permission.read, Permission.delete]);
+```
+
 ---
 
 ### 🧠 Custom Types? No Problem
@@ -313,6 +374,26 @@ final userData = Prf.json<User>(
   fromJson: (json) => User.fromJson(json),
   toJson: (user) => user.toJson(),
 );
+
+```
+
+### 🧠 Complex Lists? Just Use `jsonList`
+
+For model lists, use `Prf.jsonList<T>()` or `PrfIso.jsonList<T>()`:
+
+```dart
+final favoriteBooks = Prf.jsonList<Book>(
+  'favorite_books',
+  fromJson: (json) => Book.fromJson(json),
+  toJson: (book) => book.toJson(),
+);
+```
+
+Usage:
+
+```dart
+await favoriteBooks.set([book1, book2]);
+final list = await favoriteBooks.get(); // List<Book>
 ```
 
 Need full control? You can create fully custom persistent types by:
@@ -446,7 +527,7 @@ With `prf`, you get:
 - 🔐 **Isolate-safe behavior** with `SharedPreferencesAsync`
 - 📦 **Out-of-the-box support** for `DateTime`, `Uint8List`, enums, full models (`PrfJson<T>`), and more
 
-# ⚙️ Persistent Services & Utilities
+# 📦 Persistent Services and Utilities
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
@@ -459,6 +540,7 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 
 - ⏲ [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
 - 🔥 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
+- 🧾 [**PrfHistory<T>**](#-prfhistoryt--persistent-history-tracker) — for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
 - 📈 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
 - ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
@@ -474,6 +556,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | -------------------------------------------- | -------------------- | --------------------------------------------------------------------- |
 | ⏲ Limit how often something can happen       | `PrfCooldown`        | Fixed delay after activation, one active window at a time             |
 | 🔥 Track streaks that break if missed        | `PrfStreakTracker`   | Aligned periods, resets if a full period is skipped                   |
+| 🧾 Track recent items or actions             | `PrfHistory<T>`      | FIFO-style persistent list with max length and optional deduplication |
 | 📈 Count how many times per day/hour/etc.    | `PrfPeriodicCounter` | Aligned period-based counter, resets at the start of each time window |
 | ⏳ Count over a sliding window               | `PrfRolloverCounter` | Resets X duration after last activity, rolling logic                  |
 | 📊 Real rate-limiting (N actions per Y time) | `PrfRateLimiter`     | Token bucket algorithm with refill over time                          |
@@ -483,7 +566,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 
 ### 🧩 Utility Type Details
 
-**🕒 `PrfCooldown`**
+**⏲ `PrfCooldown`**
 
 > _"Only once every 24 hours"_  
 > → Fixed cooldown timer from last activation  
@@ -495,6 +578,13 @@ Each persistent utility is tailored for a specific pattern of time-based control
 > → Aligned periods (`daily`, `weekly`, etc.)  
 > → Resets if user misses a full period  
 > → Ideal for habit chains, gamified streaks
+
+**🧾 `PrfHistory<T>`**
+
+> _"Track recent searches, actions, or viewed items"_  
+> → FIFO list stored in `Prf<List<T>>`  
+> → Supports deduplication, max length, and type-safe adapters  
+> → Perfect for autocomplete history, usage trails, or navigation stacks
 
 **📈 `PrfPeriodicCounter`**
 
@@ -528,6 +618,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | ---------------------------------- | -------------------- |
 | "Only once every X time"           | `PrfCooldown`        |
 | "Track a streak of daily activity" | `PrfStreakTracker`   |
+| "Keep a list of recent values"     | `PrfHistory<T>`      |
 | "Count per hour / day / week"      | `PrfPeriodicCounter` |
 | "Reset X minutes after last use"   | `PrfRolloverCounter` |
 | "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
@@ -562,7 +653,7 @@ final limiter = PrfRateLimiter(
 
 # ⏲ `PrfCooldown` Persistent Cooldown Utility
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfCooldown` is a plug-and-play utility for managing **cooldown windows** (e.g. daily rewards, button lockouts, retry delays) that persist across sessions and isolates — no timers, no manual bookkeeping, no re-implementation every time.
 
@@ -713,7 +804,7 @@ final exists = await cooldown.anyStateExists(); // Returns true if anything is s
 
 # 🔥 `PrfStreakTracker` Persistent Streak Tracker
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfStreakTracker` is a drop-in utility for managing **activity streaks** — like daily check-ins, learning streaks, or workout chains — with automatic expiration logic and aligned time periods.  
 It resets automatically if a full period is missed, and persists streak progress across sessions and isolates.
@@ -881,9 +972,235 @@ await streak.clear();                    // Removes all saved state
 final hasData = await streak.hasState(); // Checks if any value exists
 ```
 
+# 🧾 `PrfHistory<T>` – Persistent History Tracker
+
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
+
+`PrfHistory<T>` is a plug-and-play utility for managing **persisted, ordered histories** (e.g. recent items, search history, log events, viewed content). It supports:
+
+- First-in-first-out (FIFO) item tracking
+- Auto-trimming to a maximum number of items
+- Optional deduplication (most recent instance wins)
+- Custom adapters (`List<T>`) for JSON, enums, or anything serializable
+- Caching toggle (`Prf` vs. `PrfIso`) for isolate-safe usage
+- Pluggable via `.historyTracker()` on any `PrfAdapter<List<T>>`
+
+---
+
+### 🧰 Core Features
+
+- `add(value)` — Adds a new item to the front (most recent). Trims and deduplicates if needed
+- `setAll(values)` — Replaces the entire history with a new list
+- `remove(value)` — Removes a single matching item
+- `removeWhere(predicate)` — Removes all matching items by condition
+- `clear()` — Clears the entire list, resets to empty
+- `removeKey()` — Deletes the key from persistent storage
+- `getAll()` — Returns the full history (most recent first)
+- `contains(value)` — Returns whether a given item exists
+- `length()` — Number of items currently in the list
+- `isEmpty()` — Whether the history is empty
+- `first()` — Most recent item in the list, or `null`
+- `last()` — Oldest item in the list, or `null`
+- `exists()` — Whether this key exists in SharedPreferences
+- _Fields_:
+  - `key` — The full key name used for persistence
+  - `useCache` — Toggles between cached `Prf` or isolate-safe `PrfIso` access
+  - `maxLength` — The maximum number of items to keep
+  - `deduplicate` — If enabled, removes existing instances of an item before adding it
+
+---
+
+#### ✅ Define a History Tracker
+
+```dart
+final history = PrfHistory<String>('recent_queries');
+```
+
+This creates a persistent history list for `'recent_queries'` with a default max length of 50 items. You can customize:
+
+- `maxLength` — maximum number of items retained (default: 50)
+- `deduplicate` — remove existing items before re-adding (default: false)
+- `useCache` — toggle between `Prf` and `PrfIso` (default: false)
+
+PrfHistory\<T> supports **out of the box** (with zero setup) these types:
+
+> → `bool`, `int`, `double`, `num`, `String`, `Duration`, `DateTime`, `Uri`, `BigInt`, `Uint8List` (binary data) `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
+
+---
+
+For custom types, use one of the factory constructors:
+
+#### 🧱 JSON Object History
+
+```dart
+final history = PrfHistory.json<Book>(
+  'books_set',
+  fromJson: Book.fromJson,
+  toJson: (b) => b.toJson(),
+);
+```
+
+---
+
+#### 🧭 Enum History
+
+```dart
+final history = PrfHistory.enumerated<LogType>(
+  'log_type_history',
+  values: LogType.values,
+  deduplicate: true,
+);
+```
+
+---
+
+#### ➕ Add a New Entry
+
+```dart
+await history.add('search_term');
+```
+
+Adds an item to the front of the list. If `deduplicate` is enabled, the item is moved to the front instead of duplicated.
+
+---
+
+#### 🧺 Replace the Entire List
+
+```dart
+await history.setAll(['one', 'two', 'three']);
+```
+
+Sets the full list. Will apply deduplication and trimming automatically if configured.
+
+---
+
+#### ❌ Remove a Value
+
+```dart
+await history.remove('two');
+```
+
+Removes a single item from the history by value.
+
+---
+
+#### 🧹 Remove Matching Items
+
+```dart
+await history.removeWhere((item) => item.length > 5);
+```
+
+Removes all items that match a custom condition.
+
+---
+
+#### 🧼 Clear or Delete the History
+
+```dart
+await history.clear();      // Clears all values
+await history.removeKey();  // Removes the key from preferences entirely
+```
+
+Use `clear()` to reset the list but keep the key; `removeKey()` to fully delete the key from storage.
+
+---
+
+#### 🔍 Read & Inspect History
+
+```dart
+final items = await history.getAll();     // Full list, newest first
+final exists = await history.exists();    // true if key exists
+final hasItem = await history.contains('abc'); // true if present
+```
+
+---
+
+#### 🔢 Get Meta Info
+
+```dart
+final total = await history.length(); // Number of items
+final empty = await history.isEmpty(); // Whether the list is empty
+```
+
+---
+
+#### 🎯 Get Specific Entries
+
+```dart
+final newest = await history.first(); // Most recent (or null)
+final oldest = await history.last();  // Oldest (or null)
+```
+
+---
+
+#### 📚 Store Recently Viewed Models (with Deduplication)
+
+```dart
+final productHistory = PrfHistory.json<Product>(
+  'recent_products',
+  fromJson: Product.fromJson,
+  toJson: (p) => p.toJson(),
+  deduplicate: true,
+  maxLength: 100,
+);
+```
+
+---
+
+#### 📘 Track Reading Progress by Enum
+
+```dart
+enum ReadStatus { unread, reading, finished }
+
+final readingHistory = PrfHistory.enumerated<ReadStatus>(
+  'reading_statuses',
+  values: ReadStatus.values,
+  maxLength: 20,
+);
+```
+
+---
+
+#### 🔐 Store Recent Login Accounts
+
+```dart
+final logins = PrfHistory<DateTime>(
+  'recent_logins',
+  deduplicate: true,
+  maxLength: 5,
+);
+```
+
+---
+
+#### 🧪 Use a Custom Adapter for Byte-Chunks
+
+```dart
+final someCustomAdapter = SomeCustomAdapter(); // PrfAdapter<List<T>>
+
+final hisory = someCustomAdapter.historyTracker(
+  'special_data',
+  maxLength: 20,
+  deduplicate: false,
+);
+```
+
+---
+
+#### 🎛 Use Cache Toggle for Performance
+
+```dart
+final fastCache = PrfHistory<int>(
+  'cached_ints',
+  useCache: true,
+);
+```
+
+Useful when access speed is critical and isolate-safe reads aren’t needed.
+
 # 📈 `PrfPeriodicCounter` Aligned Timed Counter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfPeriodicCounter` is a persistent counter that **automatically resets at the start of each aligned time period**, such as _daily_, _hourly_, or every _10 minutes_. It’s perfect for tracking time-bound events like “daily logins,” “hourly uploads,” or “weekly tasks,” without writing custom reset logic.
 
@@ -1072,7 +1389,7 @@ final percent = counter.percentElapsed;        // progress [0.0–1.0]
 
 # ⏳ `PrfRolloverCounter` Sliding Window Counter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfRolloverCounter` is a persistent counter that automatically resets itself after a fixed duration from the last update. Ideal for tracking **rolling activity windows**, such as "submissions per hour", "attempts every 10 minutes", or "usage in the past day".
 
@@ -1205,7 +1522,7 @@ final exists = await counter.hasState(); // true if anything stored
 
 # 📊 `PrfRateLimiter` Token Bucket Rate Limiter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
 
@@ -1340,8 +1657,8 @@ With `PrfRateLimiter`, you get a production-grade rolling window limiter with ze
 
 # 📊 `PrfActivityCounter` – Persistent Activity Tracker
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
-
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
+s
 `PrfActivityCounter` is a powerful utility for **tracking user activity over time**, across `hour`, `day`, `month`, and `year` spans. It is designed for scenarios where you want to **record frequency**, **analyze trends**, or **generate statistics** over long periods, with full persistence across app restarts and isolates.
 
 It handles:
@@ -1508,24 +1825,6 @@ await counter.removeAll();
 
 Deletes all stored values associated with this key. Use this in tests or during debug cleanup.
 
-# 🛣️ Roadmap & Future Plans
-
-[⤴️ Back](#table-of-contents) -> Table of Contents
-
-`prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
-
-### ✅ Planned Enhancements
-
-- **Improved performance**
-  Smarter caching and leaner async operations.
-- Additional type support, Encryption, and more.
-- **Custom storage**
-  Support for alternative adapters (Hive, Isar, file system).
-- **Testing & tooling**
-  In-memory test adapter, debug inspection tools, and test utilities.
-- **Optional code generation**
-  Annotations for auto-registering variables and reducing manual setup.
-
 # 🔍 Why `prf` Wins in Real Apps
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
@@ -1671,7 +1970,7 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 ---
 
-# 🛠️ How to Add a Custom `prf` Type (Advanced)
+# 🛠️ How to Add Custom `prf` Types (Advanced)
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
@@ -1710,41 +2009,33 @@ class ColorAdapter extends PrfEncodedAdapter<Color, String> {
 }
 ```
 
-### 3. Use It with `Prf.customAdapter<T>()`
+### 3. Use It with `.prf()`
+
+> 💡 **Hint:** When calling `.prf('key')` on an adapter, you **don’t need to specify `<T>`** — the type is already known from the adapter itself. This makes your key setup simple and type-safe without repetition.
 
 ```dart
-final favoriteColor = Prf.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-);
+final favoriteColor = ColorAdapter().prf('favorite_color');
+```
 
+```dart // Cached
 await favoriteColor.set(Color(255, 0, 0));
 final color = await favoriteColor.get();
 
 print(color?.r); // 255
 ```
 
-For isolate-safe persistence:
+For isolate-safe persistence use `.prfIsolated()` or `.isolated`:
 
 ```dart
-final safeColor = favoriteColor.isolated;            // Same
-
-final safeColor = Prf.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-).isolated;                                          // Same
-
-final safeColor = PrfIso.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-);                                                   // Same
+final safeColor = ColorAdapter().prfIsolated('favorite_color');  // Isolate-safe
+final safeColor = ColorAdapter().prf('favorite_color').isolated; // Isolate-safe       // Same
 ```
 
 ## Summary
 
 - Create your class.
 - Create a `PrfEncodedAdapter`.
-- Use `Prf<T>` with `.customAdapter`.
+- Use `.prf()`.
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
