@@ -1,4 +1,5 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
 /// A utility for managing cooldown logic using persisted DateTime and Activation Count.
 ///
@@ -13,21 +14,28 @@ import 'package:prf/prf.dart';
 ///   await cooldown.activateCooldown();
 /// }
 /// ```
-class PrfCooldown {
-  final PrfIso<DateTime> _lastActivated;
-  final PrfIso<int> _activationCount;
+class PrfCooldown extends BaseServiceObject {
+  final Prf<DateTime> _lastActivatedWithCache;
+  final Prf<int> _activationCountWithCache;
+
+  BasePrfObject<DateTime> get _lastActivated =>
+      useCache ? _lastActivatedWithCache : _lastActivatedWithCache.isolated;
+
+  BasePrfObject<int> get _activationCount =>
+      useCache ? _activationCountWithCache : _activationCountWithCache.isolated;
 
   /// The cooldown duration.
   final Duration duration;
+  final _lock = Lock();
 
   /// Creates a new cooldown with the specified prefix and duration.
   ///
   /// - The [prefix] is used to create unique keys for storing cooldown data.
   /// - The [duration] specifies how long the cooldown should last.
-  PrfCooldown(String prefix, {required this.duration})
-      : _lastActivated = PrfIso<DateTime>('prf_${prefix}_cd_date_time'),
-        _activationCount =
-            PrfIso<int>('prf_${prefix}_cd_count', defaultValue: 0);
+  PrfCooldown(String prefix, {required this.duration, super.useCache})
+      : _lastActivatedWithCache = Prf<DateTime>('prf_${prefix}_cd_date_time'),
+        _activationCountWithCache =
+            Prf<int>('prf_${prefix}_cd_count', defaultValue: 0);
 
   /// Returns true if the cooldown is still active.
   ///
@@ -48,7 +56,10 @@ class PrfCooldown {
   ///
   /// Sets the activation time to the current time and increments
   /// the activation count.
-  Future<void> activateCooldown() async {
+  Future<void> activateCooldown() =>
+      _lock.synchronized(() => _activateCooldownUnlocked());
+
+  Future<void> _activateCooldownUnlocked() async {
     await _lastActivated.set(DateTime.now());
     final count = await _activationCount.getOrFallback(0);
     await _activationCount.set(count + 1);
@@ -60,28 +71,30 @@ class PrfCooldown {
   /// Returns `false` if the cooldown was already active and no action was taken.
   ///
   /// This is a convenience method that combines checking and activating in one call.
-  Future<bool> tryActivate() async {
-    if (await isExpired()) {
-      await activateCooldown();
-      return true;
-    }
-    return false;
-  }
+  Future<bool> tryActivate() => _lock.synchronized(() async {
+        if (await isExpired()) {
+          await _activateCooldownUnlocked();
+          return true;
+        }
+        return false;
+      });
 
   /// Resets the cooldown by clearing the activation timestamp.
   ///
   /// This effectively ends the cooldown immediately, but preserves
   /// the activation count.
   Future<void> reset() async {
-    await _lastActivated.remove();
+    await _lock.synchronized(() => _lastActivated.remove());
   }
 
   /// Completely resets the cooldown and counter.
   ///
   /// Clears the activation timestamp and resets the activation count to zero.
   Future<void> completeReset() async {
-    await reset();
-    await _activationCount.set(0);
+    await _lock.synchronized(() async {
+      await _lastActivated.remove();
+      await _activationCount.set(0);
+    });
   }
 
   /// Gets the remaining time until the cooldown ends.
@@ -141,8 +154,10 @@ class PrfCooldown {
   ///
   /// This method is primarily intended for testing and debugging purposes.
   Future<void> removeAll() async {
-    await _lastActivated.remove();
-    await _activationCount.remove();
+    await _lock.synchronized(() async {
+      await _lastActivated.remove();
+      await _activationCount.remove();
+    });
   }
 
   /// Checks if any values related to this cooldown exist in persistent storage.

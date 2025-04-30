@@ -6,11 +6,19 @@
         <img src="https://img.shields.io/github/license/jozzzzep/prf?style=flat-square">
         <img src="https://img.shields.io/pub/points/prf?style=flat-square">
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
+        
+</p>
+<p align="center">
+  <a href="https://buymeacoffee.com/yosefd99v" target="https://buymeacoffee.com/yosefd99v">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Support (:-blue?logo=buymeacoffee&style=flat-square" />
+  </a>
 </p>
 
-No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns and rate limiters. Designed to fully replace raw use of `SharedPreferences`.
+No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
-> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` for production ready persistent cooldowns and rate limiters.
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
+
+#### Table of Contents
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -48,8 +56,11 @@ await username.set('Joey');
 That’s it. You're done. Works out of the box with all of these:
 
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
-- `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
+- Also lists `List<String>` `List<int>` `List<***>` with all supported types!
 - [JSON & enums](#-supported-prf-types)
+- [Special Services & Utilities](#️-persistent-services--utilities)
+
+> All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
 ---
 
@@ -73,16 +84,22 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Automatic caching** — with `Prf<T>` for fast access
 - ✅ **True isolate safety** — with `.isolated`
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
-- ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
+- ✅ **Supports more than just primitives** — [20+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
 - ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
-  - `PrfRateLimiter` – token-bucket limiter (e.g. 1000 actions per 15 minutes)
+  - `PrfStreakTracker` – period-based streak counter that resets if a period is missed (e.g. daily activity streaks)
+  - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
+  - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
+  - `PrfRateLimiter` – token-bucket rate limiter (e.g. 1000 actions per 15 minutes)
+  - `PrfActivityCounter` – persistent analytics tracker across hour/day/month/year spans (e.g. usage, activity, history heatmaps)
 
 ---
 
 ### 🔁 `SharedPreferences` vs `prf`
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 | Feature                         | `SharedPreferences` (raw)                                                 | `prf`                                                                                                  |
 | ------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -94,10 +111,12 @@ Working with `SharedPreferences` often leads to:
 | **Supports Primitives**         | ✅ Yes                                                                    | ✅ Yes                                                                                                 |
 | **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually)                 | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON`                                        |
 | **Special Persistent Services** | ❌ None                                                                   | ✅ `PrfCooldown`, `PrfRateLimiter`, and more in the future                                             |
-| **Isolate Support**             | ⚠️ Partial — must manually choose between caching or no-caching APIs      | ✅ `PrfIso<T>` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe)      |
+| **Isolate Support**             | ⚠️ Partial — must manually choose between caching or no-caching APIs      | ✅ Just `.isolate` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe)  |
 | **Caching**                     | ✅ Yes (`SharedPreferencesWithCache`) or ❌ No (`SharedPreferencesAsync`) | ✅ Automatic in-memory caching with `Prf<T>`<br>✅ No caching with `PrfIso<T>` for true isolate-safety |
 
 # 📌 Code Comparison
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 **Using `SharedPreferences`:**
 
@@ -134,6 +153,8 @@ If you're tired of:
 Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `PrfIso`).
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 ### Step 1: Add `prf` to your `pubspec.yaml`
 
@@ -190,6 +211,8 @@ That’s it! 🎉 You don’t need to manage string keys or setup anything. Just
 
 # 🧰 Available Methods for All `prf` Types
 
+[⤴️ Back](#table-of-contents) -> Table of Contents
+
 All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 | Method                    | Description                                               |
@@ -206,15 +229,19 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 These are practically the same:
 
 ```dart
-final safeUser = Prf<String>('username').isolated;
-final safeUser = PrfIso<String>('username');
+final safeUser = Prf<String>('username').isolated; // Same
+final safeUser = PrfIso<String>('username');       // Same
 ```
 
 ---
 
 # 🔤 Supported `prf` Types
 
-All of these work out of the box:
+[⤴️ Back](#table-of-contents) -> Table of Contents
+
+> All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
+
+_All of these work out of the box:_
 
 - `bool`
 - `int`
@@ -225,12 +252,11 @@ All of these work out of the box:
 - `DateTime`
 - `Uri`
 - `BigInt`
-- `List<String>`
-- `List<int>`
-- `List<bool>`
-- `List<double>`
-- `List<DateTime>`
 - `Uint8List` (binary data)
+
+Also work with lists out of the box:
+
+- `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
 
 ### Specialized Types
 
@@ -242,7 +268,11 @@ For enums and custom JSON models, use the built-in factory methods:
 ### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
+- `PrfStreakTracker` — for maintaining aligned activity streaks (e.g. daily habits, consecutive logins); resets if a full period is missed
+- `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
+- `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- `PrfActivityCounter` — for persistent tracking of activity across hour/day/month/year spans (e.g. usage stats, analytics heatmaps)
 
 ---
 
@@ -293,6 +323,8 @@ Need full control? You can create fully custom persistent types by:
 
 # ⚡ Accessing `prf` Without Async
 
+[⤴️ Back](#table-of-contents) -> Table of Contents
+
 If you want instant, non-async access to a stored value, you can pre-load it into memory.
 Use `Prf.value<T>()` to create a `prf` object that automatically initializes and caches the value.
 
@@ -318,6 +350,8 @@ print(userScore.cachedValue); // e.g., 42
 - No async needed for future reads!
 
 # 🔁 Migrating from SharedPreferences to `prf`
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence — without losing any existing data.
 
@@ -414,19 +448,121 @@ With `prf`, you get:
 
 # ⚙️ Persistent Services & Utilities
 
+[⤴️ Back](#table-of-contents) -> Table of Contents
+
 In addition to typed variables, `prf` includes **ready-to-use persistent utilities** for common real-world use cases — built on top of the same caching and async-safe architecture.
 
-These utilities handle state automatically across sessions and isolates, with no manual logic or timers.
+These utilities handle state automatically across sessions and isolates, with no manual logic or timers.  
 They’re fully integrated into `prf`, use built-in types under the hood, and require no extra setup. Just define and use.
 
 ### Included utilities:
 
-- 🔁 [**PrfCooldown**](#-prfcooldown--persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
-- 📊 [**PrfRateLimiter**](#-prfratelimiter--persistent-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- ⏲ [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
+- 🔥 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
+- 📈 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
+- ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
+- 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
+- 📆 [**PrfActivityCounter**](#-prfactivitycounter--persistent-activity-tracker) — multi-resolution activity tracker across hour/day/month/year (e.g. usage stats, user engagement heatmaps)
 
 ---
 
-### 🕒 `PrfCooldown` – Persistent Cooldown Utility
+### 🧭 Use Cases
+
+Each persistent utility is tailored for a specific pattern of time-based control or tracking.
+
+| Use Case                                     | Tool                 | Highlights                                                            |
+| -------------------------------------------- | -------------------- | --------------------------------------------------------------------- |
+| ⏲ Limit how often something can happen       | `PrfCooldown`        | Fixed delay after activation, one active window at a time             |
+| 🔥 Track streaks that break if missed        | `PrfStreakTracker`   | Aligned periods, resets if a full period is skipped                   |
+| 📈 Count how many times per day/hour/etc.    | `PrfPeriodicCounter` | Aligned period-based counter, resets at the start of each time window |
+| ⏳ Count over a sliding window               | `PrfRolloverCounter` | Resets X duration after last activity, rolling logic                  |
+| 📊 Real rate-limiting (N actions per Y time) | `PrfRateLimiter`     | Token bucket algorithm with refill over time                          |
+| 🗓 Track detailed usage history over time     | `PrfActivityCounter` | Persistent span-based history (hour/day/month/year) with total/stats  |
+
+---
+
+### 🧩 Utility Type Details
+
+**🕒 `PrfCooldown`**
+
+> _"Only once every 24 hours"_  
+> → Fixed cooldown timer from last activation  
+> → Great for claim buttons, retry delays, or cooldown locks
+
+**🔥 `PrfStreakTracker`**
+
+> _"Maintain a daily learning streak"_  
+> → Aligned periods (`daily`, `weekly`, etc.)  
+> → Resets if user misses a full period  
+> → Ideal for habit chains, gamified streaks
+
+**📈 `PrfPeriodicCounter`**
+
+> _"How many times today?"_  
+> → Auto-reset at the start of each period (e.g. midnight)  
+> → Clean for tracking daily usage, hourly limits
+
+**⏳ `PrfRolloverCounter`**
+
+> _"Max 5 actions per 10 minutes (sliding)"_  
+> → Resets after duration from **last activity**  
+> → Perfect for soft rate caps, retry attempt tracking
+
+**📊 `PrfRateLimiter`**
+
+> _"Allow 100 actions per 15 minutes (rolling refill)"_  
+> → Token bucket algorithm  
+> → Replenishes tokens over time (not per action)  
+> → Great for APIs, messaging, or hard quota control
+
+**📆 `PrfActivityCounter`**
+
+> _"Track usage over time by hour, day, month, year"_  
+> → Persistent time-series counter  
+> → Supports summaries, totals, active dates, and trimming  
+> → Ideal for activity heatmaps, usage analytics, or historical stats
+
+### 🧠 TL;DR Cheat Sheet
+
+| Goal                               | Use                  |
+| ---------------------------------- | -------------------- |
+| "Only once every X time"           | `PrfCooldown`        |
+| "Track a streak of daily activity" | `PrfStreakTracker`   |
+| "Count per hour / day / week"      | `PrfPeriodicCounter` |
+| "Reset X minutes after last use"   | `PrfRolloverCounter` |
+| "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
+| "Track activity history over time" | `PrfActivityCounter` |
+
+#### ⚡ Optional `useCache` Parameter
+
+Each utility accepts a `useCache` flag:
+
+```dart
+final limiter = PrfRateLimiter(
+  'key',
+  maxTokens: 10,
+  refillDuration:
+  Duration(minutes: 5),
+  useCache: true // false by default
+);
+```
+
+- `useCache: false` (default):
+
+  - Fully **isolate-safe**
+  - Reads directly from storage every time
+  - Best when multiple isolates might read/write the same data
+
+- `useCache: true`:
+  - Uses **memory caching** for faster access
+  - **Not isolate-safe** — may lead to stale or out-of-sync data across isolates
+  - Best when used in single-isolate environments (most apps)
+
+> ⚠️ **Warning**: Enabling `useCache` disables isolate safety. Use only when you're sure no other isolate accesses the same key.
+
+# ⏲ `PrfCooldown` Persistent Cooldown Utility
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
 `PrfCooldown` is a plug-and-play utility for managing **cooldown windows** (e.g. daily rewards, button lockouts, retry delays) that persist across sessions and isolates — no timers, no manual bookkeeping, no re-implementation every time.
 
@@ -568,16 +704,508 @@ print('Used $count times');
 #### 🧪 Test Utilities
 
 ```dart
-await cooldown.removeAll();      // Clears all stored cooldown state
+await cooldown.removeAll();                     // Clears all stored cooldown state
 final exists = await cooldown.anyStateExists(); // Returns true if anything is stored
 ```
-
----
 
 > You can create as many cooldowns as you need — each with a unique prefix.
 > All state is persisted, isolate-safe, and instantly reusable.
 
-# 📊 `PrfRateLimiter` – Persistent Token Bucket Rate Limiter
+# 🔥 `PrfStreakTracker` Persistent Streak Tracker
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfStreakTracker` is a drop-in utility for managing **activity streaks** — like daily check-ins, learning streaks, or workout chains — with automatic expiration logic and aligned time periods.  
+It resets automatically if a full period is missed, and persists streak progress across sessions and isolates.
+
+It handles:
+
+- Aligned period tracking (`daily`, `weekly`, etc.) via `TrackerPeriod`
+- Persistent storage with `prf` using `PrfIso<int>` and `DateTime`
+- Automatic streak expiration logic if a period is skipped
+- Useful metadata like last update time, next reset estimate, and time remaining
+
+---
+
+### 🔧 How to Use
+
+- `bump([amount])` — Marks the current period as completed and increases the streak
+- `currentStreak()` — Returns the current streak value (auto-resets if expired)
+- `isStreakBroken()` — Returns `true` if the streak has been broken (a period was missed)
+- `isStreakActive()` — Returns `true` if the streak is still active
+- `nextResetTime()` — Returns when the streak will break if not continued
+- `percentRemaining()` — Progress indicator (0.0–1.0) until streak break
+- `streakAge()` — Time passed since the last streak bump
+- `reset()` — Fully resets the streak to 0 and clears last update
+- `peek()` — Returns the current value without checking expiration
+- `getLastUpdateTime()` — Returns the timestamp of the last streak update
+- `timeSinceLastUpdate()` — Returns how long ago the last streak bump occurred
+- `isCurrentlyExpired()` — Returns `true` if the streak is expired _right now_
+- `hasState()` — Returns `true` if any streak data is saved
+- `clear()` — Deletes all streak data (value + timestamp)
+
+You can also access **period-related properties**:
+
+- `currentPeriodStart` — Returns the `DateTime` representing the current aligned period start
+- `nextPeriodStart` — Returns the `DateTime` when the next period will begin
+- `timeUntilNextPeriod` — Returns a `Duration` until the next reset occurs
+- `elapsedInCurrentPeriod` — How much time has passed since the period began
+- `percentElapsed` — A progress indicator (0.0 to 1.0) showing how far into the period we are
+
+---
+
+### ⏱ Available Periods (`TrackerPeriod`)
+
+You can choose from a wide range of aligned time intervals:
+
+- Seconds:  
+  `seconds10`, `seconds20`, `seconds30`
+
+- Minutes:  
+  `minutes1`, `minutes2`, `minutes3`, `minutes5`, `minutes10`,  
+  `minutes15`, `minutes20`, `minutes30`
+
+- Hours:  
+  `hourly`, `every2Hours`, `every3Hours`, `every6Hours`, `every12Hours`
+
+- Days and longer:  
+  `daily`, `weekly`, `monthly`
+
+Each period is aligned automatically — e.g., daily resets at midnight, weekly at the start of the week, monthly on the 1st.
+
+---
+
+#### ✅ Define a Streak Tracker
+
+```dart
+final streak = PrfStreakTracker('daily_exercise', period: TrackerPeriod.daily);
+```
+
+This creates a persistent streak tracker that:
+
+- Uses the key `'daily_exercise'`
+- Tracks aligned daily periods (e.g. 00:00–00:00)
+- Increases the streak when `bump()` is called
+- Resets automatically if a full period is missed
+
+---
+
+#### ⚡ Mark a Period as Completed
+
+```dart
+await streak.bump();
+```
+
+This will:
+
+- Reset the streak to 0 if the last bump was too long ago (missed period)
+- Then increment the streak by 1
+- Then update the internal timestamp to the current aligned time
+
+---
+
+#### 📊 Get Current Streak Count
+
+```dart
+final current = await streak.currentStreak();
+```
+
+Returns the current streak (resets first if broken).
+
+---
+
+#### 🧯 Manually Reset the Streak
+
+```dart
+await streak.reset();
+```
+
+Sets the value back to 0 and clears the last update timestamp.
+
+---
+
+#### ❓ Check if Streak Is Broken
+
+```dart
+final isBroken = await streak.isStreakBroken();
+```
+
+Returns `true` if the last streak bump is too old (i.e. period missed).
+
+---
+
+#### 📈 View Streak Age
+
+```dart
+final age = await streak.streakAge();
+```
+
+Returns how much time passed since the last bump (or `null` if never set).
+
+---
+
+#### ⏳ See When the Streak Will Break
+
+```dart
+final time = await streak.nextResetTime();
+```
+
+Returns the timestamp of the next break opportunity (end of allowed window).
+
+---
+
+#### 📉 Percent of Time Remaining
+
+```dart
+final percent = await streak.percentRemaining();
+```
+
+Returns a `double` between `0.0` and `1.0` indicating time left before the streak is considered broken.
+
+---
+
+#### 👁 Peek at the Current Value
+
+```dart
+final raw = await streak.peek();
+```
+
+Returns the current stored streak **without checking if it expired**.
+
+---
+
+#### 🧪 Debug or Clear State
+
+```dart
+await streak.clear();                    // Removes all saved state
+final hasData = await streak.hasState(); // Checks if any value exists
+```
+
+# 📈 `PrfPeriodicCounter` Aligned Timed Counter
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfPeriodicCounter` is a persistent counter that **automatically resets at the start of each aligned time period**, such as _daily_, _hourly_, or every _10 minutes_. It’s perfect for tracking time-bound events like “daily logins,” “hourly uploads,” or “weekly tasks,” without writing custom reset logic.
+
+It handles:
+
+- Aligned period math (e.g. resets every day at 00:00)
+- Persistent storage via `prf` (`PrfIso<int>` and `PrfIso<DateTime>`)
+- Auto-expiring values based on time alignment
+- Counter tracking with optional increment amounts
+- Period progress and time tracking
+
+---
+
+### 🔧 How to Use
+
+Create a periodic counter with a unique key and a `TrackerPeriod`, you can then use:
+
+- `get()` — Returns the current counter value (auto-resets if needed)
+- `increment()` — Increments the counter, by a given amount (1 is the default)
+- `reset()` — Manually resets the counter and aligns the timestamp to the current period start
+- `peek()` — Returns the current value without checking or triggering expiration
+- `raw()` — Alias for `peek()` (useful for debugging or display)
+- `isNonZero()` — Returns `true` if the counter value is greater than zero
+- `clearValueOnly()` — Resets only the counter, without modifying the timestamp
+- `clear()` — Removes all stored values, including the timestamp
+- `hasState()` — Returns `true` if any persistent state exists
+- `isCurrentlyExpired()` — Returns `true` if the counter would reset right now
+- `getLastUpdateTime()` — Returns the last reset-aligned timestamp
+- `timeSinceLastUpdate()` — Returns how long it’s been since the last reset
+
+You can also access **period-related properties**:
+
+- `currentPeriodStart` — Returns the `DateTime` representing the current aligned period start
+- `nextPeriodStart` — Returns the `DateTime` when the next period will begin
+- `timeUntilNextPeriod` — Returns a `Duration` until the next reset occurs
+- `elapsedInCurrentPeriod` — How much time has passed since the period began
+- `percentElapsed` — A progress indicator (0.0 to 1.0) showing how far into the period we are
+
+---
+
+### ⏱ Available Periods (`TrackerPeriod`)
+
+You can choose from a wide range of aligned time intervals:
+
+- Seconds:  
+  `seconds10`, `seconds20`, `seconds30`
+
+- Minutes:  
+  `minutes1`, `minutes2`, `minutes3`, `minutes5`, `minutes10`,  
+  `minutes15`, `minutes20`, `minutes30`
+
+- Hours:  
+  `hourly`, `every2Hours`, `every3Hours`, `every6Hours`, `every12Hours`
+
+- Days and longer:  
+  `daily`, `weekly`, `monthly`
+
+Each period is aligned automatically — e.g., daily resets at midnight, weekly at the start of the week, monthly on the 1st.
+
+---
+
+#### ✅ Define a Periodic Counter
+
+```dart
+final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
+```
+
+This creates a persistent counter that **automatically resets at the start of each aligned period** (e.g. daily at midnight).  
+It uses the prefix `'daily_uploads'` to store:
+
+- The counter value (`int`)
+- The last reset timestamp (`DateTime` aligned to period start)
+
+---
+
+#### ➕ Increment the Counter
+
+```dart
+await counter.increment();           // adds 1
+await counter.increment(3);         // adds 3
+```
+
+You can increment by any custom amount. The value will reset if expired before incrementing.
+
+---
+
+#### 🔢 Get the Current Value
+
+```dart
+final count = await counter.get();
+```
+
+This returns the current counter value, automatically resetting it if the period expired.
+
+---
+
+#### 👀 Peek at Current Value (Without Reset Check)
+
+```dart
+final raw = await counter.peek();
+```
+
+Returns the current stored value without checking expiration or updating anything.  
+Useful for diagnostics, stats, or UI display.
+
+---
+
+#### ✅ Check If Counter Is Non-Zero
+
+```dart
+final hasUsage = await counter.isNonZero();
+```
+
+Returns `true` if the current value is greater than zero.
+
+---
+
+#### 🔄 Manually Reset the Counter
+
+```dart
+await counter.reset();
+```
+
+Resets the value to zero and stores the current aligned timestamp.
+
+---
+
+#### ✂️ Clear Stored Counter Only (Preserve Timestamp)
+
+```dart
+await counter.clearValueOnly();
+```
+
+Resets the counter but **keeps the current period alignment** intact.
+
+---
+
+#### 🗑️ Clear All Stored State
+
+```dart
+await counter.clear();
+```
+
+Removes both value and timestamp from persistent storage.
+
+---
+
+#### ❓ Check if Any State Exists
+
+```dart
+final exists = await counter.hasState();
+```
+
+Returns `true` if the counter or timestamp exist in SharedPreferences.
+
+---
+
+#### ⌛ Check if Current Period Is Expired
+
+```dart
+final expired = await counter.isCurrentlyExpired();
+```
+
+Returns `true` if the stored timestamp is from an earlier period than now.
+
+---
+
+#### 🕓 View Timing Info
+
+```dart
+final last = await counter.getLastUpdateTime();     // last reset-aligned timestamp
+final since = await counter.timeSinceLastUpdate();  // Duration since last reset
+```
+
+---
+
+#### 📆 Period Insight & Progress
+
+```dart
+final start = counter.currentPeriodStart;      // start of this period
+final next = counter.nextPeriodStart;          // start of the next period
+final left = counter.timeUntilNextPeriod;      // how long until reset
+final elapsed = counter.elapsedInCurrentPeriod; // time passed in current period
+final percent = counter.percentElapsed;        // progress [0.0–1.0]
+```
+
+# ⏳ `PrfRolloverCounter` Sliding Window Counter
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfRolloverCounter` is a persistent counter that automatically resets itself after a fixed duration from the last update. Ideal for tracking **rolling activity windows**, such as "submissions per hour", "attempts every 10 minutes", or "usage in the past day".
+
+It handles:
+
+- Time-based expiration with a sliding duration window
+- Persistent storage using `PrfIso<int>` for full isolate-safety
+- Seamless session persistence and automatic reset logic
+- Rich time utilities to support countdowns, progress indicators, and timer-based UI logic
+
+---
+
+### 🔧 How to Use
+
+- `get()` — Returns the current counter value (auto-resets if expired)
+- `increment([amount])` — Increases the count by `amount` (default: `1`)
+- `reset()` — Manually resets the counter and sets a new expiration time
+- `clear()` — Deletes all stored state from preferences
+- `hasState()` — Returns `true` if any saved state exists
+- `peek()` — Returns the current value without triggering a reset
+- `getLastUpdateTime()` — Returns the last update timestamp, or `null` if never used
+- `isCurrentlyExpired()` — Returns `true` if the current window has expired
+- `timeSinceLastUpdate()` — Returns how much time has passed since last use
+- `timeRemaining()` — Returns how much time remains before auto-reset
+- `secondsRemaining()` — Same as above, in seconds
+- `percentElapsed()` — Progress of the current window as a `0.0–1.0` value
+- `getEndTime()` — Returns the `DateTime` when the current window ends
+- `whenExpires()` — Completes when the reset window expires
+
+---
+
+#### ✅ Define a Rollover Counter
+
+```dart
+final counter = PrfRolloverCounter('usage_counter', resetEvery: Duration(minutes: 10));
+```
+
+This creates a persistent counter that resets automatically 10 minutes after the last update. It uses the key `'usage_counter'` to store:
+
+- Last update timestamp
+- Rolling count value
+
+---
+
+#### ➕ Increment the Counter
+
+```dart
+await counter.increment();         // +1
+await counter.increment(5);        // +5
+```
+
+This also refreshes the rollover timer.
+
+---
+
+#### 📈 Get the Current Value
+
+```dart
+final count = await counter.get(); // Auto-resets if expired
+```
+
+You can also check the value without affecting expiration:
+
+```dart
+final value = await counter.peek();
+```
+
+---
+
+#### 🔄 Reset or Clear the Counter
+
+```dart
+await counter.reset(); // Sets count to 0 and updates timestamp
+await counter.clear(); // Deletes all stored state
+```
+
+---
+
+#### 🕓 Check Expiration Status
+
+```dart
+final expired = await counter.isCurrentlyExpired(); // true/false
+```
+
+You can also inspect metadata:
+
+```dart
+final lastUsed = await counter.getLastUpdateTime();
+final since = await counter.timeSinceLastUpdate();
+```
+
+---
+
+#### ⏳ Check Time Remaining
+
+```dart
+final duration = await counter.timeRemaining();
+final seconds = await counter.secondsRemaining();
+final percent = await counter.percentElapsed(); // 0.0–1.0
+```
+
+These can be used for progress bars, countdowns, etc.
+
+---
+
+#### 📅 Get the End Time
+
+```dart
+final end = await counter.getEndTime(); // DateTime when it auto-resets
+```
+
+---
+
+#### 💤 Wait for Expiry
+
+```dart
+await counter.whenExpires(); // Completes when timer ends
+```
+
+Useful for polling, UI disable windows, etc.
+
+---
+
+#### 🧪 Test Utilities
+
+```dart
+await counter.clear();          // Removes all saved values
+final exists = await counter.hasState(); // true if anything stored
+```
+
+# 📊 `PrfRateLimiter` Token Bucket Rate Limiter
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
 `PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
 
@@ -586,7 +1214,7 @@ It handles:
 - Token-based rate limiting
 - Automatic time-based token refill
 - Persistent state using `prf` types (`PrfIso<double>`, `PrfIso<DateTime>`)
-- Async-safe, isolate-compatible behavior with built-in caching
+- Async-safe, isolate-compatible behavior
 
 Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
 
@@ -710,9 +1338,179 @@ final exists = await limiter.anyStateExists();
 
 With `PrfRateLimiter`, you get a production-grade rolling window limiter with zero boilerplate — fully persistent and ready for real-world usage.
 
+# 📊 `PrfActivityCounter` – Persistent Activity Tracker
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
+`PrfActivityCounter` is a powerful utility for **tracking user activity over time**, across `hour`, `day`, `month`, and `year` spans. It is designed for scenarios where you want to **record frequency**, **analyze trends**, or **generate statistics** over long periods, with full persistence across app restarts and isolates.
+
+It handles:
+
+- Span-based persistent counters (hourly, daily, monthly, yearly)
+- Automatic time-based bucketing using `DateTime.now()`
+- Per-span data access and aggregation
+- Querying historical data without manual cleanup
+- Infinite year tracking
+
 ---
 
+### 🔧 How to Use
+
+- `add(int amount)` — Adds to the current time bucket (across all spans)
+- `increment()` — Shortcut for `add(1)`
+- `amountThis(span)` — Gets current value for now’s `hour`, `day`, `month`, or `year`
+- `amountFor(span, date)` — Gets the value for any given date and span
+- `summary()` — Returns a map of all spans for the current time (`{year: X, month: Y, ...}`)
+- `total(span)` — Total sum of all recorded entries in that span
+- `all(span)` — Returns `{index: value}` map of non-zero entries for a span
+- `maxValue(span)` — Returns the largest value ever recorded for the span
+- `activeDates(span)` — Returns a list of `DateTime` objects where any activity was tracked
+- `hasAnyData()` — Returns `true` if any activity has ever been recorded
+- `thisHour`, `today`, `thisMonth`, `thisYear` — Shorthand for `amountThis(...)`
+- `reset()` — Clears all data in sall spans
+- `clear(span)` — Clears a single span
+- `clearAllKnown([...])` — Clears multiple spans at once
+- `removeAll()` — Permanently deletes all stored data for this counter
+
+**PrfActivityCounter** tracks activity simultaneously across all of the following spans:
+
+- `ActivitySpan.hour` — hourly activity (rolling 24-hour window)
+- `ActivitySpan.day` — daily activity (up to 31 days)
+- `ActivitySpan.month` — monthly activity (up to 12 months)
+- `ActivitySpan.year` — yearly activity (from year 2000 onward, uncapped)
+
+---
+
+#### ✅ Define an Activity Counter
+
+```dart
+final counter = PrfActivityCounter('user_events');
+```
+
+This creates a persistent activity counter with a unique prefix. It automatically manages:
+
+- Hourly counters
+- Daily counters
+- Monthly counters
+- Yearly counters
+
+---
+
+#### ➕ Add or Increment Activity
+
+```dart
+await counter.add(5);    // Adds 5 to all time buckets
+await counter.increment(); // Adds 1 (shortcut)
+```
+
+Each call will update the counter in all spans (`hour`, `day`, `month`, and `year`) based on `DateTime.now()`.
+
+---
+
+#### 📊 Get Current Time Span Counts
+
+```dart
+final currentHour = await counter.thisHour;
+final today = await counter.today;
+final thisMonth = await counter.thisMonth;
+final thisYear = await counter.thisYear;
+```
+
+You can also use:
+
+```dart
+await counter.amountThis(ActivitySpan.day);
+await counter.amountThis(ActivitySpan.month);
+```
+
+---
+
+#### 📅 Read Specific Time Buckets
+
+```dart
+final value = await counter.amountFor(ActivitySpan.year, DateTime(2022));
+```
+
+Works for any `ActivitySpan` and `DateTime`.
+
+---
+
+#### 📈 Get Summary of All Current Spans
+
+```dart
+final summary = await counter.summary();
+// {ActivitySpan.year: 12, ActivitySpan.month: 7, ...}
+```
+
+---
+
+#### 🔢 Get Total Accumulated Value
+
+```dart
+final sum = await counter.total(ActivitySpan.day); // Sum of all recorded days
+```
+
+---
+
+#### 📍 View All Non-Zero Buckets
+
+```dart
+final map = await counter.all(ActivitySpan.month); // {5: 3, 6: 10, 7: 1}
+```
+
+Returns a `{index: value}` map of all non-zero entries.
+
+---
+
+#### 🚩 View Active Dates
+
+```dart
+final days = await counter.activeDates(ActivitySpan.day);
+```
+
+Returns a list of `DateTime` objects representing each tracked entry.
+
+---
+
+#### 📈 View Max Value in Span
+
+```dart
+final peak = await counter.maxValue(ActivitySpan.hour);
+```
+
+Returns the highest value recorded in that span.
+
+---
+
+#### 🔍 Check If Any Data Exists
+
+```dart
+final exists = await counter.hasAnyData();
+```
+
+---
+
+#### 🧼 Reset or Clear Data
+
+```dart
+await counter.reset(); // Clears all spans
+await counter.clear(ActivitySpan.month); // Clears only month data
+await counter.clearAllKnown([ActivitySpan.year, ActivitySpan.hour]);
+```
+
+---
+
+#### ❌ Permanently Remove Data
+
+```dart
+await counter.removeAll();
+```
+
+Deletes all stored values associated with this key. Use this in tests or during debug cleanup.
+
 # 🛣️ Roadmap & Future Plans
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 `prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
 
@@ -720,20 +1518,17 @@ With `PrfRateLimiter`, you get a production-grade rolling window limiter with ze
 
 - **Improved performance**
   Smarter caching and leaner async operations.
-
-- **Additional type support**
-  Encrypted strings, and more.
-
-- **Custom storage** _(experimental)_
+- Additional type support, Encryption, and more.
+- **Custom storage**
   Support for alternative adapters (Hive, Isar, file system).
-
 - **Testing & tooling**
   In-memory test adapter, debug inspection tools, and test utilities.
-
 - **Optional code generation**
   Annotations for auto-registering variables and reducing manual setup.
 
 # 🔍 Why `prf` Wins in Real Apps
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 Working with `SharedPreferences` directly can quickly become **verbose, error-prone, and difficult to scale**. Whether you’re building a simple prototype or a production-ready app, clean persistence matters.
 
@@ -878,9 +1673,9 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 # 🛠️ How to Add a Custom `prf` Type (Advanced)
 
-For most use cases, you can simply use the built-in `Prf.enumerated<T>()`, `Prf.json<T>()`, `PrfIso.enumerated<T>()`, or `PrfIso.json<T>()` factories to persist enums and custom models easily.
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
-This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
+For most use cases, you can simply use the built-in 20+ types or `Prf.enumerated<T>()`, `Prf.json<T>()` factories to persist enums and custom models easily. This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
 
 Expanding `prf` is simple:  
 Just create a custom adapter and treat your new type like any other!
@@ -915,18 +1710,13 @@ class ColorAdapter extends PrfEncodedAdapter<Color, String> {
 }
 ```
 
-### 3. (Optional) Register It
+### 3. Use It with `Prf.customAdapter<T>()`
 
 ```dart
-PrfAdapterMap.instance.register<Color>(ColorAdapter());
-```
-
-> So you can use `Prf<Color>` without passing an adapter manually.
-
-### 4. Use It!
-
-```dart
-final favoriteColor = Prf<Color>('favorite_color');
+final favoriteColor = Prf.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+);
 
 await favoriteColor.set(Color(255, 0, 0));
 final color = await favoriteColor.get();
@@ -937,22 +1727,33 @@ print(color?.r); // 255
 For isolate-safe persistence:
 
 ```dart
-final safeColor = favoriteColor.isolated;                // Same
-final safeColor = Prf<Color>('favorite_color').isolated; // Same
-final safeColor = PrfIso<Color>('favorite_color');       // Same
+final safeColor = favoriteColor.isolated;            // Same
+
+final safeColor = Prf.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+).isolated;                                          // Same
+
+final safeColor = PrfIso.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+);                                                   // Same
 ```
 
 ## Summary
 
 - Create your class.
 - Create a `PrfEncodedAdapter`.
-- (Optional) Register it.
-- Use `Prf<T>` or `PrfIso<T>` anywhere.
+- Use `Prf<T>` with `.customAdapter`.
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 ---
 
 ## 🔗 License MIT © Jozz
 
-```
-
-```
+<p align="center">
+  <a href="https://buymeacoffee.com/yosefd99v" target="https://buymeacoffee.com/yosefd99v">
+    ☕ Enjoying this package? You can support it here.
+  </a>
+</p>

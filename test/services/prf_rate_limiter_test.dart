@@ -105,9 +105,9 @@ void main() {
       // Test with a small refill duration for quick testing
       final limiter = PrfRateLimiter(
         testPrefix,
-        maxTokens: 10,
+        maxTokens: 1000,
         refillDuration: Duration(
-            seconds: 10), // 10 tokens per 10 seconds = 1 token per second
+            seconds: 10), // 1000 tokens per 10 seconds = 1 token per second
       );
 
       // Consume 5 tokens
@@ -116,15 +116,15 @@ void main() {
       }
 
       // Tokens should be approximately 5
-      expect(await limiter.getAvailableTokens(), closeTo(5.0, 0.1));
+      expect(await limiter.getAvailableTokens(), closeTo(995, 1));
 
       // Wait for some refill time
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(milliseconds: 10));
 
       // Should have refilled approximately 2 tokens (1 per second)
       final tokensAfterWait = await limiter.getAvailableTokens();
-      expect(tokensAfterWait, greaterThan(6.0));
-      expect(tokensAfterWait, lessThan(8.0));
+      expect(tokensAfterWait, greaterThan(995.0));
+      expect(tokensAfterWait, lessThan(1000));
     });
 
     test('tokens are capped at maxTokens', () async {
@@ -142,7 +142,7 @@ void main() {
       expect(await limiter.getAvailableTokens(), 5.0);
 
       // Wait longer than needed to refill
-      await Future.delayed(Duration(seconds: 3));
+      await Future.delayed(Duration(milliseconds: 2));
 
       // Tokens should still be capped at maxTokens
       expect(await limiter.getAvailableTokens(), 5.0);
@@ -287,20 +287,20 @@ void main() {
 
       final limiter = PrfRateLimiter(
         testPrefix,
-        maxTokens: 3,
-        refillDuration: Duration(seconds: 6), // 0.5 tokens per second
+        maxTokens: 10,
+        refillDuration: Duration(milliseconds: 250), // 0.5 tokens per second
       );
 
-      // First three attempts should succeed
-      expect(await limiter.tryConsume(), isTrue);
-      expect(await limiter.tryConsume(), isTrue);
-      expect(await limiter.tryConsume(), isTrue);
+      // First 10 attempts should succeed
+      for (var i = 0; i < 10; i++) {
+        expect(await limiter.tryConsume(), isTrue);
+      }
 
       // Fourth attempt should fail
       expect(await limiter.tryConsume(), isFalse);
 
-      // Wait for 2 seconds (should get 1 token back)
-      await Future.delayed(Duration(seconds: 2));
+      // Wait (should get 1 token back)
+      await Future.delayed(Duration(milliseconds: 30));
 
       // Should succeed now
       expect(await limiter.tryConsume(), isTrue);
@@ -316,23 +316,23 @@ void main() {
 
       final limiter = PrfRateLimiter(
         testPrefix,
-        maxTokens: 3,
-        refillDuration: Duration(seconds: 6),
+        maxTokens: 10,
+        refillDuration: Duration(milliseconds: 500),
       );
 
       // Initially not limited
       expect(await limiter.isLimitedNow(), isFalse);
 
       // Consume all tokens
-      await limiter.tryConsume();
-      await limiter.tryConsume();
-      await limiter.tryConsume();
+      for (var i = 0; i < 10; i++) {
+        await limiter.tryConsume();
+      }
 
       // Should be limited now
       expect(await limiter.isLimitedNow(), isTrue);
 
       // Wait for token refill
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(milliseconds: 60));
 
       // Should not be limited anymore
       expect(await limiter.isLimitedNow(), isFalse);

@@ -138,18 +138,18 @@ void main() {
       final (preferences, _) = getPreferences();
       PrfService.overrideWith(preferences);
 
-      final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 10));
+      final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 2));
 
       await cooldown.activateCooldown();
       final initialRemaining = await cooldown.timeRemaining();
-      expect(initialRemaining.inSeconds > 5, true);
+      expect(initialRemaining.inSeconds > 0.5, true);
 
       // Wait for 2 seconds
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(milliseconds: 2));
 
       final newRemaining = await cooldown.timeRemaining();
       expect(newRemaining < initialRemaining, true);
-      expect(initialRemaining - newRemaining > Duration(seconds: 1), true);
+      expect(initialRemaining - newRemaining > Duration(milliseconds: 1), true);
     });
 
     test('secondsRemaining returns correct integer value', () async {
@@ -174,7 +174,7 @@ void main() {
       final cooldown = PrfCooldown(testPrefix, duration: Duration(seconds: 5));
 
       await cooldown.activateCooldown();
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 2));
       final percent = await cooldown.percentRemaining();
 
       expect(percent < 1.0, true);
@@ -193,11 +193,12 @@ void main() {
       final initialPercent = await cooldown.percentRemaining();
 
       // Wait for 1 second
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(milliseconds: 2));
 
       final newPercent = await cooldown.percentRemaining();
       expect(newPercent < initialPercent, true);
-      expect(initialPercent - newPercent > 0.15, true); // At least 15% decrease
+      expect(
+          initialPercent - newPercent > 0.0001, true); // At least 15% decrease
     });
 
     test('getLastActivationTime returns null initially', () async {

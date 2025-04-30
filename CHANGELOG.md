@@ -2,6 +2,51 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.3.0
+
+### General Additions
+
+- Added `Back to Table of Contents` links to all README sections for improved navigation.
+- All utilities & services now support an optional `useCache: true` parameter to enable faster memory-cached access for single-isolate apps. They remain **isolate-safe by default**, but enabling caching **disables isolate safety**. See the `README` for guidance on when to enable it.
+- Added adapters for `List<num>`, `List<Uint8List>`, `List<BigInt>`, `List<Duration>`, and `List<Uri>`. Now the package supports all possible types out of the box!
+
+### 🧭 Tracker Services
+
+Introduced a suite of new tracker utilities — see the 📖 `README` for full documentation, examples, and usage tips:
+
+- **`PrfStreakTracker`** — Persistent streak tracker that increases when an action is performed every aligned period (e.g. daily), and resets if a period is missed. Ideal for login streaks, daily habits, and weekly goals. Includes methods for checking streak length, detecting breaks, and calculating time left before expiration.
+
+- **`PrfPeriodicCounter`** — A persistent counter that resets itself automatically at the start of each aligned period (e.g. daily, hourly, weekly). Perfect for counting recurring actions like logins or submissions. Supports incrementing, getting, resetting, and clearing the count.
+
+- **`PrfRolloverCounter`** — A sliding-window counter that resets itself after a fixed duration (e.g. 10 minutes after last use). Useful for rolling metrics like "actions per hour" or "retry cooldowns". Includes time-aware utilities like time remaining, end time, and percentage elapsed.
+
+- **`PrfActivityCounter`** — A time-based analytics tracker that aggregates values over hour, day, month, and year spans. Useful for building heatmaps, tracking activity frequency, or logging usage patterns. Supports advanced queries like `.summary()`, `.total()`, `.all()`, and `.maxValue()`, with uncapped yearly data retention.
+
+- All tracker tools are now covered by **extensive tests** — including 220 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
+- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T> — fully isolate-safe.
+
+### Fixed
+
+> **All persistent utilities and services are now fully synchronized.**
+
+This version introduces **comprehensive internal locking** to all `Prf`-based services and trackers to prevent concurrent access issues in asynchronous or multi-call scenarios.  
+Previously, state mutations (e.g. `.set`, `.reset`, `.increment`) were **not guarded**, which could cause race conditions, corrupted values, or inconsistent behavior — especially in rapid or concurrent calls.
+
+This update ensures:
+
+- **Atomic updates** to counters, cooldowns, and streaks.
+- **No race conditions** between `.get()`, `.set()`, and `.reset()`.
+- **Consistency across isolates or concurrent flows**.
+- **Industry-grade safety guarantees** for production apps.
+
+### 🧱 Foundation for Custom Trackers
+
+Introduced new foundational base classes for building your own tracking tools:
+
+- `BaseTracker<T>` — base for timestamp-aware persistent values with expiration handling.
+- `BaseCounterTracker` — extension of `BaseTracker<int>` with `.increment()` and consistent default logic.
+- `TrackerPeriod` — an enum of aligned periods like `minutes10`, `hourly`, `daily`, `weekly`, with `.duration` and `.alignedStart()`.
+
 ## 2.2.4
 
 - Added factory methods:
