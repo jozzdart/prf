@@ -458,7 +458,69 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 - ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
 
+---
+
+### 🧭 Use Cases
+
+Each persistent utility is tailored for a specific pattern of time-based control or tracking.
+
+| Use Case                                     | Tool                 | Highlights                                                            |
+| -------------------------------------------- | -------------------- | --------------------------------------------------------------------- |
+| ⏲ Limit how often something can happen       | `PrfCooldown`        | Fixed delay after activation, one active window at a time             |
+| 🔥 Track streaks that break if missed        | `PrfStreakTracker`   | Aligned periods, resets if a full period is skipped                   |
+| 📈 Count how many times per day/hour/etc.    | `PrfPeriodicCounter` | Aligned period-based counter, resets at the start of each time window |
+| ⏳ Count over a sliding window               | `PrfRolloverCounter` | Resets X duration after last activity, rolling logic                  |
+| 📊 Real rate-limiting (N actions per Y time) | `PrfRateLimiter`     | Token bucket algorithm with refill over time                          |
+
+---
+
+### 🧩 Utility Type Details
+
+**🕒 `PrfCooldown`**
+
+> _"Only once every 24 hours"_  
+> → Fixed cooldown timer from last activation  
+> → Great for claim buttons, retry delays, or cooldown locks
+
+**📈 `PrfStreakTracker`**
+
+> _"Maintain a daily learning streak"_  
+> → Aligned periods (`daily`, `weekly`, etc.)  
+> → Resets if user misses a full period  
+> → Ideal for habit chains, gamified streaks
+
+**📅 `PrfPeriodicCounter`**
+
+> _"How many times today?"_  
+> → Auto-reset at the start of each period (e.g. midnight)  
+> → Clean for tracking daily usage, hourly limits
+
+**⏳ `PrfRolloverCounter`**
+
+> _"Max 5 actions per 10 minutes (sliding)"_  
+> → Resets after duration from **last activity**  
+> → Perfect for soft rate caps, retry attempt tracking
+
+**📊 `PrfRateLimiter`**
+
+> _"Allow 100 actions per 15 minutes (rolling refill)"_  
+> → Token bucket algorithm  
+> → Replenishes tokens over time (not per action)  
+> → Great for APIs, messaging, or hard quota control
+
+### 🧠 TL;DR Cheat Sheet
+
+| Goal                               | Use                  |
+| ---------------------------------- | -------------------- |
+| "Only once every X time"           | `PrfCooldown`        |
+| "Track a streak of daily activity" | `PrfStreakTracker`   |
+| "Count per hour / day / week"      | `PrfPeriodicCounter` |
+| "Reset X minutes after last use"   | `PrfRolloverCounter` |
+| "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
+
 # 🕒 `PrfCooldown` Persistent Cooldown Utility
+
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
 
 `PrfCooldown` is a plug-and-play utility for managing **cooldown windows** (e.g. daily rewards, button lockouts, retry delays) that persist across sessions and isolates — no timers, no manual bookkeeping, no re-implementation every time.
 
