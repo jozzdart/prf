@@ -132,6 +132,26 @@ class PrfIso<T> extends BasePrfObject<T> {
     );
   }
 
+  /// Creates a new preference for a list of enum values.
+  ///
+  /// This factory sets up a [PrfIso] instance using [EnumListAdapter], where each enum
+  /// is stored as its integer index using the native `List<int>` SharedPreferences support.
+  ///
+  /// - [key] is the preference key.
+  /// - [values] is the enum declaration list (usually `MyEnum.values`).
+  /// - [defaultValue] is the fallback value if the key does not exist.
+  static PrfIso<List<T>> enumeratedList<T extends Enum>(
+    String key, {
+    required List<T> values,
+    List<T>? defaultValue,
+  }) {
+    return PrfIso._withAdapter(
+      key,
+      adapter: EnumListAdapter<T>(values),
+      defaultValue: defaultValue,
+    );
+  }
+
   PrfIso._withAdapter(
     super.key, {
     required PrfAdapter<T> adapter,

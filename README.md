@@ -225,6 +225,11 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 > ✅ Available on **all `Prf<T>` and `PrfIso<T>` types** — consistent, type-safe, and ready to use anywhere in your app. It's even easier to make prf isolate safe just by calling `.isolate` on your prfs!
 
+#### 🛰 Need Isolate Safety?
+
+Every `Prf` object supports the `.isolated` getter — no matter the type (enums, bytes, JSON, lists, etc).  
+It returns a `PrfIso` that works safely across isolates (no caching, always reads from disk).
+
 These are practically the same:
 
 ```dart
@@ -262,7 +267,9 @@ Also work with lists out of the box:
 For enums and custom JSON models, use the built-in factory methods:
 
 - `Prf.enumerated<T>()` — for enum values
+- `Prf.enumeratedList<T>()` — for lists of enum values
 - `Prf.json<T>()` — for custom model objects
+- `Prf.jsonList<T>()` — for lists of custom model objects
 
 ### Also [See Persistent Services & Utilities:](#-persistent-services-and-utilities)
 
@@ -299,6 +306,30 @@ final currentTheme = await appTheme.get(); // AppTheme.light / dark / system
 await appTheme.set(AppTheme.dark);
 ```
 
+### 📚 Persisting a List of Enums
+
+Define your enum:
+
+```dart
+enum Permission { read, write, delete }
+```
+
+Store a list using `Prf.enumeratedList` (cached) or `PrfIso.enumeratedList` (isolate-safe):
+
+```dart
+final permissions = Prf.enumeratedList<Permission>(
+  'user_permissions',
+  values: Permission.values,
+);
+```
+
+Usage:
+
+```dart
+final current = await permissions.get(); // [Permission.read, Permission.write]
+await permissions.set([Permission.read, Permission.delete]);
+```
+
 ---
 
 ### 🧠 Custom Types? No Problem
@@ -312,6 +343,26 @@ final userData = Prf.json<User>(
   fromJson: (json) => User.fromJson(json),
   toJson: (user) => user.toJson(),
 );
+
+```
+
+### 🧠 Complex Lists? Just Use `jsonList`
+
+For model lists, use `Prf.jsonList<T>()` or `PrfIso.jsonList<T>()`:
+
+```dart
+final favoriteBooks = Prf.jsonList<Book>(
+  'favorite_books',
+  fromJson: (json) => Book.fromJson(json),
+  toJson: (book) => book.toJson(),
+);
+```
+
+Usage:
+
+```dart
+await favoriteBooks.set([book1, book2]);
+final list = await favoriteBooks.get(); // List<Book>
 ```
 
 Need full control? You can create fully custom persistent types by:

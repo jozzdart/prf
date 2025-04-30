@@ -1,7 +1,15 @@
 ## 2.3.1
 
-- Added `Prf.jsonList<T>()` and `PrfIso.jsonList<T>()` factory constructors for easy creation of cached and isolate-safe preferences for lists of JSON-serializable objects.
-- Added `JsonListAdapter<T>`: enables storing a `List<T>` where each object is serialized as a JSON string and stored using the native `List<String>` type in SharedPreferences.
+- New Factories:
+
+  - Added `Prf.jsonList<T>()` for easy creation of cached and isolate-safe preferences for lists of JSON-serializable objects.
+  - Added `Prf.enumeratedList<T>()` for type-safe enum list preferences backed by native `List<int>` storage.
+
+- New Adapters:
+
+  - Added `JsonListAdapter<T>`: stores a `List<T>` where each item is a JSON string using native `List<String>` support.
+  - Added `EnumListAdapter<T>`: stores a list of enums as their integer indices using native `List<int>` support.
+
 - Fixed broken or incorrect navigation links in the README.
 
 ## 2.3.0
