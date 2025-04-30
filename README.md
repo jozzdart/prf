@@ -56,9 +56,11 @@ await username.set('Joey');
 That’s it. You're done. Works out of the box with all of these:
 
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
-- `List<String>` `List<int>` `List<bool>` `List<double>` `List<DateTime>`
+- Also lists `List<String>` `List<int>` `List<***>` with all supported types!
 - [JSON & enums](#-supported-prf-types)
 - [Special Services & Utilities](#️-persistent-services--utilities)
+
+> All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
 ---
 
@@ -237,7 +239,9 @@ final safeUser = PrfIso<String>('username');       // Same
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
-All of these work out of the box:
+> All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
+
+_All of these work out of the box:_
 
 - `bool`
 - `int`
@@ -248,12 +252,11 @@ All of these work out of the box:
 - `DateTime`
 - `Uri`
 - `BigInt`
-- `List<String>`
-- `List<int>`
-- `List<bool>`
-- `List<double>`
-- `List<DateTime>`
 - `Uint8List` (binary data)
+
+Also work with lists out of the box:
+
+- `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
 
 ### Specialized Types
 
@@ -1672,9 +1675,7 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
-For most use cases, you can simply use the built-in `Prf.enumerated<T>()`, `Prf.json<T>()`, `PrfIso.enumerated<T>()`, or `PrfIso.json<T>()` factories to persist enums and custom models easily.
-
-This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
+For most use cases, you can simply use the built-in 20+ types or `Prf.enumerated<T>()`, `Prf.json<T>()` factories to persist enums and custom models easily. This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
 
 Expanding `prf` is simple:  
 Just create a custom adapter and treat your new type like any other!
@@ -1709,18 +1710,13 @@ class ColorAdapter extends PrfEncodedAdapter<Color, String> {
 }
 ```
 
-### 3. (Optional) Register It
+### 3. Use It with `Prf.customAdapter<T>()`
 
 ```dart
-PrfAdapterMap.instance.register<Color>(ColorAdapter());
-```
-
-> So you can use `Prf<Color>` without passing an adapter manually.
-
-### 4. Use It!
-
-```dart
-final favoriteColor = Prf<Color>('favorite_color');
+final favoriteColor = Prf.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+);
 
 await favoriteColor.set(Color(255, 0, 0));
 final color = await favoriteColor.get();
@@ -1731,17 +1727,24 @@ print(color?.r); // 255
 For isolate-safe persistence:
 
 ```dart
-final safeColor = favoriteColor.isolated;                // Same
-final safeColor = Prf<Color>('favorite_color').isolated; // Same
-final safeColor = PrfIso<Color>('favorite_color');       // Same
+final safeColor = favoriteColor.isolated;            // Same
+
+final safeColor = Prf.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+).isolated;                                          // Same
+
+final safeColor = PrfIso.customAdapter<Color>(
+  'favorite_color',
+  adapter: const ColorAdapter(),
+);                                                   // Same
 ```
 
 ## Summary
 
 - Create your class.
 - Create a `PrfEncodedAdapter`.
-- (Optional) Register it.
-- Use `Prf<T>` or `PrfIso<T>` anywhere.
+- Use `Prf<T>` with `.customAdapter`.
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 

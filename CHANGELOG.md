@@ -8,6 +8,7 @@ All notable changes to the **prf** package will be documented in this file.
 
 - Added `Back to Table of Contents` links to all README sections for improved navigation.
 - All utilities & services now support an optional `useCache: true` parameter to enable faster memory-cached access for single-isolate apps. They remain **isolate-safe by default**, but enabling caching **disables isolate safety**. See the `README` for guidance on when to enable it.
+- Added adapters for `List<num>`, `List<Uint8List>`, `List<BigInt>`, `List<Duration>`, and `List<Uri>`. Now the package supports all possible types out of the box!
 
 ### 🧭 Tracker Services
 
@@ -22,7 +23,7 @@ Introduced a suite of new tracker utilities — see the 📖 `README` for full d
 - **`PrfActivityCounter`** — A time-based analytics tracker that aggregates values over hour, day, month, and year spans. Useful for building heatmaps, tracking activity frequency, or logging usage patterns. Supports advanced queries like `.summary()`, `.total()`, `.all()`, and `.maxValue()`, with uncapped yearly data retention.
 
 - All tracker tools are now covered by **extensive tests** — including 220 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
-- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
+- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T> — fully isolate-safe.
 
 ### Fixed
 

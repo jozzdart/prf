@@ -59,6 +59,11 @@ void main() {
       expect(adapterMap.contains<List<bool>>(), true);
       expect(adapterMap.contains<List<DateTime>>(), true);
       expect(adapterMap.contains<List<double>>(), true);
+      expect(adapterMap.contains<List<num>>(), true);
+      expect(adapterMap.contains<List<Duration>>(), true);
+      expect(adapterMap.contains<List<Uint8List>>(), true);
+      expect(adapterMap.contains<List<BigInt>>(), true);
+      expect(adapterMap.contains<List<Uri>>(), true);
     });
 
     test('of<T>() automatically registers adapters if none registered', () {
