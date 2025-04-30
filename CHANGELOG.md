@@ -34,6 +34,7 @@ Introduced a new high-level utility:
 
 - All tracker tools are now covered by **extensive tests** — including 150 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
 - These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
+- Added `Back to Table of Contents` links to all README sections for improved navigation.
 
 ### 🧱 Foundation for Custom Trackers
 

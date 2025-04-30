@@ -1,4 +1,3 @@
-<a id="back-to-top"></a>
 ![img](https://i.imgur.com/pAUltto.png)
 
 <h3 align="center"><i>Define. Get. Set. Done.</i></h3>
@@ -18,6 +17,8 @@
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
 > Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfRateLimiter` `PrfTrackers` for production ready persistent cooldowns, rate limiters and stats.
+
+#### Table of Contents
 
 - [Introduction](#-define--get--set--done)
 - [Why Use `prf`?](#-why-use-prf)
@@ -94,7 +95,7 @@ Working with `SharedPreferences` often leads to:
 
 ### 🔁 `SharedPreferences` vs `prf`
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 | Feature                         | `SharedPreferences` (raw)                                                 | `prf`                                                                                                  |
 | ------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -111,7 +112,7 @@ Working with `SharedPreferences` often leads to:
 
 # 📌 Code Comparison
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 **Using `SharedPreferences`:**
 
@@ -149,7 +150,7 @@ Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant loca
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 ### Step 1: Add `prf` to your `pubspec.yaml`
 
@@ -206,7 +207,7 @@ That’s it! 🎉 You don’t need to manage string keys or setup anything. Just
 
 # 🧰 Available Methods for All `prf` Types
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
@@ -232,7 +233,7 @@ final safeUser = PrfIso<String>('username');       // Same
 
 # 🔤 Supported `prf` Types
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 All of these work out of the box:
 
@@ -315,7 +316,7 @@ Need full control? You can create fully custom persistent types by:
 
 # ⚡ Accessing `prf` Without Async
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 If you want instant, non-async access to a stored value, you can pre-load it into memory.
 Use `Prf.value<T>()` to create a `prf` object that automatically initializes and caches the value.
@@ -343,7 +344,7 @@ print(userScore.cachedValue); // e.g., 42
 
 # 🔁 Migrating from SharedPreferences to `prf`
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence — without losing any existing data.
 
@@ -440,7 +441,7 @@ With `prf`, you get:
 
 # ⚙️ Persistent Services & Utilities
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 In addition to typed variables, `prf` includes **ready-to-use persistent utilities** for common real-world use cases — built on top of the same caching and async-safe architecture.
 
@@ -1072,7 +1073,7 @@ final exists = await counter.hasState(); // true if anything stored
 
 # 🛣️ Roadmap & Future Plans
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 `prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
 
@@ -1094,7 +1095,7 @@ final exists = await counter.hasState(); // true if anything stored
 
 # 🔍 Why `prf` Wins in Real Apps
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 Working with `SharedPreferences` directly can quickly become **verbose, error-prone, and difficult to scale**. Whether you’re building a simple prototype or a production-ready app, clean persistence matters.
 
@@ -1239,7 +1240,7 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 # 🛠️ How to Add a Custom `prf` Type (Advanced)
 
-[⤴️ Back](#back-to-top) -> Table of Contents
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 For most use cases, you can simply use the built-in `Prf.enumerated<T>()`, `Prf.json<T>()`, `PrfIso.enumerated<T>()`, or `PrfIso.json<T>()` factories to persist enums and custom models easily.
 
@@ -1312,6 +1313,14 @@ final safeColor = PrfIso<Color>('favorite_color');       // Same
 - (Optional) Register it.
 - Use `Prf<T>` or `PrfIso<T>` anywhere.
 
+[⤴️ Back](#table-of-contents) -> Table of Contents
+
 ---
 
 ## 🔗 License MIT © Jozz
+
+<p align="center">
+  <a href="https://buymeacoffee.com/yosefd99v" target="https://buymeacoffee.com/yosefd99v">
+    ☕ Enjoying this package? You can support it here.
+  </a>
+</p>
