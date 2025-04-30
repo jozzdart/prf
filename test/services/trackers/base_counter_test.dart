@@ -6,11 +6,14 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import '../../utils/fake_prefs.dart';
 
 class TestCounterTracker extends BaseCounterTracker {
-  TestCounterTracker(super.key) : super(suffix: 'test');
+  final Duration duration;
+
+  TestCounterTracker(super.key, {this.duration = const Duration(seconds: 1)})
+      : super(suffix: 'test');
 
   @override
   bool isExpired(DateTime now, DateTime? last) =>
-      last == null || now.difference(last) >= Duration(seconds: 1);
+      last == null || now.difference(last) >= duration;
 
   @override
   Future<void> reset() async {
@@ -90,12 +93,13 @@ void main() {
   });
 
   test('auto-reset occurs after expiration', () async {
-    final tracker = TestCounterTracker(testPrefix);
+    final tracker =
+        TestCounterTracker(testPrefix, duration: Duration(milliseconds: 50));
     await tracker.increment(3);
     final beforeReset = await tracker.get();
     expect(beforeReset, 3);
 
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(milliseconds: 51));
     final afterReset = await tracker.get();
     expect(afterReset, 0); // reset due to expiration
   });
@@ -190,11 +194,12 @@ void main() {
   });
 
   test('isCurrentlyExpired returns true/false appropriately', () async {
-    final tracker = TestCounterTracker(testPrefix);
+    final tracker =
+        TestCounterTracker(testPrefix, duration: Duration(milliseconds: 50));
     expect(await tracker.isCurrentlyExpired(), isTrue);
     await tracker.increment();
     expect(await tracker.isCurrentlyExpired(), isFalse);
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(milliseconds: 51));
     expect(await tracker.isCurrentlyExpired(), isTrue);
   });
 }
