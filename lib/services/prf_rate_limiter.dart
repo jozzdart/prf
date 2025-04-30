@@ -12,15 +12,22 @@ import 'package:synchronized/synchronized.dart';
 /// final limiter = PrfRateLimiter('chat_send', maxTokens: 100, refillDuration: Duration(minutes: 15));
 /// final canSend = await limiter.tryConsume();
 /// ```
-class PrfRateLimiter {
+class PrfRateLimiter extends BaseServiceObject {
   /// The maximum number of tokens that can be accumulated.
   final int maxTokens;
 
   /// The time period over which tokens are fully replenished.
   final Duration refillDuration;
 
-  final PrfIso<double> _tokenCount;
-  final PrfIso<DateTime> _lastRefill;
+  final Prf<double> _tokenCountWithCache;
+  final Prf<DateTime> _lastRefillWithCache;
+
+  BasePrfObject<double> get _tokenCount =>
+      useCache ? _tokenCountWithCache : _tokenCountWithCache.isolated;
+
+  BasePrfObject<DateTime> get _lastRefill =>
+      useCache ? _lastRefillWithCache : _lastRefillWithCache.isolated;
+
   final Lock _lock = Lock();
 
   /// Creates a new rate limiter with the specified prefix and configuration.
@@ -32,9 +39,10 @@ class PrfRateLimiter {
     prefix, {
     required this.maxTokens,
     required this.refillDuration,
-  })  : _tokenCount = PrfIso<double>('prf_${prefix}_rate_tokens',
+    super.useCache,
+  })  : _tokenCountWithCache = Prf<double>('prf_${prefix}_rate_tokens',
             defaultValue: maxTokens.toDouble()),
-        _lastRefill = PrfIso<DateTime>('prf_${prefix}_rate_last_refill',
+        _lastRefillWithCache = Prf<DateTime>('prf_${prefix}_rate_last_refill',
             defaultValue: DateTime.now());
 
   /// Returns `true` if the limiter is currently rate-limited (no token available).
@@ -60,6 +68,7 @@ class PrfRateLimiter {
   /// Attempts to consume 1 token atomically.
   Future<bool> tryConsume() => _lock.synchronized(() async {
         final now = DateTime.now();
+
         final tokens = await _tokenCount.getOrFallback(maxTokens.toDouble());
         final last = await _lastRefill.getOrFallback(now);
 
@@ -135,19 +144,19 @@ class PrfRateLimiter {
   /// This restores the token count to [maxTokens] and resets the refill timestamp
   /// to the current time. Useful for scenarios where you want to clear rate limits,
   /// such as after a user upgrade or payment.
-  Future<void> reset() async {
-    await _tokenCount.set(maxTokens.toDouble());
-    await _lastRefill.set(DateTime.now());
-  }
+  Future<void> reset() => _lock.synchronized(() async {
+        await _tokenCount.set(maxTokens.toDouble());
+        await _lastRefill.set(DateTime.now());
+      });
 
   /// Removes all persisted state from storage.
   ///
   /// This completely clears all rate limiter data from persistent storage.
   /// Primarily intended for testing and debugging purposes.
-  Future<void> removeAll() async {
-    await _tokenCount.remove();
-    await _lastRefill.remove();
-  }
+  Future<void> removeAll() => _lock.synchronized(() async {
+        await _tokenCount.remove();
+        await _lastRefill.remove();
+      });
 
   /// Checks if any rate limiter state exists in persistent storage.
   ///

@@ -1,10 +1,13 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
 class PrfPeriodicCounter extends BaseCounterTracker {
   final TrackerPeriod period;
 
-  PrfPeriodicCounter(super.key, {required this.period})
+  PrfPeriodicCounter(super.key, {required this.period, super.useCache})
       : super(suffix: 'period');
+
+  final _lock = Lock();
 
   @override
   bool isExpired(DateTime now, DateTime? last) {
@@ -13,12 +16,12 @@ class PrfPeriodicCounter extends BaseCounterTracker {
   }
 
   @override
-  Future<void> reset() async {
-    await Future.wait([
-      value.set(0),
-      lastUpdate.set(period.alignedStart(DateTime.now())),
-    ]);
-  }
+  Future<void> reset() => _lock.synchronized(() async {
+        await Future.wait([
+          value.set(0),
+          lastUpdate.set(period.alignedStart(DateTime.now())),
+        ]);
+      });
 
   /// Returns the aligned start of the current period (e.g. today at 00:00).
   DateTime get currentPeriodStart => period.alignedStart(DateTime.now());

@@ -71,6 +71,7 @@ export 'core/encoded_adapter.dart';
 export 'core/extensions.dart';
 export 'core/prf_service.dart';
 export 'prf.dart';
+export 'services/base_service_object.dart';
 export 'services/prf_cooldown.dart';
 export 'services/prf_periodic_counter.dart';
 export 'services/prf_rate_limiter.dart';
