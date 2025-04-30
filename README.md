@@ -28,7 +28,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Persistent Services & Utilities](#-persistent-services-and-utilities)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
-- [Adding Custom Prfs (Advanced)](#️-how-to-add-custom-prf-types-advanced)
+- [Adding Custom prfs](#️-how-to-add-custom-prf-types-advanced)
 
 # ⚡ Define → Get → Set → Done
 
@@ -52,7 +52,7 @@ await username.set('Joey');
 
 That’s it. You're done. Works out of the box with all of these:
 
-- `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
+- `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary)
 - Also lists `List<String>` `List<int>` `List<***>` of all supported types!
 - [JSON & enums](#-supported-prf-types)
 - [Special Services & Utilities](#-persistent-services-and-utilities)
@@ -152,6 +152,22 @@ If you're tired of:
 
 Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `.isolated` or `PrfIso`).
 
+### 💡 Alternatively, Use `.prf()` from String Keys
+
+```dart
+final username = 'username'.prf<String>();
+await username.set('Joey');
+final name = await username.get();
+```
+
+Isolate-safe version:
+
+```dart
+final username = 'username'.prf<String>().isolated;
+await username.set('Joey');
+final name = await username.get();
+```
+
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
@@ -177,14 +193,13 @@ You only need **one line** to create a saved variable.
 For example, to save how many coins a player has:
 
 ```dart
-final playerCoins = Prf<int>('player_coins', defaultValue: 0);
+final playerCoins = Prf<int>('player_coins');
 ```
 
 > This means:
 >
 > - You're saving an `int` (number)
 > - The key is `'player_coins'`
-> - If it's empty, it starts at `0`
 
 ---
 
@@ -204,10 +219,36 @@ To read how many coins the player has:
 
 ```dart
 final coins = await playerCoins.get();
+```
+
+```dart
 print('Coins: $coins'); // 100
 ```
 
 That’s it! 🎉 You don’t need to manage string keys or setup anything. Just define once, then use anywhere in your app.
+
+---
+
+### Step 5 (Optional): Use `.prf<T>()` Shortcut
+
+Instead of defining the key explicitly, you can use the `.prf<T>()` extension on a string:
+
+```dart
+final playerCoins = 'player_coins'.prf<int>();
+```
+
+From there it behave the same as defining using `Prf<T>`
+
+```dart
+await playerCoins.set(100);
+final coins = await playerCoins.get();
+```
+
+```dart
+print('Coins: $coins');
+```
+
+This works exactly the same — just a stylistic preference if you like chaining on string keys.
 
 # 🧰 Available Methods for All `prf` Types
 
@@ -248,19 +289,7 @@ final safeUser = PrfIso<String>('username');       // Same
 
 _All of these work out of the box:_
 
-- `bool`
-- `int`
-- `double`
-- `num`
-- `String`
-- `Duration`
-- `DateTime`
-- `Uri`
-- `BigInt`
-- `Uint8List` (binary data)
-
-Also work with lists out of the box:
-
+- `bool` `int` `double` `num` `String` `Duration` `DateTime` `Uri` `BigInt` `Uint8List` (binary)
 - `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
 
 ### Specialized Types
@@ -1980,41 +2009,33 @@ class ColorAdapter extends PrfEncodedAdapter<Color, String> {
 }
 ```
 
-### 3. Use It with `Prf.customAdapter<T>()`
+### 3. Use It with `.prf()`
+
+> 💡 **Hint:** When calling `.prf('key')` on an adapter, you **don’t need to specify `<T>`** — the type is already known from the adapter itself. This makes your key setup simple and type-safe without repetition.
 
 ```dart
-final favoriteColor = Prf.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-);
+final favoriteColor = ColorAdapter().prf('favorite_color');
+```
 
+```dart // Cached
 await favoriteColor.set(Color(255, 0, 0));
 final color = await favoriteColor.get();
 
 print(color?.r); // 255
 ```
 
-For isolate-safe persistence:
+For isolate-safe persistence use `.prfIsolated()` or `.isolated`:
 
 ```dart
-final safeColor = favoriteColor.isolated;            // Same
-
-final safeColor = Prf.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-).isolated;                                          // Same
-
-final safeColor = PrfIso.customAdapter<Color>(
-  'favorite_color',
-  adapter: const ColorAdapter(),
-);                                                   // Same
+final safeColor = ColorAdapter().prfIsolated('favorite_color');  // Isolate-safe
+final safeColor = ColorAdapter().prf('favorite_color').isolated; // Isolate-safe       // Same
 ```
 
 ## Summary
 
 - Create your class.
 - Create a `PrfEncodedAdapter`.
-- Use `Prf<T>` with `.customAdapter`.
+- Use `.prf()`.
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 

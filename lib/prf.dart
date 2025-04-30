@@ -50,6 +50,7 @@
 /// See [PrfAdapter] and [PrfAdapterMap] for details.
 library;
 
+export 'adapters/adapter_extensions.dart';
 export 'adapters/adapter_map.dart';
 export 'adapters/encoded/big_int.dart';
 export 'adapters/encoded/bytes.dart';
@@ -72,6 +73,7 @@ export 'adapters/list/num.dart';
 export 'adapters/list/uri.dart';
 export 'adapters/list_binary.dart';
 export 'adapters/native_adapters.dart';
+export 'types/string_extensions.dart';
 export 'core/base_adapter.dart';
 export 'core/base_object.dart';
 export 'core/base_service_object.dart';
