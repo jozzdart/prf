@@ -1,27 +1,68 @@
+/// Represents different time periods for tracking purposes.
 enum TrackerPeriod {
+  /// 10 seconds period.
   seconds10,
+
+  /// 20 seconds period.
   seconds20,
+
+  /// 30 seconds period.
   seconds30,
+
+  /// 1 minute period.
   minutes1,
+
+  /// 2 minutes period.
   minutes2,
+
+  /// 3 minutes period.
   minutes3,
+
+  /// 5 minutes period.
   minutes5,
+
+  /// 10 minutes period.
   minutes10,
+
+  /// 15 minutes period.
   minutes15,
+
+  /// 20 minutes period.
   minutes20,
+
+  /// 30 minutes period.
   minutes30,
+
+  /// 1 hour period.
   hourly,
+
+  /// 2 hours period.
   every2Hours,
+
+  /// 3 hours period.
   every3Hours,
+
+  /// 6 hours period.
   every6Hours,
+
+  /// 12 hours period.
   every12Hours,
+
+  /// 1 day period.
   daily,
+
+  /// 1 week period.
   weekly,
+
+  /// 1 month period (approximated as 31 days).
   monthly,
 }
 
+/// Extension on [TrackerPeriod] to provide additional functionality.
 extension TrackerPeriodExt on TrackerPeriod {
-  /// Duration length of each period
+  /// Returns the [Duration] corresponding to the [TrackerPeriod].
+  ///
+  /// This method provides the exact duration for each period type.
   Duration get duration {
     switch (this) {
       case TrackerPeriod.seconds10:
@@ -65,7 +106,10 @@ extension TrackerPeriodExt on TrackerPeriod {
     }
   }
 
-  /// Gets the aligned start of the current period
+  /// Calculates the aligned start of the current period based on [now].
+  ///
+  /// This method returns the start of the period that the given [now] falls into.
+  /// For example, if the period is daily, it returns the start of the current day.
   DateTime alignedStart(DateTime now) {
     switch (this) {
       case TrackerPeriod.daily:
