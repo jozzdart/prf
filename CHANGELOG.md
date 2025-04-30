@@ -1,6 +1,8 @@
-# Changelog
+## 2.3.1
 
-All notable changes to the **prf** package will be documented in this file.
+- Added `Prf.jsonList<T>()` and `PrfIso.jsonList<T>()` factory constructors for easy creation of cached and isolate-safe preferences for lists of JSON-serializable objects.
+- Added `JsonListAdapter<T>`: enables storing a `List<T>` where each object is serialized as a JSON string and stored using the native `List<String>` type in SharedPreferences.
+- Fixed broken or incorrect navigation links in the README.
 
 ## 2.3.0
 

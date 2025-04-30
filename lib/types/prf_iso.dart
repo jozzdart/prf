@@ -77,6 +77,28 @@ class PrfIso<T> extends BasePrfObject<T> {
     );
   }
 
+  /// Creates a new preference for a list of JSON-serializable objects.
+  ///
+  /// This factory sets up a [PrfIso] instance using [JsonListAdapter], where each object
+  /// is stored as a JSON string inside a native `List<String>` in SharedPreferences.
+  ///
+  /// - [key] is the preference key.
+  /// - [fromJson] converts a JSON map to an instance of type [T].
+  /// - [toJson] converts an instance of type [T] to a JSON map.
+  /// - [defaultValue] is the fallback value if the key does not exist.
+  static PrfIso<List<T>> jsonList<T>(
+    String key, {
+    required T Function(Map<String, dynamic>) fromJson,
+    required Map<String, dynamic> Function(T value) toJson,
+    List<T>? defaultValue,
+  }) {
+    return PrfIso._withAdapter(
+      key,
+      adapter: JsonListAdapter<T>(fromJson: fromJson, toJson: toJson),
+      defaultValue: defaultValue,
+    );
+  }
+
   /// Creates a new preference for an enum value.
   ///
   /// This factory method sets up a [PrfIso] instance with an [EnumAdapter] for converting

@@ -66,6 +66,7 @@ export 'adapters/list/date_time.dart';
 export 'adapters/list/double.dart';
 export 'adapters/list/duration.dart';
 export 'adapters/list/int.dart';
+export 'adapters/list/json.dart';
 export 'adapters/list/num.dart';
 export 'adapters/list/uri.dart';
 export 'adapters/list_binary.dart';

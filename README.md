@@ -16,8 +16,6 @@
 
 No boilerplate. No repeated strings. No setup. Define your variables once, then `get()` and `set()` them anywhere with zero friction. `prf` makes local persistence faster, simpler, and easier to scale. Supports 20+ built-in types and includes utilities like persistent cooldowns, rate limiters and stats. Designed to fully replace raw use of `SharedPreferences`.
 
-> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
-
 #### Table of Contents
 
 - [Introduction](#-define--get--set--done)
@@ -28,10 +26,9 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Supported `prf` Types](#-supported-prf-types)
 - [Accessing `prf` Without async](#-accessing-prf-without-async)
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
-- [Persistent Services & Utilities](#️-persistent-services--utilities)
-- [Roadmap & Future Plans](#️-roadmap--future-plans)
+- [Persistent Services & Utilities](#-persistent-services-and-utilities)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
-- [Adding Custom Prfs (Advanced)](#️-how-to-add-a-custom-prf-type-advanced)
+- [Adding Custom Prfs (Advanced)](#️-how-to-add-custom-prf-types-advanced)
 
 # ⚡ Define → Get → Set → Done
 
@@ -58,7 +55,7 @@ That’s it. You're done. Works out of the box with all of these:
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
 - Also lists `List<String>` `List<int>` `List<***>` with all supported types!
 - [JSON & enums](#-supported-prf-types)
-- [Special Services & Utilities](#️-persistent-services--utilities)
+- [Special Services & Utilities](#-persistent-services-and-utilities)
 
 > All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
@@ -75,6 +72,8 @@ Working with `SharedPreferences` often leads to:
 
 `prf` solves all of that with a **one-line variable definition** that’s **type-safe**, **cached**, and **instantly usable** throughout your app. No key management, no setup, no boilerplate, no `.getString(...)` everywhere.
 
+> Supports way more types than **SharedPreferences** — including `enums` `DateTime` `JSON models` +20 types and also special services `PrfCooldown` `PrfStreakTracker` `PrfRateLimiter` & more, for production ready persistent cooldowns, rate limiters and stats.
+
 ---
 
 ### What Sets `prf` Apart?
@@ -87,7 +86,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Supports more than just primitives** — [20+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
-- ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
+- ✅ [**Persistent utilities included**](#-persistent-services-and-utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
   - `PrfStreakTracker` – period-based streak counter that resets if a period is missed (e.g. daily activity streaks)
   - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
@@ -150,7 +149,7 @@ If you're tired of:
 - Manual casting and null handling
 - Scattered async boilerplate
 
-Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `PrfIso`).
+Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `.isolated` or `PrfIso`).
 
 # 🚀 Setup & Basic Usage (Step-by-Step)
 
@@ -265,7 +264,7 @@ For enums and custom JSON models, use the built-in factory methods:
 - `Prf.enumerated<T>()` — for enum values
 - `Prf.json<T>()` — for custom model objects
 
-### Also See [Persistent Services & Utilities:](#️-persistent-services--utilities)
+### Also [See Persistent Services & Utilities:](#-persistent-services-and-utilities)
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
 - `PrfStreakTracker` — for maintaining aligned activity streaks (e.g. daily habits, consecutive logins); resets if a full period is missed
@@ -446,7 +445,7 @@ With `prf`, you get:
 - 🔐 **Isolate-safe behavior** with `SharedPreferencesAsync`
 - 📦 **Out-of-the-box support** for `DateTime`, `Uint8List`, enums, full models (`PrfJson<T>`), and more
 
-# ⚙️ Persistent Services & Utilities
+# 📦 Persistent Services and Utilities
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
@@ -562,7 +561,7 @@ final limiter = PrfRateLimiter(
 
 # ⏲ `PrfCooldown` Persistent Cooldown Utility
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfCooldown` is a plug-and-play utility for managing **cooldown windows** (e.g. daily rewards, button lockouts, retry delays) that persist across sessions and isolates — no timers, no manual bookkeeping, no re-implementation every time.
 
@@ -713,7 +712,7 @@ final exists = await cooldown.anyStateExists(); // Returns true if anything is s
 
 # 🔥 `PrfStreakTracker` Persistent Streak Tracker
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfStreakTracker` is a drop-in utility for managing **activity streaks** — like daily check-ins, learning streaks, or workout chains — with automatic expiration logic and aligned time periods.  
 It resets automatically if a full period is missed, and persists streak progress across sessions and isolates.
@@ -883,7 +882,7 @@ final hasData = await streak.hasState(); // Checks if any value exists
 
 # 📈 `PrfPeriodicCounter` Aligned Timed Counter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfPeriodicCounter` is a persistent counter that **automatically resets at the start of each aligned time period**, such as _daily_, _hourly_, or every _10 minutes_. It’s perfect for tracking time-bound events like “daily logins,” “hourly uploads,” or “weekly tasks,” without writing custom reset logic.
 
@@ -1072,7 +1071,7 @@ final percent = counter.percentElapsed;        // progress [0.0–1.0]
 
 # ⏳ `PrfRolloverCounter` Sliding Window Counter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfRolloverCounter` is a persistent counter that automatically resets itself after a fixed duration from the last update. Ideal for tracking **rolling activity windows**, such as "submissions per hour", "attempts every 10 minutes", or "usage in the past day".
 
@@ -1205,7 +1204,7 @@ final exists = await counter.hasState(); // true if anything stored
 
 # 📊 `PrfRateLimiter` Token Bucket Rate Limiter
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
 
 `PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
 
@@ -1340,8 +1339,8 @@ With `PrfRateLimiter`, you get a production-grade rolling window limiter with ze
 
 # 📊 `PrfActivityCounter` – Persistent Activity Tracker
 
-[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
-
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
+s
 `PrfActivityCounter` is a powerful utility for **tracking user activity over time**, across `hour`, `day`, `month`, and `year` spans. It is designed for scenarios where you want to **record frequency**, **analyze trends**, or **generate statistics** over long periods, with full persistence across app restarts and isolates.
 
 It handles:
@@ -1508,24 +1507,6 @@ await counter.removeAll();
 
 Deletes all stored values associated with this key. Use this in tests or during debug cleanup.
 
-# 🛣️ Roadmap & Future Plans
-
-[⤴️ Back](#table-of-contents) -> Table of Contents
-
-`prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
-
-### ✅ Planned Enhancements
-
-- **Improved performance**
-  Smarter caching and leaner async operations.
-- Additional type support, Encryption, and more.
-- **Custom storage**
-  Support for alternative adapters (Hive, Isar, file system).
-- **Testing & tooling**
-  In-memory test adapter, debug inspection tools, and test utilities.
-- **Optional code generation**
-  Annotations for auto-registering variables and reducing manual setup.
-
 # 🔍 Why `prf` Wins in Real Apps
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
@@ -1671,7 +1652,7 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 ---
 
-# 🛠️ How to Add a Custom `prf` Type (Advanced)
+# 🛠️ How to Add Custom `prf` Types (Advanced)
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
