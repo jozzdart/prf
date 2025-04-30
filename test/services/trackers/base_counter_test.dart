@@ -138,4 +138,63 @@ void main() {
     await tracker.clear();
     expect(await tracker.hasState(), isFalse);
   });
+
+  test('peek returns value without triggering reset', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    await tracker.increment(3);
+    final peeked = await tracker.peek();
+    expect(peeked, 3);
+    expect(await tracker.get(), 3);
+  });
+
+  test('raw returns current persisted value', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    await tracker.increment(4);
+    final rawValue = await tracker.raw();
+    expect(rawValue, 4);
+  });
+
+  test('isNonZero returns correct value', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    expect(await tracker.isNonZero(), isFalse);
+    await tracker.increment();
+    expect(await tracker.isNonZero(), isTrue);
+  });
+
+  test('clearValueOnly resets value but preserves lastUpdate', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    await tracker.increment(9);
+    final timeBefore = await tracker.lastUpdate.get();
+    await tracker.clearValueOnly();
+
+    expect(await tracker.raw(), 0);
+    final timeAfter = await tracker.lastUpdate.get();
+    expect(timeAfter, timeBefore);
+  });
+
+  test('getLastUpdateTime returns correct value', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    expect(await tracker.getLastUpdateTime(), isNull);
+    await tracker.increment();
+    final last = await tracker.getLastUpdateTime();
+    expect(last, isA<DateTime>());
+  });
+
+  test('timeSinceLastUpdate returns null if never updated', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    expect(await tracker.timeSinceLastUpdate(), isNull);
+    await tracker.increment();
+    final since = await tracker.timeSinceLastUpdate();
+    expect(since, isA<Duration>());
+    expect(since!.inMilliseconds, greaterThanOrEqualTo(0));
+  });
+
+  test('isCurrentlyExpired returns true/false appropriately', () async {
+    final tracker = TestCounterTracker(testPrefix);
+    expect(await tracker.isCurrentlyExpired(), isTrue);
+    await tracker.increment();
+    expect(await tracker.isCurrentlyExpired(), isFalse);
+    await Future.delayed(Duration(seconds: 2));
+    expect(await tracker.isCurrentlyExpired(), isTrue);
+  });
 }

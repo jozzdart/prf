@@ -72,6 +72,7 @@ export 'core/extensions.dart';
 export 'core/prf_service.dart';
 export 'prf.dart';
 export 'services/prf_cooldown.dart';
+export 'services/prf_periodic_counter.dart';
 export 'services/prf_rate_limiter.dart';
 export 'services/trackers/base_counter_tracker.dart';
 export 'services/trackers/base_tracker.dart';

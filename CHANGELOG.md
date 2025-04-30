@@ -4,17 +4,31 @@ All notable changes to the **prf** package will be documented in this file.
 
 ## 2.2.5
 
-### Added
+#### 🧭 Tracker Services
+
+- Introduced a new high-level utility:
+
+  - **`PrfPeriodicCounter`** — a drop-in persistent counter that resets itself automatically at the start of each aligned period (e.g. daily, hourly, every 5 minutes).  
+    Tracks actions like "daily logins", "hourly submissions", or "weekly attempts" with zero boilerplate.
+
+    ```dart
+    final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
+    await counter.increment();  // +1 today
+    final total = await counter.get(); // auto-resets each day at midnight
+    ```
+
+    Backed by `PrfIso<int>` and supports `.get()`, `.increment()`, `.reset()`, `.clear()` and `hasState()`.
+
+- All tracker tools are now covered by **extensive tests** — including 150 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
+- These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
+
+### Foundation for tracking tools
 
 - Introduced new foundational classes for building persistent tracking tools:
 
   - `BaseTracker<T>` — a reusable base for timestamp-aware persistent values, with automatic expiry handling and fallback logic.
   - `BaseCounterTracker` — a numeric extension of `BaseTracker<int>` that adds `.increment()` and standardized zero fallback, ideal for counters.
   - `TrackerPeriod` — an enum of aligned time periods (e.g. `minutes10`, `hourly`, `daily`, `weekly`) with built-in `.duration` and `.alignedStart(DateTime)` helpers.
-
-- All new tracker tools are covered by extensive tests to ensure correctness, expiration logic, and state persistence across sessions.
-
-These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
 
 ## 2.2.4
 

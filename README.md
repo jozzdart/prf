@@ -75,7 +75,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Automatic caching** — with `Prf<T>` for fast access
 - ✅ **True isolate safety** — with `.isolated`
 - ✅ **Lazy initialization** — no need to manually call `SharedPreferences.getInstance()`
-- ✅ **Supports more than just primitives** — [10+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
+- ✅ **Supports more than just primitives** — [20+ types](#-available-methods-for-all-prf-types), including `DateTime`, `Enums`, `BigInt`, `Duration`, `JSON`
 - ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
 - ✅ [**Persistent utilities included**](#️-persistent-services--utilities) —
@@ -85,6 +85,8 @@ Working with `SharedPreferences` often leads to:
 ---
 
 ### 🔁 `SharedPreferences` vs `prf`
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 | Feature                         | `SharedPreferences` (raw)                                                 | `prf`                                                                                                  |
 | ------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -96,10 +98,12 @@ Working with `SharedPreferences` often leads to:
 | **Supports Primitives**         | ✅ Yes                                                                    | ✅ Yes                                                                                                 |
 | **Supports Advanced Types**     | ❌ No (`DateTime`, `enum`, etc. must be encoded manually)                 | ✅ Built-in support for `DateTime`, `Uint8List`, `enum`, `JSON`                                        |
 | **Special Persistent Services** | ❌ None                                                                   | ✅ `PrfCooldown`, `PrfRateLimiter`, and more in the future                                             |
-| **Isolate Support**             | ⚠️ Partial — must manually choose between caching or no-caching APIs      | ✅ `PrfIso<T>` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe)      |
+| **Isolate Support**             | ⚠️ Partial — must manually choose between caching or no-caching APIs      | ✅ Just `.isolate` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe)  |
 | **Caching**                     | ✅ Yes (`SharedPreferencesWithCache`) or ❌ No (`SharedPreferencesAsync`) | ✅ Automatic in-memory caching with `Prf<T>`<br>✅ No caching with `PrfIso<T>` for true isolate-safety |
 
 # 📌 Code Comparison
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 **Using `SharedPreferences`:**
 
@@ -135,9 +139,9 @@ If you're tired of:
 
 Then `prf` is your drop-in solution for **fast, safe, scalable, and elegant local persistence** — whether you want **maximum speed** (using `Prf`) or **full isolate safety** (using `PrfIso`).
 
-↪️ Back to [Table of Contents](#back-to-top)
-
 # 🚀 Setup & Basic Usage (Step-by-Step)
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 ### Step 1: Add `prf` to your `pubspec.yaml`
 
@@ -194,6 +198,8 @@ That’s it! 🎉 You don’t need to manage string keys or setup anything. Just
 
 # 🧰 Available Methods for All `prf` Types
 
+[⤴️ Back](#back-to-top) -> Table of Contents
+
 All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 
 | Method                    | Description                                               |
@@ -210,13 +216,15 @@ All `prf` types (both `Prf<T>` and `PrfIso<T>`) support the following methods:
 These are practically the same:
 
 ```dart
-final safeUser = Prf<String>('username').isolated;
-final safeUser = PrfIso<String>('username');
+final safeUser = Prf<String>('username').isolated; // Same
+final safeUser = PrfIso<String>('username');       // Same
 ```
 
 ---
 
 # 🔤 Supported `prf` Types
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 All of these work out of the box:
 
@@ -298,6 +306,8 @@ Need full control? You can create fully custom persistent types by:
 
 # ⚡ Accessing `prf` Without Async
 
+[⤴️ Back](#back-to-top) -> Table of Contents
+
 If you want instant, non-async access to a stored value, you can pre-load it into memory.
 Use `Prf.value<T>()` to create a `prf` object that automatically initializes and caches the value.
 
@@ -323,6 +333,8 @@ print(userScore.cachedValue); // e.g., 42
 - No async needed for future reads!
 
 # 🔁 Migrating from SharedPreferences to `prf`
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence — without losing any existing data.
 
@@ -418,6 +430,8 @@ With `prf`, you get:
 - 📦 **Out-of-the-box support** for `DateTime`, `Uint8List`, enums, full models (`PrfJson<T>`), and more
 
 # ⚙️ Persistent Services & Utilities
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 In addition to typed variables, `prf` includes **ready-to-use persistent utilities** for common real-world use cases — built on top of the same caching and async-safe architecture.
 
@@ -585,6 +599,8 @@ final exists = await cooldown.anyStateExists(); // Returns true if anything is s
 
 # 📊 `PrfRateLimiter` – Persistent Token Bucket Rate Limiter
 
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
 `PrfRateLimiter` is a high-performance, plug-and-play utility that implements a **token bucket** algorithm to enforce rate limits — like “100 actions per 15 minutes” — across sessions, isolates, and app restarts.
 
 It handles:
@@ -592,11 +608,9 @@ It handles:
 - Token-based rate limiting
 - Automatic time-based token refill
 - Persistent state using `prf` types (`PrfIso<double>`, `PrfIso<DateTime>`)
-- Async-safe, isolate-compatible behavior with built-in caching
+- Async-safe, isolate-compatible behavior
 
 Perfect for chat limits, API quotas, retry windows, or any action frequency cap — all stored locally.
-
-↪️ Back to [ Persistent Services & Utilities](#️-persistent-services--utilities) ⚙️
 
 ---
 
@@ -722,6 +736,8 @@ With `PrfRateLimiter`, you get a production-grade rolling window limiter with ze
 
 ### 📅 `PrfPeriodicCounter` – Aligned Time-Based Counter
 
+[⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities
+
 `PrfPeriodicCounter` is a persistent counter that **automatically resets at the start of each aligned time period**, such as _daily_, _hourly_, or every _10 minutes_. It’s perfect for tracking time-bound events like “daily logins,” “hourly uploads,” or “weekly tasks,” without writing custom reset logic.
 
 It handles:
@@ -732,19 +748,11 @@ It handles:
 - Counter tracking with optional increment amounts
 - Period progress and time tracking
 
-↪️ Back to [ Persistent Services & Utilities](#️-persistent-services--utilities) ⚙️
-
 ---
 
 ### 🔧 How to Use
 
-Create a periodic counter with a unique key and a `TrackerPeriod`:
-
-```dart
-final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
-```
-
-You can then use:
+Create a periodic counter with a unique key and a `TrackerPeriod`, you can then use:
 
 - `get()` — Returns the current counter value (auto-resets if needed)
 - `increment()` — Increments the counter, by a given amount (1 is the default)
@@ -790,7 +798,136 @@ Each period is aligned automatically — e.g., daily resets at midnight, weekly 
 
 ---
 
+#### ✅ Define a Periodic Counter
+
+```dart
+final counter = PrfPeriodicCounter('daily_uploads', period: TrackerPeriod.daily);
+```
+
+This creates a persistent counter that **automatically resets at the start of each aligned period** (e.g. daily at midnight).  
+It uses the prefix `'daily_uploads'` to store:
+
+- The counter value (`int`)
+- The last reset timestamp (`DateTime` aligned to period start)
+
+---
+
+#### ➕ Increment the Counter
+
+```dart
+await counter.increment();           // adds 1
+await counter.increment(3);         // adds 3
+```
+
+You can increment by any custom amount. The value will reset if expired before incrementing.
+
+---
+
+#### 🔢 Get the Current Value
+
+```dart
+final count = await counter.get();
+```
+
+This returns the current counter value, automatically resetting it if the period expired.
+
+---
+
+#### 👀 Peek at Current Value (Without Reset Check)
+
+```dart
+final raw = await counter.peek();
+```
+
+Returns the current stored value without checking expiration or updating anything.  
+Useful for diagnostics, stats, or UI display.
+
+---
+
+#### ✅ Check If Counter Is Non-Zero
+
+```dart
+final hasUsage = await counter.isNonZero();
+```
+
+Returns `true` if the current value is greater than zero.
+
+---
+
+#### 🔄 Manually Reset the Counter
+
+```dart
+await counter.reset();
+```
+
+Resets the value to zero and stores the current aligned timestamp.
+
+---
+
+#### ✂️ Clear Stored Counter Only (Preserve Timestamp)
+
+```dart
+await counter.clearValueOnly();
+```
+
+Resets the counter but **keeps the current period alignment** intact.
+
+---
+
+#### 🗑️ Clear All Stored State
+
+```dart
+await counter.clear();
+```
+
+Removes both value and timestamp from persistent storage.
+
+---
+
+#### ❓ Check if Any State Exists
+
+```dart
+final exists = await counter.hasState();
+```
+
+Returns `true` if the counter or timestamp exist in SharedPreferences.
+
+---
+
+#### ⌛ Check if Current Period Is Expired
+
+```dart
+final expired = await counter.isCurrentlyExpired();
+```
+
+Returns `true` if the stored timestamp is from an earlier period than now.
+
+---
+
+#### 🕓 View Timing Info
+
+```dart
+final last = await counter.getLastUpdateTime();     // last reset-aligned timestamp
+final since = await counter.timeSinceLastUpdate();  // Duration since last reset
+```
+
+---
+
+#### 📆 Period Insight & Progress
+
+```dart
+final start = counter.currentPeriodStart;      // start of this period
+final next = counter.nextPeriodStart;          // start of the next period
+final left = counter.timeUntilNextPeriod;      // how long until reset
+final elapsed = counter.elapsedInCurrentPeriod; // time passed in current period
+final percent = counter.percentElapsed;        // progress [0.0–1.0]
+```
+
+---
+
 # 🛣️ Roadmap & Future Plans
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 `prf` is built for simplicity, performance, and scalability. Upcoming improvements focus on expanding flexibility while maintaining a zero-boilerplate experience.
 
@@ -799,10 +936,9 @@ Each period is aligned automatically — e.g., daily resets at midnight, weekly 
 - **Improved performance**
   Smarter caching and leaner async operations.
 
-- **Additional type support**
-  Encrypted strings, and more.
+- Additional type support, Encryption, and more.
 
-- **Custom storage** _(experimental)_
+- **Custom storage**
   Support for alternative adapters (Hive, Isar, file system).
 
 - **Testing & tooling**
@@ -812,6 +948,8 @@ Each period is aligned automatically — e.g., daily resets at midnight, weekly 
   Annotations for auto-registering variables and reducing manual setup.
 
 # 🔍 Why `prf` Wins in Real Apps
+
+[⤴️ Back](#back-to-top) -> Table of Contents
 
 Working with `SharedPreferences` directly can quickly become **verbose, error-prone, and difficult to scale**. Whether you’re building a simple prototype or a production-ready app, clean persistence matters.
 
@@ -956,6 +1094,8 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 # 🛠️ How to Add a Custom `prf` Type (Advanced)
 
+[⤴️ Back](#back-to-top) -> Table of Contents
+
 For most use cases, you can simply use the built-in `Prf.enumerated<T>()`, `Prf.json<T>()`, `PrfIso.enumerated<T>()`, or `PrfIso.json<T>()` factories to persist enums and custom models easily.
 
 This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
@@ -1030,7 +1170,3 @@ final safeColor = PrfIso<Color>('favorite_color');       // Same
 ---
 
 ## 🔗 License MIT © Jozz
-
-```
-
-```

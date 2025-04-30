@@ -131,5 +131,62 @@ void main() {
       expect(first, second);
       expect(tracker.resetCount, 0);
     });
+
+    // === NEW UTILITIES ===
+
+    test('isCurrentlyExpired returns true if expired', () async {
+      final tracker = TestIntTracker('tracker_expired_check');
+      await tracker.lastUpdate
+          .set(DateTime.now().subtract(Duration(seconds: 2)));
+
+      final expired = await tracker.isCurrentlyExpired();
+      expect(expired, isTrue);
+    });
+
+    test('isCurrentlyExpired returns false if not expired', () async {
+      final tracker = TestIntTracker('tracker_not_expired_check');
+      await tracker.lastUpdate.set(DateTime.now());
+
+      final expired = await tracker.isCurrentlyExpired();
+      expect(expired, isFalse);
+    });
+
+    test('getLastUpdateTime returns null when never updated', () async {
+      final tracker = TestIntTracker('tracker_last_time_null');
+      expect(await tracker.getLastUpdateTime(), isNull);
+    });
+
+    test('getLastUpdateTime returns correct DateTime', () async {
+      final tracker = TestIntTracker('tracker_last_time_exists');
+      final now = DateTime.now();
+      await tracker.lastUpdate.set(now);
+
+      final stored = await tracker.getLastUpdateTime();
+      expect(stored?.difference(now).inMilliseconds.abs(), lessThan(10));
+    });
+
+    test('timeSinceLastUpdate returns null if no update stored', () async {
+      final tracker = TestIntTracker('tracker_since_null');
+      expect(await tracker.timeSinceLastUpdate(), isNull);
+    });
+
+    test('timeSinceLastUpdate returns valid duration', () async {
+      final tracker = TestIntTracker('tracker_since_delta');
+      final now = DateTime.now().subtract(Duration(seconds: 3));
+      await tracker.lastUpdate.set(now);
+
+      final delta = await tracker.timeSinceLastUpdate();
+      expect(delta!.inSeconds, greaterThanOrEqualTo(2));
+    });
+
+    test('peek returns raw value without resetting or checking expiry',
+        () async {
+      final tracker = TestIntTracker('tracker_peek');
+      await tracker.value.set(42);
+
+      final peeked = await tracker.peek();
+      expect(peeked, equals(42));
+      expect(tracker.resetCount, 0);
+    });
   });
 }
