@@ -1,9 +1,11 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
 class PrfRolloverCounter extends BaseCounterTracker {
   final Duration resetEvery;
+  final _lock = Lock();
 
-  PrfRolloverCounter(super.key, {required this.resetEvery})
+  PrfRolloverCounter(super.key, {required this.resetEvery, super.useCache})
       : super(suffix: 'roll');
 
   @override
@@ -11,12 +13,12 @@ class PrfRolloverCounter extends BaseCounterTracker {
       last == null || now.difference(last) >= resetEvery;
 
   @override
-  Future<void> reset() async {
-    await Future.wait([
-      value.set(0),
-      lastUpdate.set(DateTime.now()),
-    ]);
-  }
+  Future<void> reset() => _lock.synchronized(() async {
+        await Future.wait([
+          value.set(0),
+          lastUpdate.set(DateTime.now()),
+        ]);
+      });
 
   /// Returns how much time is left until the counter auto-resets
   Future<Duration?> timeRemaining() async {

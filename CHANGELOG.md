@@ -6,7 +6,7 @@ All notable changes to the **prf** package will be documented in this file.
 
 #### 🧭 Tracker Services
 
-Introduced a new high-level utility:
+Introduced a new "Tracker" utilities:
 
 - 📖 See the `README` for full documentation, examples, and usage tips (:
 - **`PrfStreakTracker`** — a smart persistent streak tracker that increases if the action is performed every aligned period (e.g. every day), and resets if a period is missed. Ideal for motivating behavior like "7-day login streaks", "daily habits", or "wseekly contributions".
@@ -50,7 +50,25 @@ Introduced a new high-level utility:
 
 - All tracker tools are now covered by **extensive tests** — including 150 dedicated tests for the new trackers — to ensure proper state reset, timestamp alignment, and session persistence.
 - These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
+
+### General Additions
+
 - Added `Back to Table of Contents` links to all README sections for improved navigation.
+- All utilities & services now support an optional `useCache: true` parameter to enable faster memory-cached access for single-isolate apps. They remain **isolate-safe by default**, but enabling caching **disables isolate safety**. See the `README` for guidance on when to enable it.
+
+### Fixed
+
+> **All persistent utilities and services are now fully synchronized.**
+
+This version introduces **comprehensive internal locking** to all `Prf`-based services and trackers to prevent concurrent access issues in asynchronous or multi-call scenarios.  
+Previously, state mutations (e.g. `.set`, `.reset`, `.increment`) were **not guarded**, which could cause race conditions, corrupted values, or inconsistent behavior — especially in rapid or concurrent calls.
+
+This update ensures:
+
+- **Atomic updates** to counters, cooldowns, and streaks.
+- **No race conditions** between `.get()`, `.set()`, and `.reset()`.
+- **Consistency across isolates or concurrent flows**.
+- **Industry-grade safety guarantees** for production apps.
 
 ### 🧱 Foundation for Custom Trackers
 

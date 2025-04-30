@@ -1,9 +1,12 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
 class PrfStreakTracker extends BaseTracker<int> {
   final TrackerPeriod period;
+  final _lock = Lock();
 
-  PrfStreakTracker(super.key, {required this.period}) : super(suffix: 'streak');
+  PrfStreakTracker(super.key, {required this.period, super.useCache})
+      : super(suffix: 'streak');
 
   @override
   bool isExpired(DateTime now, DateTime? last) {
@@ -14,33 +17,33 @@ class PrfStreakTracker extends BaseTracker<int> {
   }
 
   @override
-  Future<void> reset() async {
-    await Future.wait([
-      value.set(0),
-      lastUpdate.remove(), // don't preserve period alignment after reset
-    ]);
-  }
+  Future<void> reset() => _lock.synchronized(() async {
+        await Future.wait([
+          value.set(0),
+          lastUpdate.remove(),
+        ]);
+      });
 
   @override
   int fallbackValue() => 0;
 
   /// Marks a completed period and bumps the streak by [amount] (default: 1)
-  Future<int> bump([int amount = 1]) async {
-    final now = DateTime.now();
-    final alignedNow = period.alignedStart(now);
-    final last = await lastUpdate.get();
+  Future<int> bump([int amount = 1]) => _lock.synchronized(() async {
+        final now = DateTime.now();
+        final alignedNow = period.alignedStart(now);
+        final last = await lastUpdate.get();
 
-    if (last == null || isExpired(now, last)) {
-      await value.set(0); // streak broken
-    }
+        if (last == null || isExpired(now, last)) {
+          await value.set(0); // streak broken
+        }
 
-    final updated = (await value.getOrFallback(0)) + amount;
-    await Future.wait([
-      value.set(updated),
-      lastUpdate.set(alignedNow),
-    ]);
-    return updated;
-  }
+        final updated = (await value.getOrFallback(0)) + amount;
+        await Future.wait([
+          value.set(updated),
+          lastUpdate.set(alignedNow),
+        ]);
+        return updated;
+      });
 
   Future<bool> isStreakBroken() async {
     final last = await lastUpdate.get();

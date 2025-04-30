@@ -1,15 +1,24 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
-abstract class BaseTracker<T> {
-  final PrfIso<T> value;
-  final PrfIso<DateTime> lastUpdate;
+abstract class BaseTracker<T> extends BaseServiceObject {
+  final Prf<T> _valueWithCache;
+  final Prf<DateTime> _lastUpdateWithCache;
 
-  BaseTracker(String key, {required String suffix})
-      : value = Prf<T>('${key}_$suffix', defaultValue: null).isolated,
-        lastUpdate = Prf<DateTime>('${key}_last_$suffix').isolated;
+  final _lock = Lock();
+
+  BasePrfObject<T> get value =>
+      useCache ? _valueWithCache : _valueWithCache.isolated;
+
+  BasePrfObject<DateTime> get lastUpdate =>
+      useCache ? _lastUpdateWithCache : _lastUpdateWithCache.isolated;
+
+  BaseTracker(String key, {required String suffix, super.useCache})
+      : _valueWithCache = Prf<T>('${key}_$suffix', defaultValue: null),
+        _lastUpdateWithCache = Prf<DateTime>('${key}_last_$suffix');
 
   /// Returns the tracked value, resetting it first if expired.
-  Future<T> get() => _ensureFresh();
+  Future<T> get() => _lock.synchronized(() => _ensureFresh());
 
   /// Returns true if either the value or timestamp exist in SharedPreferences.
   Future<bool> hasState() async {

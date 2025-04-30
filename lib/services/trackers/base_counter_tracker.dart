@@ -1,14 +1,18 @@
 import 'package:prf/prf.dart';
+import 'package:synchronized/synchronized.dart';
 
 abstract class BaseCounterTracker extends BaseTracker<int> {
-  BaseCounterTracker(super.key, {required super.suffix});
+  BaseCounterTracker(super.key, {required super.suffix, super.useCache});
+  final _lock = Lock();
 
   /// Increments the counter by [amount] (default 1).
-  Future<int> increment([int amount = 1]) async {
-    final current = await get();
-    final updated = current + amount;
-    await value.set(updated);
-    return updated;
+  Future<int> increment([int amount = 1]) {
+    return _lock.synchronized(() async {
+      final current = await get(); // already calls _ensureFresh inside lock
+      final updated = current + amount;
+      await value.set(updated);
+      return updated;
+    });
   }
 
   /// Returns true if the value is greater than zero.

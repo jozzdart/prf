@@ -518,6 +518,33 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | "Reset X minutes after last use"   | `PrfRolloverCounter` |
 | "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
 
+#### ⚡ Optional `useCache` Parameter
+
+Each utility accepts a `useCache` flag:
+
+```dart
+final limiter = PrfRateLimiter(
+  'key',
+  maxTokens: 10,
+  refillDuration:
+  Duration(minutes: 5),
+  useCache: true // false by default
+);
+```
+
+- `useCache: false` (default):
+
+  - Fully **isolate-safe**
+  - Reads directly from storage every time
+  - Best when multiple isolates might read/write the same data
+
+- `useCache: true`:
+  - Uses **memory caching** for faster access
+  - **Not isolate-safe** — may lead to stale or out-of-sync data across isolates
+  - Best when used in single-isolate environments (most apps)
+
+> ⚠️ **Warning**: Enabling `useCache` disables isolate safety. Use only when you're sure no other isolate accesses the same key.
+
 # 🕒 `PrfCooldown` Persistent Cooldown Utility
 
 [⤴️ Back](#️-persistent-services--utilities) -> ⚙️ Persistent Services & Utilities

@@ -8,7 +8,7 @@ import '../../utils/fake_prefs.dart';
 class TestIntTracker extends BaseTracker<int> {
   int resetCount = 0;
 
-  TestIntTracker(super.key) : super(suffix: 'test');
+  TestIntTracker(super.key, {super.useCache}) : super(suffix: 'test');
 
   @override
   bool isExpired(DateTime now, DateTime? last) =>
@@ -187,6 +187,22 @@ void main() {
       final peeked = await tracker.peek();
       expect(peeked, equals(42));
       expect(tracker.resetCount, 0);
+    });
+
+    test(
+        'useCache determines whether value and lastUpdate are cached or isolated',
+        () async {
+      final cachedTracker =
+          TestIntTracker('tracker_cache_true', useCache: true);
+      final isolatedTracker =
+          TestIntTracker('tracker_cache_false', useCache: false);
+
+      expect(cachedTracker.value.runtimeType.toString(), contains('Prf<'));
+      expect(cachedTracker.lastUpdate.runtimeType.toString(), contains('Prf<'));
+
+      expect(isolatedTracker.value.runtimeType.toString(), contains('PrfIso<'));
+      expect(isolatedTracker.lastUpdate.runtimeType.toString(),
+          contains('PrfIso<'));
     });
   });
 }
