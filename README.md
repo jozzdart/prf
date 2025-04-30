@@ -53,7 +53,7 @@ await username.set('Joey');
 That’s it. You're done. Works out of the box with all of these:
 
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary data)
-- Also lists `List<String>` `List<int>` `List<***>` with all supported types!
+- Also lists `List<String>` `List<int>` `List<***>` of all supported types!
 - [JSON & enums](#-supported-prf-types)
 - [Special Services & Utilities](#-persistent-services-and-utilities)
 
@@ -89,6 +89,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ [**Persistent utilities included**](#-persistent-services-and-utilities) —
   - `PrfCooldown` – manage cooldown windows (e.g. daily rewards)
   - `PrfStreakTracker` – period-based streak counter that resets if a period is missed (e.g. daily activity streaks)
+  - `PrfHistory<T>` – for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
   - `PrfPeriodicCounter` – aligned auto-resetting counters (e.g. daily logins, hourly tasks)
   - `PrfRolloverCounter` – window counters that reset after a fixed duration (e.g. 10-minute retry limits)
   - `PrfRateLimiter` – token-bucket rate limiter (e.g. 1000 actions per 15 minutes)
@@ -275,6 +276,7 @@ For enums and custom JSON models, use the built-in factory methods:
 
 - `PrfCooldown` — for managing cooldown periods (e.g. daily rewards, retry delays)
 - `PrfStreakTracker` — for maintaining aligned activity streaks (e.g. daily habits, consecutive logins); resets if a full period is missed
+- `PrfHistory<T>` — for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
 - `PrfPeriodicCounter` — for tracking actions within aligned time periods (e.g. daily submissions, hourly usage); auto-resets at the start of each period
 - `PrfRolloverCounter` — for tracking actions over a rolling duration (e.g. 10-minute retry attempts); resets after a fixed interval since last activity
 - `PrfRateLimiter` — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
@@ -509,6 +511,7 @@ They’re fully integrated into `prf`, use built-in types under the hood, and re
 
 - ⏲ [**PrfCooldown**](#-prfcooldown-persistent-cooldown-utility) — for managing cooldown periods (e.g. daily rewards, retry delays)
 - 🔥 [**PrfStreakTracker**](#-prfstreaktracker-persistent-streak-tracker) — aligned streak tracker that resets if a period is missed (e.g. daily activity chains)
+- 🧾 [**PrfHistory<T>**](#-prfhistoryt--persistent-history-tracker) — for managing recent-item history lists with max length, deduplication, and isolation-safe list storage (e.g. recent searches, watched videos)
 - 📈 [**PrfPeriodicCounter**](#-prfperiodiccounter-aligned-timed-counter) — auto-resetting counter for aligned time periods (e.g. daily tasks, hourly pings, weekly goals)
 - ⏳ [**PrfRolloverCounter**](#-prfrollovercounter-sliding-window-counter) — sliding-window counter that resets a fixed duration after each activity (e.g. 10-minute retry window, actions per hour)
 - 📊 [**PrfRateLimiter**](#-prfratelimiter-token-bucket-rate-limiter) — token-bucket limiter for rate control (e.g. 1000 actions per 15 minutes)
@@ -524,6 +527,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | -------------------------------------------- | -------------------- | --------------------------------------------------------------------- |
 | ⏲ Limit how often something can happen       | `PrfCooldown`        | Fixed delay after activation, one active window at a time             |
 | 🔥 Track streaks that break if missed        | `PrfStreakTracker`   | Aligned periods, resets if a full period is skipped                   |
+| 🧾 Track recent items or actions             | `PrfHistory<T>`      | FIFO-style persistent list with max length and optional deduplication |
 | 📈 Count how many times per day/hour/etc.    | `PrfPeriodicCounter` | Aligned period-based counter, resets at the start of each time window |
 | ⏳ Count over a sliding window               | `PrfRolloverCounter` | Resets X duration after last activity, rolling logic                  |
 | 📊 Real rate-limiting (N actions per Y time) | `PrfRateLimiter`     | Token bucket algorithm with refill over time                          |
@@ -533,7 +537,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 
 ### 🧩 Utility Type Details
 
-**🕒 `PrfCooldown`**
+**⏲ `PrfCooldown`**
 
 > _"Only once every 24 hours"_  
 > → Fixed cooldown timer from last activation  
@@ -545,6 +549,13 @@ Each persistent utility is tailored for a specific pattern of time-based control
 > → Aligned periods (`daily`, `weekly`, etc.)  
 > → Resets if user misses a full period  
 > → Ideal for habit chains, gamified streaks
+
+**🧾 `PrfHistory<T>`**
+
+> _"Track recent searches, actions, or viewed items"_  
+> → FIFO list stored in `Prf<List<T>>`  
+> → Supports deduplication, max length, and type-safe adapters  
+> → Perfect for autocomplete history, usage trails, or navigation stacks
 
 **📈 `PrfPeriodicCounter`**
 
@@ -578,6 +589,7 @@ Each persistent utility is tailored for a specific pattern of time-based control
 | ---------------------------------- | -------------------- |
 | "Only once every X time"           | `PrfCooldown`        |
 | "Track a streak of daily activity" | `PrfStreakTracker`   |
+| "Keep a list of recent values"     | `PrfHistory<T>`      |
 | "Count per hour / day / week"      | `PrfPeriodicCounter` |
 | "Reset X minutes after last use"   | `PrfRolloverCounter` |
 | "Allow N actions per Y minutes"    | `PrfRateLimiter`     |
@@ -930,6 +942,232 @@ Returns the current stored streak **without checking if it expired**.
 await streak.clear();                    // Removes all saved state
 final hasData = await streak.hasState(); // Checks if any value exists
 ```
+
+# 🧾 `PrfHistory<T>` – Persistent History Tracker
+
+[⤴️ Back](#-persistent-services-and-utilities) -> 📦 Persistent Services & Utilities
+
+`PrfHistory<T>` is a plug-and-play utility for managing **persisted, ordered histories** (e.g. recent items, search history, log events, viewed content). It supports:
+
+- First-in-first-out (FIFO) item tracking
+- Auto-trimming to a maximum number of items
+- Optional deduplication (most recent instance wins)
+- Custom adapters (`List<T>`) for JSON, enums, or anything serializable
+- Caching toggle (`Prf` vs. `PrfIso`) for isolate-safe usage
+- Pluggable via `.historyTracker()` on any `PrfAdapter<List<T>>`
+
+---
+
+### 🧰 Core Features
+
+- `add(value)` — Adds a new item to the front (most recent). Trims and deduplicates if needed
+- `setAll(values)` — Replaces the entire history with a new list
+- `remove(value)` — Removes a single matching item
+- `removeWhere(predicate)` — Removes all matching items by condition
+- `clear()` — Clears the entire list, resets to empty
+- `removeKey()` — Deletes the key from persistent storage
+- `getAll()` — Returns the full history (most recent first)
+- `contains(value)` — Returns whether a given item exists
+- `length()` — Number of items currently in the list
+- `isEmpty()` — Whether the history is empty
+- `first()` — Most recent item in the list, or `null`
+- `last()` — Oldest item in the list, or `null`
+- `exists()` — Whether this key exists in SharedPreferences
+- _Fields_:
+  - `key` — The full key name used for persistence
+  - `useCache` — Toggles between cached `Prf` or isolate-safe `PrfIso` access
+  - `maxLength` — The maximum number of items to keep
+  - `deduplicate` — If enabled, removes existing instances of an item before adding it
+
+---
+
+#### ✅ Define a History Tracker
+
+```dart
+final history = PrfHistory<String>('recent_queries');
+```
+
+This creates a persistent history list for `'recent_queries'` with a default max length of 50 items. You can customize:
+
+- `maxLength` — maximum number of items retained (default: 50)
+- `deduplicate` — remove existing items before re-adding (default: false)
+- `useCache` — toggle between `Prf` and `PrfIso` (default: false)
+
+PrfHistory\<T> supports **out of the box** (with zero setup) these types:
+
+> → `bool`, `int`, `double`, `num`, `String`, `Duration`, `DateTime`, `Uri`, `BigInt`, `Uint8List` (binary data) `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
+
+---
+
+For custom types, use one of the factory constructors:
+
+#### 🧱 JSON Object History
+
+```dart
+final history = PrfHistory.json<Book>(
+  'books_set',
+  fromJson: Book.fromJson,
+  toJson: (b) => b.toJson(),
+);
+```
+
+---
+
+#### 🧭 Enum History
+
+```dart
+final history = PrfHistory.enumerated<LogType>(
+  'log_type_history',
+  values: LogType.values,
+  deduplicate: true,
+);
+```
+
+---
+
+#### ➕ Add a New Entry
+
+```dart
+await history.add('search_term');
+```
+
+Adds an item to the front of the list. If `deduplicate` is enabled, the item is moved to the front instead of duplicated.
+
+---
+
+#### 🧺 Replace the Entire List
+
+```dart
+await history.setAll(['one', 'two', 'three']);
+```
+
+Sets the full list. Will apply deduplication and trimming automatically if configured.
+
+---
+
+#### ❌ Remove a Value
+
+```dart
+await history.remove('two');
+```
+
+Removes a single item from the history by value.
+
+---
+
+#### 🧹 Remove Matching Items
+
+```dart
+await history.removeWhere((item) => item.length > 5);
+```
+
+Removes all items that match a custom condition.
+
+---
+
+#### 🧼 Clear or Delete the History
+
+```dart
+await history.clear();      // Clears all values
+await history.removeKey();  // Removes the key from preferences entirely
+```
+
+Use `clear()` to reset the list but keep the key; `removeKey()` to fully delete the key from storage.
+
+---
+
+#### 🔍 Read & Inspect History
+
+```dart
+final items = await history.getAll();     // Full list, newest first
+final exists = await history.exists();    // true if key exists
+final hasItem = await history.contains('abc'); // true if present
+```
+
+---
+
+#### 🔢 Get Meta Info
+
+```dart
+final total = await history.length(); // Number of items
+final empty = await history.isEmpty(); // Whether the list is empty
+```
+
+---
+
+#### 🎯 Get Specific Entries
+
+```dart
+final newest = await history.first(); // Most recent (or null)
+final oldest = await history.last();  // Oldest (or null)
+```
+
+---
+
+#### 📚 Store Recently Viewed Models (with Deduplication)
+
+```dart
+final productHistory = PrfHistory.json<Product>(
+  'recent_products',
+  fromJson: Product.fromJson,
+  toJson: (p) => p.toJson(),
+  deduplicate: true,
+  maxLength: 100,
+);
+```
+
+---
+
+#### 📘 Track Reading Progress by Enum
+
+```dart
+enum ReadStatus { unread, reading, finished }
+
+final readingHistory = PrfHistory.enumerated<ReadStatus>(
+  'reading_statuses',
+  values: ReadStatus.values,
+  maxLength: 20,
+);
+```
+
+---
+
+#### 🔐 Store Recent Login Accounts
+
+```dart
+final logins = PrfHistory<DateTime>(
+  'recent_logins',
+  deduplicate: true,
+  maxLength: 5,
+);
+```
+
+---
+
+#### 🧪 Use a Custom Adapter for Byte-Chunks
+
+```dart
+final someCustomAdapter = SomeCustomAdapter(); // PrfAdapter<List<T>>
+
+final hisory = someCustomAdapter.historyTracker(
+  'special_data',
+  maxLength: 20,
+  deduplicate: false,
+);
+```
+
+---
+
+#### 🎛 Use Cache Toggle for Performance
+
+```dart
+final fastCache = PrfHistory<int>(
+  'cached_ints',
+  useCache: true,
+);
+```
+
+Useful when access speed is critical and isolate-safe reads aren’t needed.
 
 # 📈 `PrfPeriodicCounter` Aligned Timed Counter
 

@@ -1,5 +1,7 @@
 ## 2.3.1
 
+- Added `PrfHistory<T>`: a reusable persisted history tracker for any type. Supports max length trimming, deduplication, isolation safety, and flexible factory constructors for enums and JSON models.
+
 - New Factories:
 
   - Added `Prf.jsonList<T>()` for easy creation of cached and isolate-safe preferences for lists of JSON-serializable objects.
