@@ -2,6 +2,20 @@
 
 All notable changes to the **prf** package will be documented in this file.
 
+## 2.2.5
+
+### Added
+
+- Introduced new foundational classes for building persistent tracking tools:
+
+  - `BaseTracker<T>` — a reusable base for timestamp-aware persistent values, with automatic expiry handling and fallback logic.
+  - `BaseCounterTracker` — a numeric extension of `BaseTracker<int>` that adds `.increment()` and standardized zero fallback, ideal for counters.
+  - `TrackerPeriod` — an enum of aligned time periods (e.g. `minutes10`, `hourly`, `daily`, `weekly`) with built-in `.duration` and `.alignedStart(DateTime)` helpers.
+
+- All new tracker tools are covered by extensive tests to ensure correctness, expiration logic, and state persistence across sessions.
+
+These tools are designed for advanced use cases like counters, streaks, timers, and rolling metrics — allowing custom persistent services to be built cleanly and safely. All built on top of `PrfIso<T>` — fully isolate-safe.
+
 ## 2.2.4
 
 - Added factory methods:
