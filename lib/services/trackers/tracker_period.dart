@@ -1,68 +1,88 @@
-/// Represents different time periods for tracking purposes.
+@Deprecated(
+    'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
 enum TrackerPeriod {
-  /// 10 seconds period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   seconds10,
 
-  /// 20 seconds period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   seconds20,
 
-  /// 30 seconds period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   seconds30,
 
-  /// 1 minute period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes1,
 
-  /// 2 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes2,
 
-  /// 3 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes3,
 
-  /// 5 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes5,
 
-  /// 10 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes10,
 
-  /// 15 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes15,
 
-  /// 20 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes20,
 
-  /// 30 minutes period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   minutes30,
 
-  /// 1 hour period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   hourly,
 
-  /// 2 hours period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   every2Hours,
 
-  /// 3 hours period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   every3Hours,
 
-  /// 6 hours period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   every6Hours,
 
-  /// 12 hours period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   every12Hours,
 
-  /// 1 day period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   daily,
 
-  /// 1 week period.
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   weekly,
 
-  /// 1 month period (approximated as 31 days).
+  @Deprecated(
+      'TrackerPeriod has been moved to the track package. Please update your imports to use the new package.')
   monthly,
 }
 
-/// Extension on [TrackerPeriod] to provide additional functionality.
+@Deprecated(
+    'TrackerPeriodExt has been moved to the track package. Please update your imports to use the new package.')
 extension TrackerPeriodExt on TrackerPeriod {
-  /// Returns the [Duration] corresponding to the [TrackerPeriod].
-  ///
-  /// This method provides the exact duration for each period type.
+  @Deprecated(
+      'TrackerPeriodExt has been moved to the track package. Please update your imports to use the new package.')
   Duration get duration {
     switch (this) {
       case TrackerPeriod.seconds10:
@@ -106,10 +126,8 @@ extension TrackerPeriodExt on TrackerPeriod {
     }
   }
 
-  /// Calculates the aligned start of the current period based on [now].
-  ///
-  /// This method returns the start of the period that the given [now] falls into.
-  /// For example, if the period is daily, it returns the start of the current day.
+  @Deprecated(
+      'TrackerPeriodExt has been moved to the track package. Please update your imports to use the new package.')
   DateTime alignedStart(DateTime now) {
     switch (this) {
       case TrackerPeriod.daily:

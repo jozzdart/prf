@@ -6,6 +6,8 @@ import 'package:synchronized/synchronized.dart';
 /// `PrfStreakTracker` is designed to track streaks over aligned time periods (e.g., daily, weekly).
 /// It automatically resets if a full period is missed and persists streak progress across sessions
 /// and isolates. This class is ideal for scenarios like daily check-ins, learning streaks, or workout chains.
+@Deprecated(
+    'PrfStreakTracker has been moved to the track package. Please update your imports to use the new package.')
 class PrfStreakTracker extends BaseTracker<int> {
   /// The period for which the streak is tracked.
   final TrackerPeriod period;
