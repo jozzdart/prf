@@ -1,3 +1,42 @@
+## 2.3.2
+
+We are officially **deprecating all persistent utility services** (trackers and limiters) from the `prf` package. To keep `prf` focused purely on **persistence** (without embedded logic), all advanced time-based utilities are being migrated to two new dedicated packages:
+
+- **`limit` package** →
+
+  - `PrfCooldown` → `Cooldown`
+  - `PrfRateLimiter` → `RateLimiter`
+
+- **`track` package** →
+  - `PrfStreakTracker` → `StreakTracker`
+  - `PrfPeriodicCounter` → `PeriodicCounter`
+  - `PrfRolloverCounter` → `RolloverCounter`
+  - `PrfActivityCounter` → `ActivityCounter`
+  - `PrfHistory` → `HistoryTracker`
+
+✅ **The APIs remain backward-compatible — just change your imports.**
+
+```bash
+flutter pub add track
+flutter pub add limit
+```
+
+### Why this change?
+
+- Improves **modularity** and keeps `prf` lightweight.
+- Reduces dependencies for apps that only need persistence.
+- Allows `track` and `limit` to evolve independently with focused updates.
+
+### Deprecated in 2.3.2 (to be removed in v3.0.0):
+
+- `PrfCooldown`
+- `PrfRateLimiter`
+- `PrfStreakTracker`
+- `PrfPeriodicCounter`
+- `PrfRolloverCounter`
+- `PrfActivityCounter`
+- `PrfHistory`
+
 ## 2.3.1
 
 - Added `PrfHistory<T>`: a reusable persisted history tracker for any type. Supports max length trimming, deduplication, isolation safety, and flexible factory constructors for enums and JSON models. Also added `.historyTracker(name)` extension on `PrfAdapter<List<T>>` for simplified `PrfHistory<T>` creation.
