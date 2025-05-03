@@ -25,6 +25,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Available Methods and Supported Types](#-available-methods-and-supported-types)
 - [Accessing `prf` Without async](#-accessing-prf-without-async)
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
+- [Recommended Companion Packages](#-recommended-companion-packages)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
 - [Adding Custom (Advanced)](#️-how-to-add-custom-prf-types-advanced)
 
@@ -99,9 +100,7 @@ Working with `SharedPreferences` often leads to:
 | **Supports Primitives**         | ✅ Yes                                                               | ✅ Yes                                                                                                |
 | **Isolate & Caching**           | ⚠️ Partial — must manually choose between caching or no-caching APIs | ✅ Just `.isolate` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe) |
 
-# 📌 Code Comparison
-
-[⤴️ Back](#table-of-contents) -> Table of Contents
+### 📌 Code Comparison
 
 **Using `SharedPreferences`:**
 
@@ -508,6 +507,8 @@ With `prf`, you get:
 - 📦 **Out-of-the-box support** for `20+ types`, `enums`, full `JSON` models and more
 
 # 🌟 Recommended Companion Packages
+
+[⤴️ Back](#table-of-contents) -> Table of Contents
 
 In addition to typed variables, `prf` connects seamlessly with **additional persistence power tools** — packages built specifically to extend the capabilities of `prf` into advanced real-world use cases.  
 These tools offer plug-and-play solutions that carry over the same caching, async-safety, and persistence guarantees you expect from `prf`.
