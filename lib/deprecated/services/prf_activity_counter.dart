@@ -5,17 +5,8 @@ import 'package:synchronized/synchronized.dart';
 /// such as hour, day, month, and year. It provides persistent storage and
 /// retrieval of activity data, making it suitable for usage statistics,
 /// trend analysis, and generating long-term activity reports.
-///
-/// The `PrfActivityCounter` is designed to be isolate-safe and supports
-/// automatic time-based bucketing using the current date and time.
-///
-/// Example usage:
-/// ```dart
-/// final activityCounter = PrfActivityCounter('user_activity');
-/// await activityCounter.add(5);
-/// final todayCount = await activityCounter.today;
-/// print('Activities today: $todayCount');
-/// ```
+@Deprecated(
+    'PrfActivityCounter has been moved to the track package. Please update your imports to use the new package.')
 class PrfActivityCounter extends BaseServiceObject {
   static const _keyPrefix = 'prf';
   static const int _baseYear = 2000;
@@ -195,8 +186,12 @@ class PrfActivityCounter extends BaseServiceObject {
 // -------------------------------------------
 
 /// Enum representing the different spans of activity tracking.
+@Deprecated(
+    'ActivitySpan has been moved to the track package. Please update your imports to use the new package.')
 enum ActivitySpan { year, month, day, hour }
 
+@Deprecated(
+    'This extension on ActivitySpan has been moved to the track package. Please update your imports to use the new package.')
 extension on ActivitySpan {
   /// Returns the key suffix for the span.
   String get keySuffix => switch (this) {

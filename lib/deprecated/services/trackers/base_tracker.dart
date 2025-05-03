@@ -2,13 +2,8 @@ import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// An abstract base class for tracking values with expiration logic.
-///
-/// The `BaseTracker` class provides a framework for tracking values that
-/// can expire over time. It manages the storage and retrieval of these
-/// values using a caching mechanism and ensures that the values are
-/// refreshed when they expire.
-///
-/// Type parameter [T] represents the type of the value being tracked.
+@Deprecated(
+    'BaseTracker has been moved to the track package. Please update your imports to use the new package.')
 abstract class BaseTracker<T> extends BaseServiceObject {
   /// The cached value with optional in-memory caching.
   final Prf<T> _valueWithCache;
@@ -36,6 +31,8 @@ abstract class BaseTracker<T> extends BaseServiceObject {
   /// Constructs a [BaseTracker] with the specified [key] and [suffix].
   ///
   /// The [useCache] parameter determines whether to use in-memory caching.
+  @Deprecated(
+      'The constructor of BaseTracker is deprecated. Please update your code to use the new package.')
   BaseTracker(String key, {required String suffix, super.useCache})
       : _valueWithCache = Prf<T>('${key}_$suffix', defaultValue: null),
         _lastUpdateWithCache = Prf<DateTime>('${key}_last_$suffix');

@@ -16,6 +16,8 @@ import 'package:synchronized/synchronized.dart';
 /// final history = PrfHistory<String>('example');
 /// await history.add('item1');
 /// ```
+@Deprecated(
+    'PrfHistory has been moved to the track package. Please update your imports to use the new package.')
 class PrfHistory<T> extends BaseServiceObject {
   final Prf<List<T>> _prfWithCache;
   final int maxLength;

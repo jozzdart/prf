@@ -14,6 +14,8 @@ import 'package:synchronized/synchronized.dart';
 ///   await cooldown.activateCooldown();
 /// }
 /// ```
+@Deprecated(
+    'PrfCooldown has been moved to the limit package. Please update your imports to use the new package.')
 class PrfCooldown extends BaseServiceObject {
   final Prf<DateTime> _lastActivatedWithCache;
   final Prf<int> _activationCountWithCache;

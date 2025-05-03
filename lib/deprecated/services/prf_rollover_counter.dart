@@ -5,6 +5,8 @@ import 'package:synchronized/synchronized.dart';
 /// after a specified duration from the last update. This is particularly useful
 /// for tracking rolling activity windows, such as "submissions per hour" or
 /// "attempts every 10 minutes".
+@Deprecated(
+    'PrfRolloverCounter has been moved to the track package. Please update your imports to use the new package.')
 class PrfRolloverCounter extends BaseCounterTracker {
   /// The duration after which the counter will automatically reset.
   final Duration resetEvery;

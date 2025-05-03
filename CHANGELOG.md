@@ -1,3 +1,47 @@
+## 2.4.0
+
+We are officially **deprecating all persistent utility services** (trackers and limiters) from the `prf` package. To keep `prf` focused purely on **persistence** (without embedded logic), all advanced time-based utilities are being migrated to two new dedicated packages:
+
+### Why this change?
+
+- Improves **modularity** and keeps `prf` lightweight.
+- Reduces dependencies for apps that only need persistence.
+- Allows `track` and `limit` to evolve independently with focused updates.
+- Removes \~300 extra tests and \~1,200 lines from the README, which had made the package heavy and harder to navigate.
+- Frees up space to expand `limit` and `track` with more features and utilities while keeping `prf` clean, focused, and \~90% smaller in size.
+
+✅ **The APIs remain backward-compatible until v3.0 (2026) — just change your imports.**
+
+- **`limit` package** → https://pub.dev/packages/limit
+
+  - `PrfCooldown` → `Cooldown`
+  - `PrfRateLimiter` → `RateLimiter`
+
+- **`track` package** → https://pub.dev/packages/track
+
+  - `PrfStreakTracker` → `StreakTracker`
+  - `PrfPeriodicCounter` → `PeriodicCounter`
+  - `PrfRolloverCounter` → `RolloverCounter`
+  - `PrfActivityCounter` → `ActivityCounter`
+  - `PrfHistory` → `HistoryTracker`
+  - _Enums:_
+    - `TrackerPeriod` → `TimePeriod`
+    - `ActivitySpan` → `TimeSpan`
+
+```bash
+flutter pub add track
+flutter pub add limit
+```
+
+### Deprecated in 2.4.0 (to be removed in v3.0.0 estimated 2026):
+
+- Limit Services: `PrfCooldown` `PrfRateLimiter`
+- Tracking Services: `PrfStreakTracker` `PrfPeriodicCounter` `PrfRolloverCounter` `PrfActivityCounter` `PrfHistory`
+- Enums: `TrackerPeriod` `ActivitySpan`
+- Service Interfaces: `BaseCounterTracker` `BaseTracker`
+
+Everything related to the services. Nothing changed in `prf` itself.
+
 ## 2.3.1
 
 - Added `PrfHistory<T>`: a reusable persisted history tracker for any type. Supports max length trimming, deduplication, isolation safety, and flexible factory constructors for enums and JSON models. Also added `.historyTracker(name)` extension on `PrfAdapter<List<T>>` for simplified `PrfHistory<T>` creation.
