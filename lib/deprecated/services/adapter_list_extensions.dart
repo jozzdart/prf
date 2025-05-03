@@ -1,6 +1,8 @@
 import 'package:prf/prf.dart';
 
 /// Extensions for building a persisted history tracker from any `PrfAdapter<List<T>>`.
+@Deprecated(
+    'PrfListAdapterExtensions has been deprecated. Please update your code to use the new package.')
 extension PrfListAdapterExtensions<T> on PrfAdapter<List<T>> {
   /// Creates a `PrfHistory<T>` instance using this adapter.
   ///
@@ -26,6 +28,8 @@ extension PrfListAdapterExtensions<T> on PrfAdapter<List<T>> {
   /// - [maxLength] sets the maximum number of items retained in history (default: 50).
   /// - [deduplicate] removes older instances of an item before re-adding it (default: false).
   /// - [useCache] enables fast memory caching via `Prf` instead of `PrfIso` (default: false).
+  @Deprecated(
+      'historyTracker has been deprecated. Please update your code to use the new package.')
   PrfHistory<T> historyTracker(
     String name, {
     int maxLength = 50,

@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
 
+@Deprecated(
+    'PrfRateLimiter has been moved to the limit package. Please update your imports to use the new package.')
+
 /// A robust, industry-grade token bucket rate limiter using `prf`.
 ///
 /// Limits actions to a defined number within a given duration,
@@ -198,6 +201,8 @@ class PrfRateLimiter extends BaseServiceObject {
   }
 }
 
+@Deprecated(
+    'PrfRateLimiterStats has been moved to the limit package. Please update your imports to use the new package.')
 class PrfRateLimiterStats {
   final double tokens;
   final DateTime lastRefill;

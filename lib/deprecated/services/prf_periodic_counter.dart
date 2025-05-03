@@ -8,6 +8,8 @@ import 'package:synchronized/synchronized.dart';
 /// and provides methods to check expiration, reset the counter, and calculate time-related
 /// metrics for the current period. This is ideal for scenarios where counters need to be
 /// reset at regular intervals, such as daily or weekly counters.
+@Deprecated(
+    'PrfPeriodicCounter has been moved to the track package. Please update your imports to use the new package.')
 class PrfPeriodicCounter extends BaseCounterTracker {
   /// The period for which the counter is valid.
   final TrackerPeriod period;
