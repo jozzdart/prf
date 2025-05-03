@@ -1,6 +1,16 @@
-## 2.3.2
+## 2.4.0
 
 We are officially **deprecating all persistent utility services** (trackers and limiters) from the `prf` package. To keep `prf` focused purely on **persistence** (without embedded logic), all advanced time-based utilities are being migrated to two new dedicated packages:
+
+### Why this change?
+
+- Improves **modularity** and keeps `prf` lightweight.
+- Reduces dependencies for apps that only need persistence.
+- Allows `track` and `limit` to evolve independently with focused updates.
+- Removes \~300 extra tests and \~1,200 lines from the README, which had made the package heavy and harder to navigate.
+- Frees up space to expand `limit` and `track` with more features and utilities while keeping `prf` clean, focused, and \~90% smaller in size.
+
+✅ **The APIs remain backward-compatible — just change your imports.**
 
 - **`limit` package** →
 
@@ -8,26 +18,22 @@ We are officially **deprecating all persistent utility services** (trackers and 
   - `PrfRateLimiter` → `RateLimiter`
 
 - **`track` package** →
+
   - `PrfStreakTracker` → `StreakTracker`
   - `PrfPeriodicCounter` → `PeriodicCounter`
   - `PrfRolloverCounter` → `RolloverCounter`
   - `PrfActivityCounter` → `ActivityCounter`
   - `PrfHistory` → `HistoryTracker`
-
-✅ **The APIs remain backward-compatible — just change your imports.**
+  - _Enums:_
+    - `TrackerPeriod` → `TimePeriod`
+    - `ActivitySpan` → `TimeSpan`
 
 ```bash
 flutter pub add track
 flutter pub add limit
 ```
 
-### Why this change?
-
-- Improves **modularity** and keeps `prf` lightweight.
-- Reduces dependencies for apps that only need persistence.
-- Allows `track` and `limit` to evolve independently with focused updates.
-
-### Deprecated in 2.3.2 (to be removed in v3.0.0):
+### Deprecated in 2.4.0 (to be removed in v3.0.0 estimated 2026):
 
 - `PrfCooldown`
 - `PrfRateLimiter`
@@ -36,6 +42,8 @@ flutter pub add limit
 - `PrfRolloverCounter`
 - `PrfActivityCounter`
 - `PrfHistory`
+
+---
 
 ## 2.3.1
 
