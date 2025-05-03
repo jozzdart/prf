@@ -53,7 +53,7 @@ That’s it. You're done. Works out of the box with all of these:
 
 - `bool` `int` `double` `String` `num` `Duration` `DateTime` `BigInt` `Uri` `Uint8List` (binary)
 - Also lists `List<String>` `List<int>` `List<***>` of all supported types!
-- [JSON & enums](#-supported-prf-types)
+- [JSON & enums](#-available-methods-and-supported-types)
 
 > All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
@@ -415,7 +415,7 @@ final name = await username.get();
 
 Whether you're using the modern `SharedPreferencesAsync` or the legacy `SharedPreferences`, migrating to `prf` is simple and gives you cleaner, type-safe, and scalable persistence — without losing any existing data.
 
-In fact, you can use `prf` with your current keys and values out of the box, preserving all previously stored data. But while backwards compatibility is supported, we recommend reviewing [all built-in types and usage](#-available-methods-for-all-prf-types) that `prf` provide — which may offer a cleaner, more powerful way to structure your logic going forward, without relying on legacy patterns or custom code.
+In fact, you can use `prf` with your current keys and values out of the box, preserving all previously stored data. But while backwards compatibility is supported, we recommend reviewing [all built-in types and usage](#-available-methods-and-supported-types) that `prf` provide — which may offer a cleaner, more powerful way to structure your logic going forward, without relying on legacy patterns or custom code.
 
 ---
 
