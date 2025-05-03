@@ -42,8 +42,6 @@ flutter pub add limit
 
 Everything related to the services. Nothing changed in `prf` itself.
 
----
-
 ## 2.3.1
 
 - Added `PrfHistory<T>`: a reusable persisted history tracker for any type. Supports max length trimming, deduplication, isolation safety, and flexible factory constructors for enums and JSON models. Also added `.historyTracker(name)` extension on `PrfAdapter<List<T>>` for simplified `PrfHistory<T>` creation.

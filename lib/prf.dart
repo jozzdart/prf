@@ -1,11 +1,11 @@
-/// PRF - Define. Get. Set. Done.
+/// `prf` - Define. Get. Set. Done.
 ///
 /// A powerful, type-safe, and developer-friendly persistence library that simplifies
 /// working with [SharedPreferences] in Flutter applications.
 ///
-/// PRF offers a clean, concise API for storing and retrieving values with zero
+/// `prf` offers a clean, concise API for storing and retrieving values with zero
 /// boilerplate, no string repetition, and strong type safety. It supports both
-/// cached access ([Prf]) for performance and isolate-safe access ([PrfIso]) for
+/// cached access `Prf` for performance and isolate-safe access `.isolated` for
 /// reliability across multiple isolates.
 ///
 /// ## Key Features:
@@ -13,9 +13,8 @@
 /// * **Type Safety** — Define variables once, use them anywhere with full type checking
 /// * **Caching** — Automatic in-memory caching with [Prf] for fast access
 /// * **Isolate Safety** — [PrfIso] ensures true isolate-safe access (always reads from disk)
-/// * **Extended Type Support** — Beyond primitives: [DateTime], [BigInt], [Duration], enums, JSON models, and binary data
+/// * **Extended Type Support** — Beyond primitives: `20+ types`, `enums`, `JSON` models, and binary data
 /// * **Zero Setup** — No manual initialization — define and use immediately
-/// * **Production Utilities** — [PrfCooldown] for managing cooldowns, [PrfRateLimiter] for rate limiting
 /// * **Custom Adapters** — Extend behavior easily with custom serialization, compression, encryption
 ///
 /// ## Basic Usage:
@@ -38,16 +37,8 @@
 ///
 /// Use simple factory methods instead of dedicated classes:
 ///
-/// * `Prf.enumerated<T>()` / `PrfIso.enumerated<T>()` — for enum values
-/// * `Prf.json<T>()` / `PrfIso.json<T>()` — for custom JSON model objects
-///
-/// ## Custom Adapters
-///
-/// PRF supports a fully modular adapter system.
-/// Built-in adapters cover common types, but you can easily create and register
-/// your own for any custom type, compressed format, or encrypted payload.
-///
-/// See [PrfAdapter] and [PrfAdapterMap] for details.
+/// * `Prf.enumerated<T>()` — for enum values
+/// * `Prf.json<T>()` — for custom JSON model objects
 library;
 
 export 'adapters/adapter_extensions.dart';
