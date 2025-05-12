@@ -230,6 +230,7 @@ This works exactly the same — just a stylistic preference if you like chaining
 - **`isNull()`** → returns `true` if the value is `null`
 - **`getOrFallback(fallback)`** → returns the value or a fallback if `null`
 - **`existsOnPrefs()`** → checks if the key exists in storage
+- **`getOrDefault()`** → returns the value, or throws if no value exists and no default is defined (safe alternative to assuming non-null values)
 
 ---
 
