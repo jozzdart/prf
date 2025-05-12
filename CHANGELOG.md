@@ -1,3 +1,51 @@
+## 2.4.1
+
+### ✨ New: Custom Casting Adapter with `.cast()`
+
+You can now easily create **custom adapters on-the-fly** for types that can be encoded into a native type (`int`, `double`, `bool`, `String`) using the new `.cast()` factory on `Prf`.
+
+This allows you to persist your custom objects without writing a full adapter class, by just providing encode/decode functions.
+
+### Example
+
+Let's say you want to store a `Locale` as an `String` (milliseconds):
+
+```dart
+final langPref = Prf.cast<Locale, String>(
+  'saved_language',
+  encode: (locale) => locale.languageCode,
+  decode: (string) => string == null ? null : Locale(string),
+);
+```
+
+### ✨ New: `getOrDefault()` extension method
+
+Added a new method to all `prf` values:
+
+```dart
+Future<T> getOrDefault()
+```
+
+Returns the value from SharedPreferences, or throws an exception if it's `null` and no default was defined.
+
+#### Example:
+
+```dart
+final coins = 'coins'.prf<int>(defaultValue: 0);
+print(await coins.getOrDefault()); // → 0
+
+final level = 'level'.prf<int>(); // no default
+print(await level.getOrDefault()); // ❌ throws if not set
+```
+
+This improves error visibility in logic that assumes a non-null value must exist.
+
+### Technical Details
+
+- Introduced `EncodedDelegateAdapter<T, TCast>`: a flexible adapter that delegates encoding/decoding to provided functions.
+- `.cast<T, TCast>()` factory wraps this adapter for ergonomic, type-safe usage.
+- Compatible with all existing `prf` features (caching, isolated, custom defaults).
+
 ## 2.4.0
 
 We are officially **deprecating all persistent utility services** (trackers and limiters) from the `prf` package. To keep `prf` focused purely on **persistence** (without embedded logic), all advanced time-based utilities are being migrated to two new dedicated packages:

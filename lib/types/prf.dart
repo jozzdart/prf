@@ -171,6 +171,36 @@ class Prf<T> extends CachedPrfObject<T> {
     );
   }
 
+  /// Creates a new preference for an object that can be encoded and decoded using custom functions.
+  ///
+  /// This factory method initializes a [Prf] instance using an [EncodedDelegateAdapter]
+  /// to handle the conversion between the object and its encoded representation.
+  ///
+  /// - [key]: The key under which the preference is stored.
+  /// - [encode]: A function that converts an instance of type [T] to a representation of type [TCast].
+  /// - [decode]: A function that converts a representation of type [TCast] back to an instance of type [T].
+  /// - [defaultValue]: The default value to use if no stored value exists for the key.
+  ///
+  /// This method is ideal for objects that require custom serialization logic, providing
+  /// flexibility in how objects are stored and retrieved from persistent storage.
+  static Prf<T> cast<T, TCast>(
+    String key, {
+    required EncodeFunction<T, TCast> encode,
+    required DecodeFunction<T, TCast> decode,
+    T? defaultValue,
+  }) {
+    final castAdapter = PrfAdapterMap.instance.of<TCast>();
+    final adapter = EncodedDelegateAdapter<T, TCast>(
+      castAdapter,
+      encodeFunc: encode,
+      decodeFunc: decode,
+    );
+    return adapter.prf(
+      key,
+      defaultValue: defaultValue,
+    );
+  }
+
   /// Creates an isolate-safe version of this preference.
   ///
   /// Returns a [PrfIso] instance that shares the same key, adapter, and default value

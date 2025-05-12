@@ -38,4 +38,14 @@ extension PrfOperationExtensions<T> on BasePrfObject<T> {
   Future<bool> existsOnPrefs() async {
     return await PrfService.instance.containsKey(key);
   }
+
+  /// Retrieves the stored value or throws an exception if no default value is defined.
+  Future<T> getOrDefault() async {
+    final value = await get(); // for type safety
+    if (value != null) {
+      return value;
+    }
+    throw Exception(
+        'Default value not defined for preference of type $T with key $key');
+  }
 }
