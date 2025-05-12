@@ -75,3 +75,4 @@ export 'core/prf_service.dart';
 export 'deprecated/deprecated.dart';
 export 'types/prf.dart';
 export 'types/prf_iso.dart';
+export 'types/string_extensions.dart';
