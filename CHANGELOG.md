@@ -2,13 +2,13 @@
 
 ### ✨ New: Custom Casting Adapter with `.cast()`
 
-You can now easily create **custom adapters on-the-fly** for types that can be encoded into a native type (`int`, `double`, `bool`, `String`) using the new `.cast()` factory on `Prf`.
+You can now easily create **custom adapters on-the-fly** for types that can be encoded into a native type all supported `prf` types using the new `.cast()` factory on `Prf`.
 
 This allows you to persist your custom objects without writing a full adapter class, by just providing encode/decode functions.
 
 ### Example
 
-Let's say you want to store a `Locale` as an `String` (milliseconds):
+Let's say you want to store a `Locale` as an `String`:
 
 ```dart
 final langPref = Prf.cast<Locale, String>(
