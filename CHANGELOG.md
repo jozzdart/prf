@@ -1,3 +1,16 @@
+## 2.4.2
+
+### Hotfix: Web Compatibility for 64-bit Encoded Types
+
+Fixed runtime crash on Flutter Web due to unsupported `ByteData.getInt64`/`setInt64` operations in `dart2js`.
+This affected all `prf` types storing 64-bit values:
+
+- `DateTime`
+- `List<DateTime>`
+- `List<Duration>`
+
+These types now use manual 64-bit encoding via two 32-bit integers (`high`/`low`) to ensure full Web compatibility, with no changes to binary format or migration required.
+
 ## 2.4.1
 
 ### ✨ New: Custom Casting Adapter with `.cast()`
