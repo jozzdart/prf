@@ -4,8 +4,8 @@ import 'package:prf/prf.dart';
 /// Adapter for lists of [Duration] objects.
 ///
 /// Stores each Duration as a 4-byte big-endian integer representing microseconds.
-class DurationListAdapter64 extends BinaryListAdapter<Duration> {
-  const DurationListAdapter64() : super(8);
+class DurationListAdapter extends BinaryListAdapter<Duration> {
+  const DurationListAdapter() : super(8);
 
   @override
   Duration read(ByteData data, int offset) {

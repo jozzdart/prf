@@ -89,7 +89,7 @@ class PrfAdapterMap {
     register<List<num>>(const NumListAdapter());
     register<List<Uri>>(const UriListAdapter());
     register<List<Uint8List>>(const BytesListAdapter());
-    register<List<Duration>>(const DurationListAdapter64());
+    register<List<Duration>>(const DurationListAdapter());
     register<List<BigInt>>(const BigIntListAdapter());
     register<List<DateTime>>(const DateTimeListAdapter());
   }
