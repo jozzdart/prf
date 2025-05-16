@@ -19,7 +19,7 @@ void main() {
   }
 
   group('DurationListAdapter64', () {
-    const adapter = DurationListAdapter64();
+    const adapter = DurationListAdapter();
 
     test('getter returns null when no value', () async {
       final (preferences, _) = getPreferences();

@@ -27,7 +27,7 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Migrating from _SharedPreferences_ to `prf`](#-migrating-from-sharedpreferences-to-prf)
 - [Recommended Companion Packages](#-recommended-companion-packages)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
-- [Adding Custom (Advanced)](#️-how-to-add-custom-prf-types-advanced)
+- [Adding Custom prfs (Advanced)](#how-to-add-custom-prf-types)
 
 # ⚡ Define → Get → Set → Done
 
@@ -258,6 +258,8 @@ For enums and custom models, use the built-in factory helpers:
 - `Prf.json<T>()` → custom model object
 - `Prf.jsonList<T>()` → list of custom model objects
 
+* `Prf.cast<T, TCast>()` → custom behavior
+
 ---
 
 #### 🛰 Need Isolate Safety?
@@ -357,11 +359,27 @@ await favoriteBooks.set([book1, book2]);
 final list = await favoriteBooks.get(); // List<Book>
 ```
 
-Need full control? You can create fully custom persistent types by:
+---
 
-- Extending `CachedPrfObject<T>` (for cached access)
-- Or extending `BasePrfObject<T>` (for isolate-safe direct access)
-- And defining your own `PrfEncodedAdapter<T>` for custom serialization, compression, or encryption.
+### 🧩 Custom Casting Adapter with `.cast()`
+
+Need to persist a custom object that can be converted to a supported type (like `String`, `int` and all 20+ types)?
+Use the `.cast()` factory to define **on-the-fly adapters** with custom encode/decode logic — no full adapter class needed!
+
+```dart
+final langPref = Prf.cast<Locale, String>(
+  'saved_language',
+  encode: (locale) => locale.languageCode,
+  decode: (string) => string == null ? null : Locale(string),
+);
+```
+
+- `T` → your custom type (e.g., `Locale`)
+- `TCast` → any built-in supported type (e.g., `String`, `int`, `List<String>`, etc)
+- `encode` → how to convert `T` to `TCast`
+- `decode` → how to restore `T` from `TCast`
+
+Great for storing objects that don’t need full `toJson()` support — just convert to a native type and you're done!
 
 # ⚡ Accessing `prf` Without Async
 
@@ -677,16 +695,16 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
 ---
 
-# 🛠️ How to Add Custom `prf` Types (Advanced)
+# How to Add Custom `prf` Types
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
-For most use cases, you can simply use the built-in 20+ types or `Prf.enumerated<T>()`, `Prf.json<T>()` factories to persist enums and custom models easily. This guide is for advanced scenarios where you need full control over how a type is stored — such as custom encoding, compression, or special storage behavior.
+For most use cases, you can use built-in types or factories like `Prf.enumerated<T>()`, `Prf.json<T>()`, and now `Prf.cast<T, TCast>()` to persist almost anything.
+This section is for advanced users who want full control — but with **less boilerplate** thanks to the new `.cast()` API.
 
-Expanding `prf` is simple:  
-Just create a custom adapter and treat your new type like any other!
+---
 
-## 1. Create Your Class
+## 🧪 1. Define Your Custom Class
 
 ```dart
 class Color {
@@ -694,55 +712,56 @@ class Color {
   const Color(this.r, this.g, this.b);
 
   Map<String, dynamic> toJson() => {'r': r, 'g': g, 'b': b};
-  factory Color.fromJson(Map<String, dynamic> json) => Color(
-    json['r'] ?? 0, json['g'] ?? 0, json['b'] ?? 0,
-  );
+  factory Color.fromJson(Map<String, dynamic> json) =>
+      Color(json['r'] ?? 0, json['g'] ?? 0, json['b'] ?? 0);
 }
 ```
 
-### 2. Create an Adapter
+---
+
+## ⚡ 2. Use `.cast()` to Store It
+
+You can store `Color` as a `String` by encoding it as JSON:
 
 ```dart
-import 'dart:convert';
-import 'package:prf/prf.dart';
-
-class ColorAdapter extends PrfEncodedAdapter<Color, String> {
-  @override
-  Color? decode(String? stored) =>
-      stored == null ? null : Color.fromJson(jsonDecode(stored));
-
-  @override
-  String encode(Color value) => jsonEncode(value.toJson());
-}
+final favoriteColor = Prf.cast<Color, String>(
+  'favorite_color',
+  encode: (color) => jsonEncode(color.toJson()),
+  decode: (string) => string == null
+      ? null
+      : Color.fromJson(jsonDecode(string)),
+);
 ```
 
-### 3. Use It with `.prf()`
+---
 
-> 💡 **Hint:** When calling `.prf('key')` on an adapter, you **don’t need to specify `<T>`** — the type is already known from the adapter itself. This makes your key setup simple and type-safe without repetition.
+## 🧩 Access and Use It
 
 ```dart
-final favoriteColor = ColorAdapter().prf('favorite_color');
-```
-
-```dart // Cached
 await favoriteColor.set(Color(255, 0, 0));
 final color = await favoriteColor.get();
 
 print(color?.r); // 255
 ```
 
-For isolate-safe persistence use `.prfIsolated()` or `.isolated`:
+---
+
+## 🚦 Want Isolate-Safe?
+
+Just add `.isolated`:
 
 ```dart
-final safeColor = ColorAdapter().prfIsolated('favorite_color');  // Isolate-safe
-final safeColor = ColorAdapter().prf('favorite_color').isolated; // Isolate-safe       // Same
+final safeColor = favoriteColor.isolated;
 ```
 
-## Summary
+---
 
-- Create your class.
-- Create a `PrfEncodedAdapter`.
-- Use `.prf()`.
+## ✅ Summary
+
+- Use `Prf.cast<T, TCast>()` to quickly persist custom objects.
+- No need to write full adapter classes.
+- Encode to any supported type (`String`, `int`, `List`, etc.).
+- Add `.isolated` for isolate-safe usage.
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
