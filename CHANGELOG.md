@@ -1,3 +1,8 @@
+## 2.4.5
+
+- Updated Dart constraint to `>=3.5.0 <4.0.0`
+- Updated Flutter constraint to `>=3.24.0`
+
 ## 2.4.4
 
 - Fixed dependency issues
