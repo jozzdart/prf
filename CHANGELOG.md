@@ -1,3 +1,10 @@
+## 2.4.3
+
+- Lowered Dart constraint to `>=3.3.0 <4.0.0` for wider compatibility (was `>=3.5.0 <4.0.0`)
+- Lowered Flutter constraint to `>=3.19.0` for wider compatibility (was `>=3.24.0`)
+- Moved internal files to `lib/src/` to improve encapsulation and API clarity
+- Updated README
+
 ## 2.4.2
 
 ### Hotfix: Web Compatibility for 64-bit Encoded Types

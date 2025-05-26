@@ -2,8 +2,8 @@
 
 <h3 align="center"><i>Define. Get. Set. Done.</i></h3>
 <p align="center">
-        <img src="https://img.shields.io/codefactor/grade/github/jozzzzep/prf/main?style=flat-square">
-        <img src="https://img.shields.io/github/license/jozzzzep/prf?style=flat-square">
+        <img src="https://img.shields.io/codefactor/grade/github/jozzdart/prf/main?style=flat-square">
+        <img src="https://img.shields.io/github/license/jozzdart/prf?style=flat-square">
         <img src="https://img.shields.io/pub/points/prf?style=flat-square">
         <img src="https://img.shields.io/pub/v/prf?style=flat-square">
         

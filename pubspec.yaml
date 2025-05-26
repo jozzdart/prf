@@ -1,9 +1,9 @@
 name: prf
 description: "Easily save and load values locally. Effortless local persistence with type safety and zero boilerplate. Just get, set, and go. Drop-in replacement for raw SharedPreferences."
-version: 2.4.2
-homepage: https://github.com/jozzzzep/prf
-repository: https://github.com/jozzzzep/prf
-issue_tracker: https://github.com/jozzzzep/prf/issues
+version: 2.4.3
+homepage: https://github.com/jozzdart/prf
+repository: https://github.com/jozzdart/prf
+issue_tracker: https://github.com/jozzdart/prf/issues
 topics:
   - shared-preferences
   - storage
@@ -12,14 +12,14 @@ topics:
   - local-storage
 
 environment:
-  sdk: ^3.5.0
-  flutter: ">=3.24.0"
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.5.3
-  synchronized: ">=3.2.0 <4.0.0"
+  shared_preferences: ">=2.3.0 <3.0.0"
+  synchronized: ">=3.1.0 <4.0.0"
 
 dev_dependencies:
   flutter_test:
