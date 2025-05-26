@@ -1,6 +1,6 @@
 name: prf
 description: "Easily save and load values locally. Effortless local persistence with type safety and zero boilerplate. Just get, set, and go. Drop-in replacement for raw SharedPreferences."
-version: 2.4.2
+version: 2.4.3
 homepage: https://github.com/jozzdart/prf
 repository: https://github.com/jozzdart/prf
 issue_tracker: https://github.com/jozzdart/prf/issues
