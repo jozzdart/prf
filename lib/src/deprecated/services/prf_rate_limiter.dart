@@ -1,6 +1,7 @@
 import 'dart:math';
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 @Deprecated(
     'PrfRateLimiter has been moved to the limit package. Please update your imports to use the new package.')

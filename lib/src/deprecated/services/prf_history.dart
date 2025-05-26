@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// A persisted, FIFO history tracker using a `Prf<List<T>>`.
 ///

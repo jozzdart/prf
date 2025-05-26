@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:prf/prf.dart';
+import '../core/base_adapter.dart';
+import 'adapters.dart';
 
 /// Registry for managing adapters that convert between Dart types and SharedPreferences.
 ///

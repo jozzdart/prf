@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:prf/prf.dart';
+import '../adapters.dart';
 
 /// A [NumListAdapter] is a specialized [BinaryListAdapter] for handling
 /// lists of numeric values, encoding them as Base64 strings for storage.

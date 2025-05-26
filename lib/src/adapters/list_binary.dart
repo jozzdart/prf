@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:prf/prf.dart';
+import '../core/encoded_adapter.dart';
+import 'adapters.dart';
 
 /// An abstract adapter for encoding and decoding lists of binary data.
 ///

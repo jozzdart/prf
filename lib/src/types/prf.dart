@@ -1,4 +1,7 @@
-import 'package:prf/prf.dart';
+import '../core/core.dart';
+import '../adapters/adapters.dart';
+
+import 'prf_iso.dart';
 
 /// A cached preference object that provides type-safe access to SharedPreferences.
 ///

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:prf/prf.dart';
+
+import '../../core/encoded_adapter.dart';
+import '../adapters.dart';
 
 /// Adapter for lists of binary data (`Uint8List`).
 ///

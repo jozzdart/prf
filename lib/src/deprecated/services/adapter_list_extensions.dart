@@ -1,4 +1,4 @@
-import 'package:prf/prf.dart';
+import '../../prf.dart';
 
 /// Extensions for building a persisted history tracker from any `PrfAdapter<List<T>>`.
 @Deprecated(

@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// A utility class for tracking user activity over time across various spans
 /// such as hour, day, month, and year. It provides persistent storage and

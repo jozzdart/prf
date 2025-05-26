@@ -1,4 +1,4 @@
-import 'package:prf/prf.dart';
+import '../core/encoded_adapter.dart';
 
 /// A function type that defines how to decode a stored string into an object of type [T].
 typedef DecodeFunction<T, TStored> = T? Function(TStored? stored);

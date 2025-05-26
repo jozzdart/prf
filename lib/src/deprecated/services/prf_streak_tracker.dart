@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// A persistent streak tracker for managing activity streaks with automatic expiration logic.
 ///

@@ -1,5 +1,6 @@
-import 'package:prf/core/base_adapter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'base_adapter.dart';
 
 /// Base adapter for types that need encoding before storing in SharedPreferences.
 ///

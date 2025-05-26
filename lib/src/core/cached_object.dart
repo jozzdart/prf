@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'base_object.dart';
 
 /// A preference object that caches values in memory for faster access.
 ///

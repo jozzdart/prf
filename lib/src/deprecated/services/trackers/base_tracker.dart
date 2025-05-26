@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../../prf.dart';
 
 /// An abstract base class for tracking values with expiration logic.
 @Deprecated(

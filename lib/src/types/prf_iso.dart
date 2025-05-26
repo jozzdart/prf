@@ -1,4 +1,5 @@
-import 'package:prf/prf.dart';
+import '../core/core.dart';
+import '../adapters/adapters.dart';
 
 /// An isolate-safe preference object that provides type-safe access to SharedPreferences.
 ///

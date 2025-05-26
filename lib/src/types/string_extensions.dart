@@ -1,4 +1,5 @@
-import 'package:prf/prf.dart';
+import '../core/base_adapter.dart';
+import 'prf.dart';
 
 /// Extensions on `String` to create type-safe `Prf` instances with minimal syntax.
 ///

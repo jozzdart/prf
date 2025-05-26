@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../../prf.dart';
 
 @Deprecated(
     'BaseCounterTracker has been moved to the track package. Please update your imports to use the new package.')

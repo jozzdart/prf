@@ -1,5 +1,7 @@
 import 'dart:convert';
-import 'package:prf/prf.dart';
+
+import '../../core/encoded_adapter.dart';
+import '../adapters.dart';
 
 /// Adapter for lists of objects that can be serialized to/from JSON.
 ///

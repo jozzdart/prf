@@ -1,4 +1,5 @@
-import 'package:prf/prf.dart';
+import 'base_object.dart';
+import 'prf_service.dart';
 
 /// Extension methods for [BasePrfObject] to provide convenient access.
 ///

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
-import 'package:prf/prf.dart';
+
+import '../adapters.dart';
 
 /// Adapter for lists of [Duration] objects.
 ///

@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// A persistent counter that automatically resets at the start of each aligned time period.
 ///

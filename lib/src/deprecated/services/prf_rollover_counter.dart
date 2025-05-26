@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// `PrfRolloverCounter` is a persistent counter designed to automatically reset
 /// after a specified duration from the last update. This is particularly useful

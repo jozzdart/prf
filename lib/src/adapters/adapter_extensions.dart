@@ -1,4 +1,5 @@
-import 'package:prf/prf.dart';
+import '../core/base_adapter.dart';
+import '../types/prf.dart';
 
 /// Extension on `PrfAdapter<T>` to easily create a `Prf<T>` preference using this adapter.
 ///

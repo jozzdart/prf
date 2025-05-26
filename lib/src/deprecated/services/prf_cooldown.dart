@@ -1,5 +1,6 @@
-import 'package:prf/prf.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../prf.dart';
 
 /// A utility for managing cooldown logic using persisted DateTime and Activation Count.
 ///
