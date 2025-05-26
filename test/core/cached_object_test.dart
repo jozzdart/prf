@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prf/core/cached_object.dart';
-import 'package:prf/core/base_adapter.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import 'package:prf/prf.dart';
 
 import '../utils/fake_prefs.dart';
 
