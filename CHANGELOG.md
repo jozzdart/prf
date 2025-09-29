@@ -1,3 +1,8 @@
+## 2.4.6
+
+- Fixed lint issues in deprecated services, for improving pub.dev score
+- Updated README
+
 ## 2.4.5
 
 - Updated Dart constraint to `>=3.5.0 <4.0.0`
