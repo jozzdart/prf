@@ -18,9 +18,9 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 
 #### Table of Contents
 
-- [**Introduction**](#-define--get--set--done)
-- [Why Use `prf`?](#-why-use-prf)
-- [**SharedPreferences** vs `prf`](#-sharedpreferences-vs-prf)
+- [**Introduction**](#define--get--set--done)
+- [Why Use `prf`?](#why-use-prf)
+- [**SharedPreferences** vs `prf`](#sharedpreferences-vs-prf)
 - [Setup & Basic Usage (Step-by-Step)](#-setup--basic-usage-step-by-step)
 - [Available Methods and Supported Types](#-available-methods-and-supported-types)
 - [Accessing `prf` Without async](#-accessing-prf-without-async)
@@ -28,8 +28,9 @@ No boilerplate. No repeated strings. No setup. Define your variables once, then 
 - [Recommended Companion Packages](#-recommended-companion-packages)
 - [Why `prf` Wins in Real Apps](#-why-prf-wins-in-real-apps)
 - [Adding Custom prfs (Advanced)](#how-to-add-custom-prf-types)
+- [More `jozz` Packages](#-more-jozz-packages)
 
-# ⚡ Define → Get → Set → Done
+# Define → Get → Set → Done
 
 Just define your variable once — no strings, no boilerplate:
 
@@ -57,9 +58,7 @@ That’s it. You're done. Works out of the box with all of these:
 
 > All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` with any listed type, and everything works seamlessly.
 
----
-
-### 🔥 Why Use `prf`
+### Why Use `prf`
 
 Working with `SharedPreferences` often leads to:
 
@@ -69,8 +68,6 @@ Working with `SharedPreferences` often leads to:
 - Scattered, hard-to-maintain logic
 
 `prf` solves all of that with a **one-line variable definition** that’s **type-safe**, **cached**, and **instantly usable** throughout your app. No key management, no setup, no boilerplate, no `.getString(...)` everywhere.
-
----
 
 ### What Sets `prf` Apart?
 
@@ -83,9 +80,7 @@ Working with `SharedPreferences` often leads to:
 - ✅ **Built for testing** — easily reset, override, or mock storage
 - ✅ **Cleaner codebase** — no more scattered `prefs.get...()` or typo-prone string keys
 
----
-
-### 🔁 `SharedPreferences` vs `prf`
+# `SharedPreferences` vs `prf`
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
@@ -100,7 +95,7 @@ Working with `SharedPreferences` often leads to:
 | **Supports Primitives**         | ✅ Yes                                                               | ✅ Yes                                                                                                |
 | **Isolate & Caching**           | ⚠️ Partial — must manually choose between caching or no-caching APIs | ✅ Just `.isolate` for full isolate-safety<br>✅ `Prf<T>` for faster cached access (not isolate-safe) |
 
-### 📌 Code Comparison
+### Code Comparison
 
 **Using `SharedPreferences`:**
 
@@ -220,8 +215,6 @@ This works exactly the same — just a stylistic preference if you like chaining
 
 > [⤴️ Back](#table-of-contents) -> Table of Contents
 
----
-
 ### ✅ All `Prf<T>` types support these `methods` out of the box
 
 - **`get()`** → returns the current value (cached or from disk)
@@ -231,8 +224,6 @@ This works exactly the same — just a stylistic preference if you like chaining
 - **`getOrFallback(fallback)`** → returns the value or a fallback if `null`
 - **`existsOnPrefs()`** → checks if the key exists in storage
 - **`getOrDefault()`** → returns the value, or throws if no value exists and no default is defined (safe alternative to assuming non-null values)
-
----
 
 ### 📦 Supported `Types`:
 
@@ -246,8 +237,6 @@ All of these work automatically **(practically every type)**:
 - `List<bool>`, `List<int>`, `List<String>`, `List<double>`, `List<num>`, `List<DateTime>`, `List<Duration>`, `List<Uint8List>`, `List<Uri>`, `List<BigInt>`
 
 > All supported types use efficient binary encoding under the hood for optimal performance and minimal storage footprint — no setup required. Just use `Prf<T>` and everything works seamlessly.
-
----
 
 ### 🔧 Specialized Types - `Enums` & `JSON`
 
@@ -300,6 +289,8 @@ final currentTheme = await appTheme.get(); // AppTheme.light / dark / system
 await appTheme.set(AppTheme.dark);
 ```
 
+---
+
 ### 📚 Persisting a `List` of `Enums`
 
 Define your enum:
@@ -339,6 +330,8 @@ final userData = Prf.json<User>(
 );
 
 ```
+
+---
 
 ### 🧠 Complex Lists? Just Use `jsonList`
 
@@ -404,13 +397,11 @@ print(userScore.cachedValue); // e.g., 42
 ✅ Best for fast access inside UI widgets, settings screens, and forms.  
 ⚠️ Not suitable for use across isolates — use `.isolated` or `PrfIso<T>` for isolate safety.
 
-### 🚀 Quick Summary
+### Quick Summary
 
 - `await Prf.value<T>()` → loads and caches the value.
 - `.cachedValue` → direct, instant access afterward.
 - No async needed for future reads!
-
----
 
 ### 💡 Altervative - `.prf()` from String Keys
 
@@ -506,8 +497,6 @@ await PrfService.migrateFromLegacyPrefsIfNeeded();
 > This ensures your old values are migrated into the new system.
 > It is safe to call multiple times — migration will only occur once.
 
----
-
 ### Summary
 
 | Case                                   | Do you need to migrate?     | Do your keys stay the same? |
@@ -568,9 +557,7 @@ Even in basic use cases, you're forced to:
 
 Let’s see how this unfolds in practice.
 
----
-
-### 👎 Example: Saving and Reading Multiple Values
+### Example: Saving and Reading Multiple Values
 
 **Goal**: Save and retrieve a `username`, `isFirstLaunch`, and a `signupDate`.
 
@@ -603,9 +590,7 @@ final signupDate = signupDateStr != null
 - No caching — every `.get` hits disk
 - Boilerplate increases exponentially with more values
 
----
-
-### ✅ Example: Same Logic with `prf`
+### Example: Same Logic with `prf`
 
 ```dart
 final username = Prf<String>('username');
@@ -625,9 +610,7 @@ final date = await signupDate.get();       // DateTime instance
 
 💡 Defined once, used anywhere — fully typed, cached, and clean.
 
----
-
-### 🤯 It Gets Worse with Models
+### It Gets Worse with Models
 
 Storing a `User` model in raw `SharedPreferences` requires:
 
@@ -660,8 +643,6 @@ if (raw != null) {
 }
 ```
 
----
-
 ### ✅ Same Logic with `prf`
 
 ```dart
@@ -681,9 +662,7 @@ final savedUser = await userData.get(); // User?
 
 Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 
----
-
-### ⚙️ Built for Real Apps
+### Built for Real Apps
 
 `prf` was built to eliminate the day-to-day pain of using SharedPreferences in production codebases:
 
@@ -693,8 +672,6 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 - ✅ Automatic caching — fast access after first read
 - ✅ Test-friendly — easily reset, mock, or inspect values
 
----
-
 # How to Add Custom `prf` Types
 
 [⤴️ Back](#table-of-contents) -> Table of Contents
@@ -702,9 +679,7 @@ Fully typed. Automatically parsed. Fallback-safe. Reusable across your app.
 For most use cases, you can use built-in types or factories like `Prf.enumerated<T>()`, `Prf.json<T>()`, and now `Prf.cast<T, TCast>()` to persist almost anything.
 This section is for advanced users who want full control — but with **less boilerplate** thanks to the new `.cast()` API.
 
----
-
-## 🧪 1. Define Your Custom Class
+#### 🧪 1. Define Your Custom Class
 
 ```dart
 class Color {
@@ -717,9 +692,7 @@ class Color {
 }
 ```
 
----
-
-## ⚡ 2. Use `.cast()` to Store It
+#### ⚡ 2. Use `.cast()` to Store It
 
 You can store `Color` as a `String` by encoding it as JSON:
 
@@ -733,9 +706,7 @@ final favoriteColor = Prf.cast<Color, String>(
 );
 ```
 
----
-
-## 🧩 Access and Use It
+#### 🧩 Access and Use It
 
 ```dart
 await favoriteColor.set(Color(255, 0, 0));
@@ -744,9 +715,7 @@ final color = await favoriteColor.get();
 print(color?.r); // 255
 ```
 
----
-
-## 🚦 Want Isolate-Safe?
+#### 🚦 Want Isolate-Safe?
 
 Just add `.isolated`:
 
@@ -754,9 +723,7 @@ Just add `.isolated`:
 final safeColor = favoriteColor.isolated;
 ```
 
----
-
-## ✅ Summary
+## Summary
 
 - Use `Prf.cast<T, TCast>()` to quickly persist custom objects.
 - No need to write full adapter classes.
@@ -766,6 +733,60 @@ final safeColor = favoriteColor.isolated;
 [⤴️ Back](#table-of-contents) -> Table of Contents
 
 ---
+
+# 📦 More `jozz` Packages
+
+_[⤴️ Back](#table-of-contents) → Table of Contents_
+
+I’m Jozz — and my packages share a simple philosophy: **developer experience first**.
+I try to avoid boilerplate wherever possible, and most of these packages were born out of real needs in my own projects. Each one comes with clear documentation, minimal setup, and APIs that are easy to pick up without surprises.
+
+They’re built to be lightweight, reliable, and ready for production, always with simplicity in mind. There are more packages in the works, following the same approach.
+If you find them useful and feel like supporting, you’re welcome to do so (:
+
+<p>
+  <a href="https://buymeacoffee.com/yosefd99v" target="https://buymeacoffee.com/yosefd99v">
+    ☕ Buy me a coffee
+  </a>
+</p>
+
+- [shrink](#-shrink--compress-anything-in-one-line) – Compress Anything in One Line
+- [track](#-track--persistent-streaks-counters--records) – Persistent Streaks, Counters & Records
+- [prf](#-prf--sharedpreferences-without-the-pain) – SharedPreferences, Without the Pain
+- [time_plus](#-time_plus--smarter-datetime--duration-extensions) – Smarter DateTime & Duration Extensions
+- [exui](#-exui--supercharge-your-flutter-ui) – Supercharge Your Flutter UI
+- [limit](#-limit--cooldowns--rate-limits-simplified) – Cooldowns & Rate Limits, Simplified
+- [jozz_events](#-jozz_events--strongly-typed-events-for-clean-architecture) – Strongly-Typed Events for Clean Architecture
+
+### 🔽 [shrink](https://pub.dev/packages/shrink) – Compress Anything in One Line
+
+Because every byte counts. `shrink` makes data compression effortless with a **one-line API** and fully lossless results. It auto-detects the best method, often cutting size by **5× to 40×** (and up to **1,000×+** for structured data). Perfect for **Firestore, local storage, or bandwidth-sensitive apps**. Backed by clear docs and real-world benchmarks.
+
+### 📊 [track](https://pub.dev/packages/track) – Persistent Streaks, Counters & Records
+
+Define once, track forever. `track` gives you plug-and-play tools for **streaks, counters, activity logs, and records** — all persisted safely across sessions and isolates. From **daily streaks** to **rolling counters** to **best-ever records**, it handles resets, history, and storage automatically. Clean APIs, zero boilerplate, and deeply detailed documentation.
+
+### 🐝 [hivez](https://pub.dev/packages/hivez) – Hive, but Safer & Smarter
+
+`hivez` is a production-ready layer on top of Hive CE that keeps its raw speed but makes it safer and easier to use. It auto-initializes boxes, enforces type safety, and gives you a single unified API for Box, LazyBox, and IsolatedBox. Concurrency issues are handled with built-in locks, and you also get extras like backup/restore, search, and crash recovery. Backed by clear, detailed documentation, `hivez` is designed for real-world apps where you want Hive’s performance without the boilerplate or pitfalls.
+
+### ⏱ [time_plus](https://pub.dev/packages/time_plus) – Smarter DateTime & Duration Extensions
+
+Stop wrestling with `DateTime` and `Duration`. `time_plus` adds the missing tools you wish Dart had built in: **add and subtract time units**, **start/end of day/week/month**, **compare by precision**, **yesterday/tomorrow**, **fractional durations**, and more. Built with **128+ extensions**, **700+ tests**, and **zero dependencies**, it’s faster, more precise, and more reliable than the classic `time` package — while keeping APIs clear and intuitive. Ideal for **scheduling, analytics, or any app where every microsecond counts**.
+
+### 🎨 [exui](https://pub.dev/packages/exui) – Supercharge Your Flutter UI
+
+Everything your widgets wish they had. `exui` is a **zero-dependency extension library** for Flutter with **200+ chainable utilities** for padding, margin, centering, gaps, visibility, constraints, gestures, buttons, text styling, and more — all while keeping your widget tree fully native.
+
+No wrappers. No boilerplate. Just concise, expressive methods that feel built into Flutter itself. Backed by **hundreds of unit tests** and **exceptional documentation**, `exui` makes UI code cleaner, faster, and easier to maintain.
+
+### ⏲ [limit](https://pub.dev/packages/limit) – Cooldowns & Rate Limits, Simplified
+
+One line. No boilerplate. No setup. `limit` gives you **persistent cooldowns** and **token-bucket rate limiting** across sessions, isolates, and restarts. Perfect for **daily rewards**, **retry delays**, **API quotas**, or **chat limits**. Define once, automate forever — the system handles the timing, persistence, and safety behind the scenes. Clear docs and practical examples included.
+
+### 📢 [jozz_events](https://pub.dev/packages/jozz_events) – Strongly-Typed Events for Clean Architecture
+
+A **domain-first, framework-agnostic event bus** built for scalable apps. `jozz_events` enables **decoupled, strongly-typed communication** between features and layers — without the spaghetti. It’s lightweight, dependency-free, lifecycle-aware, and integrates naturally with **Clean Architecture**. Ideal for Flutter or pure Dart projects where modularity, testability, and clarity matter most.
 
 ## 🔗 License MIT © Jozz
 
